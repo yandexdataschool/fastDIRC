@@ -407,13 +407,7 @@ int main(int nargs, char* argv[])
 				      "Difference of log likelihood real = pion",200000,-200,200);
 	TH1F* ll_diff_kaon = new TH1F("ll_diff_kaon",
 				      "Difference of log likelihood real = kaon",200000,-200,200);
-	TH1F* phot_found_pion = new TH1F("phot_found_pion",
-					 "number of photons found on pion angle", 1001,-.5,1000.5);
-	TH1F* phot_found_kaon = new TH1F("phot_found_kaon",
-					 "number of photons found on kaon angle", 1001,-.5,1000.5);
-
 	maxy *= 5;
-
 	DircRectDigitizer digitizer(\
 			minx,\
 			maxx,\
@@ -548,8 +542,6 @@ int main(int nargs, char* argv[])
 			llf = pdf_kaon->get_log_likelihood(sim_points);
 
 			ll_diff_pion->Fill(1*(llc-llf));
-			phot_found_pion->Fill(sim_points.size());
-
 			dirc_model->sim_rand_n_photons(\
 					sim_points,\
 					n_sim_phots,\
@@ -571,8 +563,6 @@ int main(int nargs, char* argv[])
 			llf = pdf_kaon->get_log_likelihood(sim_points);
 
 			ll_diff_kaon->Fill(1*(llc-llf));
-			phot_found_kaon->Fill(sim_points.size());
-
 		}
 
 		printf("\nRun Completed\n");
@@ -580,8 +570,6 @@ int main(int nargs, char* argv[])
 	tfile->cd();
 	ll_diff_pion->Write();
 	ll_diff_kaon->Write();
-	phot_found_pion->Write();
-	phot_found_kaon->Write();
 	tfile->Close();
 	return 0;
 }
