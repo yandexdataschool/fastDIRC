@@ -100,7 +100,7 @@ double DircBaBarSim::get_sens_subtend_angle()
 {
 	return sens_subtend_angle;
 }
-double DircBaBarSim::get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength) {
+const double DircBaBarSim::get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength) {
         //May be slow enough to consider approximating in distribution generation
         double out_ang = 0;
         double tmp_lam = 0;

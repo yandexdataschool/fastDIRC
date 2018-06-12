@@ -1,6 +1,6 @@
 CFLAGS_BASE = -march=native -Wno-comment -Wl,--no-as-needed -L./lib/ `root-config --cflags` `root-config --glibs` -lMinuit -Wall -Werror -std=c++14
-#CFLAGS_OPT = -O2
-CFLAGS_OPT = -g
+CFLAGS_OPT = -O2
+#CFLAGS_OPT = -g
 CFLAGS_BASE += $(CFLAGS_OPT)
 INCLUDE = -I./include/
 

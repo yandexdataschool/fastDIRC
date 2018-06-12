@@ -63,7 +63,6 @@ int main(int nargs, char* argv[])
 	double particle_flight_distance = 0;
 
 
-	bool kaleidoscope_plot = false;
 	bool monochrome_plot = false;
 	bool flatten_time = false;
 	bool sep_updown = false;
@@ -283,10 +282,6 @@ int main(int nargs, char* argv[])
 		else if (strcmp(argv[i], "-coverage_plot") == 0)
 		{
 			coverage_plot = true;
-		}
-		else if (strcmp(argv[i], "-kaleidoscope_plot") == 0)
-		{
-			kaleidoscope_plot = true;
 		}
 		else if (strcmp(argv[i], "-no_chromatic_correction") == 0)
 		{
@@ -543,7 +538,6 @@ int main(int nargs, char* argv[])
 	dirc_model->set_liquid_index(liquid_index);
 	dirc_model->set_wedge_mirror_rand(wedge_non_uniformity);
 	dirc_model->set_three_seg_mirror(three_seg_mirror);
-	dirc_model->set_kaleidoscope_plot(kaleidoscope_plot);	
 	dirc_model->set_pmt_plane_zs(pmt_min_z,pmt_max_z);
 	dirc_model->set_large_mirror_zs(large_mirror_min_z,large_mirror_max_z);
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);

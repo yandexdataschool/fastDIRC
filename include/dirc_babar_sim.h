@@ -84,7 +84,7 @@ protected:
 
 
 public:
-	double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength);
+	const double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength);
 	double get_sens_r();
 	double get_sens_subtend_angle();
 

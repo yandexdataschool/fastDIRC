@@ -31,7 +31,7 @@ public:
 	void set_support(std::vector<dirc_point> isupport);
 	void set_gaus_sigma(double isigma);
 
-	const double radius_spread_function(const float r2) {
+	const inline double radius_spread_function(const double r2) {
 	    if (r2 < 5*sigma2) {
 		return exp(-r2*sigma2inv);
 	    } else {
@@ -39,9 +39,9 @@ public:
 	    }
 	};
 
-	const double support_spread_function(const dirc_point& support,
-                                             const dirc_point& test) {
-		float dx2,dy2,dt2;
+	const inline double support_spread_function(const dirc_point& support,
+						    const dirc_point& test) {
+		double dx2,dy2,dt2;
 		dx2 = support.x - test.x;
 		dx2 *= dx2;
 		dy2 = support.y - test.y;
