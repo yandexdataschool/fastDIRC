@@ -13,7 +13,7 @@ private:
 	double x_sig2inv,y_sig2inv,t_sig2inv;
 	double spread_func_norm, spread_func_norm_inv;
 	double lin_slope, r_trans, sigma2, sigma2inv,max_val;
-	TRandom3 *rand_gen;
+	TRandom3 rand_gen;
 	std::vector<dirc_point> support_points;
 	double get_weight(dirc_point inpoint);
 	double min_probability;
@@ -31,36 +31,30 @@ public:
 	void set_support(std::vector<dirc_point> isupport);
 	void set_gaus_sigma(double isigma);
 
-	
-	//I am so sorry.  I did this disgusting thing for speed
-	inline double radius_spread_function(double r2) __attribute__((always_inline))
-	{
-		if (r2 < 5*sigma2)
-		{
-		//	printf("%12.04f\n",exp(-r2*sigma2inv));
-			return exp(-r2*sigma2inv);
-		}
-		else
-		{
-			return 0;
-		}
+	const double radius_spread_function(const float r2) {
+	    if (r2 < 5*sigma2) {
+		return exp(-r2*sigma2inv);
+	    } else {
+		return 0.;
+	    }
 	};
-	inline double support_spread_function(dirc_point support, dirc_point test)__attribute__((always_inline))
-	{
-		double dx2,dy2,dt2;
+
+	const double support_spread_function(const dirc_point& support,
+                                             const dirc_point& test) {
+		float dx2,dy2,dt2;
 		dx2 = support.x - test.x;
 		dx2 *= dx2;
 		dy2 = support.y - test.y;
 		dy2 *= dy2;
 		dt2 = support.t - test.t;
 		dt2 *= dt2;
-// 		printf("%12.04f %12.04f %12.04f %12.04f %12.04f\n",dx2,dy2,dt2,dx2*x_sig2inv+dy2*y_sig2inv+dt2*t_sig2inv,sigma2inv);
 		return radius_spread_function(dx2*x_sig2inv+dy2*y_sig2inv+dt2*t_sig2inv);
 	};
 
 	double get_single_likelihood(dirc_point inpoint);
-	double get_log_likelihood(std::vector<dirc_point> inpoints);
-	double get_log_likelihood_new_support(std::vector<dirc_point> &inpoints, std::vector<dirc_point> &t_support);
+	const double get_log_likelihood(const std::vector<dirc_point>& inpoints);
+	double get_log_likelihood_new_support(
+                std::vector<dirc_point> &inpoints, std::vector<dirc_point> &t_support);
 	void fill_likelihood_new_support(\
 		std::vector<double> &likelihood_vals,\
 		std::vector<dirc_point> new_support,\

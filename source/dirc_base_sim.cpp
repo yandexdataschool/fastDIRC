@@ -145,9 +145,6 @@ void DircBaseSim::set_store_bounces(bool isb)
 {
 	store_bounces = isb;
 }
-void DircBaseSim::set_kaleidoscope_plot(bool ikp) {
-	kaleidoscope_plot = ikp;
-}
 void DircBaseSim::rotate_2d(double &x, double &y, double cval, double sval) {
 	//Standard rotatation allows precomputation of matrix elements
 	//Only store one variable for speed
@@ -365,7 +362,6 @@ void DircBaseSim::sim_reg_n_photons(\
 		double phi_theta_unc /*= 0*/,\
 		double ckov_theta_unc /* = 0*/,\
 		double beta /* = -1*/) {
-	//     std::vector<dirc_point> out_points;
 	out_points.clear();
 	fill_reg_phi(\
 			out_points,\
@@ -438,7 +434,6 @@ void DircBaseSim::test_from_wedge_top(\
 		{
 			continue;
 		}	
-
 		ovals.push_back(out_val);
 	}
 }
@@ -641,12 +636,6 @@ void DircBaseSim::fill_rand_phi(\
 	for (int i = 0; i < numPhots; i++) {
 		randPhi = rand_gen->Uniform(0,2*3.14159265);
 		track_loc = rand_gen->Uniform(0,dist_traveled);
-		if (kaleidoscope_plot == true)
-		{	
-			//sourceOff = -barDepth/2;
-			track_loc = dist_traveled/2;
-		}
-
 		if (beta < 0) {
 			rand_add = rand_gen->Gaus(0,ckov_theta_unc);
 			temit = emitAngle + rand_add;
@@ -761,7 +750,6 @@ std::vector<std::pair<double,double> > DircBaseSim::get_refraction_rand_phi(\
 	refraction_before.clear();
 	refraction_after.clear();
 	pmt_incidence.clear();
-	store_refraction = true;
 
 	double emitAngle = ckov_theta;
 	double particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
@@ -886,26 +874,25 @@ std::vector<std::pair<double,double> > DircBaseSim::get_refraction_rand_phi(\
 		after_interface.push_back(refraction_after[i]);
 	}
 
-	store_refraction = false;
 	refraction_before.clear();
 	refraction_after.clear();
 
 	return rval;
 }
 
-void DircBaseSim::fill_reg_phi(\
-		std::vector<dirc_point> &ovals,\
-		int n_photons_phi, \
-		int n_photons_z,\
-		double ckov_theta /*= 47*/, \
-		double particle_bar /*= 0*/,\
-		double particle_x /*= 0*/, \
-		double particle_y /*= 0*/, \
-		double particle_t /*= 0*/, \
-		double particle_theta /*= 0*/, \
-		double particle_phi /*= 0*/,\
-		double phi_theta_unc /*= 0*/,\
-		double ckov_theta_unc /* = 0*/,\
+void DircBaseSim::fill_reg_phi(
+		std::vector<dirc_point> &ovals,
+		int n_photons_phi,
+		int n_photons_z,
+		double ckov_theta /*= 47*/,
+		double particle_bar /*= 0*/,
+		double particle_x /*= 0*/,
+		double particle_y /*= 0*/,
+		double particle_t /*= 0*/,
+		double particle_theta /*= 0*/,
+		double particle_phi /*= 0*/,
+		double phi_theta_unc /*= 0*/,
+		double ckov_theta_unc /* = 0*/,
 		double beta /* = -1*/)
 {
 	double sDepth = .95*barDepth;
@@ -939,23 +926,17 @@ void DircBaseSim::fill_reg_phi(\
 
 	for (int i = 0; i < n_photons_z; i++) {
 		sourceOff = (i+.5)*sDepth/(n_photons_z);
-
-		if (kaleidoscope_plot == true)
-		{
-			sourceOff = -sDepth/2;
-		}
-
 		for (int j = 0; j < adj_n_photons_phi; j++) {
 			regPhi = j*2*3.14159265357/(adj_n_photons_phi);
-
 			if (beta < 0) {
 				rand_add = rand_gen->Gaus(0,ckov_theta_unc);
 				temit = emitAngle + rand_add;
 			} else {
 				temit = get_cerenkov_angle_rand(beta,ckov_theta_unc,wavelength);
-
-				quartzIndex = get_quartz_n(wavelength);//Painful way of doing this - saving and correcting is inelegant
-				liquidIndex = get_liquid_n(wavelength);//Painful way of doing this - saving and correcting is inelegant
+				//Painful way of doing this - saving and correcting is inelegant
+				quartzIndex = get_quartz_n(wavelength);
+				//Painful way of doing this - saving and correcting is inelegant
+				liquidIndex = get_liquid_n(wavelength);
 			}
 
 			mm_index = (sourceOff - barDepth)*quartzIndex/cos_ptheta;
@@ -981,8 +962,6 @@ void DircBaseSim::fill_reg_phi(\
 			rotate_2d(dz,dy,cos_ptheta,sin_ptheta);
 			rotate_2d(dy,dx,cos_pphi,sin_pphi);
 
-			//	printf("%12.04f %12.04f %12.04f %12.04f\n",temit,dx,dy,dz);
-
 			z -= barDepth;
 			x += particle_x;
 			y += particle_y;
@@ -996,39 +975,32 @@ void DircBaseSim::fill_reg_phi(\
 			{//Assume that zero doesn't count
 				tmp_updown = -1;
 			}
-
-			mm_index += warp_ray(\
-					x,\
-					y,\
-					z,\
-					dx,\
-					dy,\
-					dz,\
+			mm_index += warp_ray(
+					x,
+					y,
+					z,
+					dx,
+					dy,
+					dz,
 					sqrt(1-1/(1.47*1.47)));
-
-
 			if (z > 0)
 			{
 				continue;
 			}
-
-			//spread_wedge_mirror();
-
-			mm_index += warp_wedge(\
-					x,\
-					y,\
-					z,\
-					dx,\
-					dy,\
+			mm_index += warp_wedge(
+					x,
+					y,
+					z,
+					dx,
+					dy,
 					dz);
-
 			//account (quickly) for the bar box having a different angle than the readout
 			//rotate_2d(dy,dz,box_angle_off_cval,box_angle_off_sval);
 			bar_box_interface(x,y,z,dx,dy,dz);
 
 			if (z > 0)
 			{
-				//printf("%12.04f %12.04f %12.04f\n",x,y,z);
+
 				continue;
 			}
 
@@ -1966,12 +1938,12 @@ double DircBaseSim::warp_ray(\
 
 	return sqrt(rval)*quartzIndex;
 }
-double DircBaseSim::warp_wedge(\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
+double DircBaseSim::warp_wedge(
+		double &x,
+		double &y,
+		double &z,
+		double &dx,
+		double &dy,
 		double &dz) {
 	//No Critical angle checking - shouldn't need it
 	//I am abusing the x angle being the same in the bar and wedge here
@@ -2251,14 +2223,11 @@ bool DircBaseSim::optical_interface_z(\
 		double &dx,\
 		double &dy,\
 		double &dz) {
-	//n1 is starting index of refraction, n2 is ending
-	//Assume that it's going through the z plane
-	//(this will change the ordering when called in our current geometry)
+	// n1 is starting index of refraction, n2 is ending
+	// Assume that it's going through the z plane
+	// (this will change the ordering when called in our current geometry)
 
 	//dz and dy are flipped, so this is really acos
-	double before_ang = acos(dz);
-	//	printf("%12.04f\n",before_ang);
-
 	double n12rat = n1/n2;
 	double n12rat2 = n12rat*n12rat;
 
@@ -2270,14 +2239,6 @@ bool DircBaseSim::optical_interface_z(\
 	//simpler expression than I expected
 	dx *= n12rat;
 	dy *= n12rat;
-
-	// 	printf("in optical interface store_refraction: %s\n",store_refraction ? "true" : "false");
-	if (store_refraction == true)
-	{
-		double after_ang = acos(dz);
-		refraction_before.push_back(before_ang);
-		refraction_after.push_back(after_ang);
-	}
 
 	return true;
 }

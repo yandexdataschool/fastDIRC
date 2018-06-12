@@ -15,7 +15,7 @@ private:
 	double t_unc;
 	double t_bin_size;
 	
-	TRandom3 *dig_rand;
+	TRandom3 dig_rand;
 	
 public:
 	DircRectDigitizer(\

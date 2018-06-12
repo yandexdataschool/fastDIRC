@@ -168,7 +168,7 @@ protected:
 
 
 public:
-	double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength);
+	const double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength);
 	
 	void set_focmirror_nonuniformity(double nonuni_deg);
 	void set_foc_mirror_r(double ifoc_r);

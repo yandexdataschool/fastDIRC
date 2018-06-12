@@ -89,9 +89,6 @@ protected:
 	bool use_quartz_n_for_liquid;
       
 	std::vector<double> dist_traveled;
-	bool kaleidoscope_plot;
-	
-	bool store_refraction;
 	std::vector<double> refraction_before;
 	std::vector<double> refraction_after;
 
@@ -262,9 +259,10 @@ protected:
 		double &dy,\
 		double &dz) {}
 public:
-	//Also inherit and change this - allows for custom quantum efficiency.
-	//See source/dirc_threeseg_box_sim.cpp for sample implementation
-	virtual double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength) {return -1;}
+	// Also inherit and change this - allows for custom quantum efficiency.
+	// See source/dirc_threeseg_box_sim.cpp for sample implementation
+	virtual const double get_cerenkov_angle_rand(
+	        double beta, double additional_spread, double &wavelength) = 0;
 	
 
 	void set_store_bounces(bool isb);
@@ -275,7 +273,6 @@ public:
 		std::vector<int> &fzdirbounces,\
 		std::vector<int> &fxindirbounces,\
 		std::vector<int> &fzindirbounces);
-	void set_kaleidoscope_plot(bool ikp);
 	std::vector<double> get_dist_traveled();
 	void set_upper_wedge_angle_store(bool istore);
 	std::vector<double> get_upper_wedge_incident();

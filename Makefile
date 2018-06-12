@@ -1,9 +1,11 @@
-CFLAGS_BASE = -O3 -mtune=native -Wno-comment -Wl,--no-as-needed -L./lib/ `root-config --cflags` `root-config --glibs` -lMinuit
+CFLAGS_BASE = -march=native -Wno-comment -Wl,--no-as-needed -L./lib/ `root-config --cflags` `root-config --glibs` -lMinuit -Wall -Werror -std=c++14
+#CFLAGS_OPT = -O2
 CFLAGS_OPT = -g
 CFLAGS_BASE += $(CFLAGS_OPT)
 INCLUDE = -I./include/
 
 EXAMPLE_LOC = example_driver/dircfit_example.cpp
+MULTIPLE_LOC = multiple_tracks_generator/dircfit_multiple.cpp
 
 CFLAGS = $(CFLAGS_BASE) $(goptical_CPPFLAGS)
 
@@ -33,7 +35,7 @@ vpath %.o ./lib/
 vpath %.cpp ./source/
 
 %.o : %.cpp
-	g++ -Wall $(CFLAGS) $(INCLUDE) -g -o $@ -c $<
+	g++ -Wall $(CFLAGS) $(INCLUDE) -o $@ -c $<
 	mv $@ $(LIBLOC)
 
 .PHONY : all
@@ -44,6 +46,10 @@ all: dircfit.cpp $(OBJFILES)
 example: $(EXAMPLE_LOC) $(OBJFILES)
 	g++ -Wall $(EXAMPLE_LOC) $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)_example
 
+.PHONY : multiple_track
+multiple_track:  $(MULTIPLE_LOC) $(OBJFILES)
+	g++ $(MULTIPLE_LOC) $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)_multiple
+
 .PHONY : libs
 libs: $(OBJFILES)
 	echo libraries built
@@ -53,11 +59,11 @@ clean:
 	rm lib/*.o
 	rm $(OUT)
 	rm $(OUT)_example
-	
+
 .PHONY : cleanall
 cleanall:
 	rm lib/*
 	rm *.gcda
 	rm $(OUT)
 	rm $(OUT)_example
-	
+

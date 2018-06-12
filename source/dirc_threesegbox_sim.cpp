@@ -38,6 +38,7 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	foc_mirror_size = ifoc_mirror_size;
 	foc_rot = ifoc_rot;
 	foc_yrot = 0;
+	foc_zrot = 0;
 	sens_size = isens_size;
 	sens_rot = isens_rot;
 
@@ -150,56 +151,42 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	set_focmirror_nonuniformity(0);
 	build_readout_box();
 }
-double DircThreeSegBoxSim::get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength) {
+const double DircThreeSegBoxSim::get_cerenkov_angle_rand(
+	const double beta, const double additional_spread, double &wavelength) {
         //May be slow enough to consider approximating in distribution generation
         double out_ang = 0;
-        double tmp_lam = 0;
-        double tmp_QE_val;
-        double above_ind;
+        float tmp_lam = 0;
+        float tmp_QE_val;
+        float above_ind;
         int ind_QE;
-        double n_lam;
+        float n_lam;
 
         while (true) {
-                tmp_lam = rand_gen->Uniform(min_QE,max_QE);
+                tmp_lam = rand_gen->Uniform(min_QE, max_QE);
                 wavelength = tmp_lam;
-
-                //Ignoring that the QE points are right on multiples of 10.  Assuming they are for speed.
-                //This may not be neccessary, but I doubt it matters.
+                // Ignoring that the QE points are right on multiples
+                // of 10. Assuming they are for speed. This may not be
+                // neccessary, but I doubt it matters.
                 ind_QE = (tmp_lam - min_QE)/sep_QE;
-
                 above_ind = tmp_lam - (min_QE + sep_QE*ind_QE);
-
-                //Simple linear interp between values.  5th order poly fit looked like it worked too
-                tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE + vals_QE[ind_QE+1]*above_ind/sep_QE;
-
-                //Max QE val is ~.23, this saves lot of loops
+                //S imple linear interp between values.  5th order
+                //poly fit looked like it worked too
+                tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE +\
+                             vals_QE[ind_QE+1]*above_ind/sep_QE;
+                // Max QE val is ~.23, this saves lot of loops
                 if (rand_gen->Uniform(0,.25) > tmp_QE_val) continue;
-
-                //Test emission distribution, second b/c it's a less stringent cut
+                // Test emission distribution, second b/c it's a less stringent cut
                 if (rand_gen->Uniform(0,1/(min_QE*min_QE)) > 1/(tmp_lam*tmp_lam)) continue;
-
-
-
-		//OH NO	
-		//tmp_lam = 410.53;
-
-
+		// OH NO	
+		// tmp_lam = 410.53;
                 n_lam = get_quartz_n(tmp_lam);
-
-
                 out_ang = 57.3*acos(1/(beta*n_lam));
-		
-		
                 break;
         }
-
-
-
-//BRING THIS BACK TODO
-//	out_ang += .23;
+	// BRING THIS BACK TODO
+	// out_ang += .23;
        out_ang += rand_gen->Gaus(0,additional_spread);
-
-        return out_ang;
+       return out_ang;
 }
 
 void DircThreeSegBoxSim::build_readout_box()
@@ -317,8 +304,11 @@ void DircThreeSegBoxSim::fill_threeseg_plane_vecs() {
 	threeSeg1Nx = 0;
 	threeSeg1Ny = sin(theta_1);
 	threeSeg1Nz = cos(theta_1);
-	rotate_2d(threeSeg1Nx,threeSeg1Nz,cos(foc_yrot/57.3),sin(foc_yrot/57.3));//I think this is a slightly wrong rotation if the mirrors are carved out of a solid block, but it should be good enough at small angles
-	rotate_2d(threeSeg1Nx,threeSeg1Ny,cos(foc_zrot/57.3),sin(foc_zrot/57.3));//I think this is a slightly wrong rotation if the mirrors are carved out of a solid block, but it should be good enough at small angles
+        // I think this is a slightly wrong rotation if the mirrors
+        // are carved out of a solid block, but it should be good
+        // enough at small anglesp
+	rotate_2d(threeSeg1Nx,threeSeg1Nz,cos(foc_yrot/57.3),sin(foc_yrot/57.3));
+	rotate_2d(threeSeg1Nx,threeSeg1Ny,cos(foc_zrot/57.3),sin(foc_zrot/57.3));
 	threeSeg1D = threeSeg1Ny*threeSeg1Y + threeSeg1Nz*threeSeg1Z;//Use point x=0 as reference
 
 	threeSeg2Nx = 0;
@@ -430,57 +420,51 @@ std::vector<double> DircThreeSegBoxSim::get_side_photon_angles()
 	return side_photon_angles;
 }
 void DircThreeSegBoxSim::warp_readout_box(
-	dirc_point &out_val,\
-	int particle_bar,\
-	double &mm_index,\
-	double &x,\
-	double &y,\
-	double &z,\
-	double &dx,\
-	double &dy,\
-	double &dz)
-{
-	//printf("inside warp_box: %12.04f %12.04f\n",quartzIndex,liquidIndex);
-	double c_mm_ns = 300;
-	mm_index += warp_box(\
-			x,\
-			y,\
-			z,\
-			dx,\
-			dy,\
-			dz);
+					  dirc_point &out_val,
+					  int particle_bar,
+					  double &mm_index,
+					  double &x,
+					  double &y,
+					  double &z,
+					  double &dx,
+					  double &dy,
+					  double &dz) {
+    const double c_mm_ns = 300;
+    mm_index += warp_box(x,
+			 y,
+			 z,
+			 dx,
+			 dy,
+			 dz);
 
-	if (z > 0) {
-		out_val.t = -1337;
-		return;
-	}
+    if (z > 0) {
+	out_val.t = -1337;
+	return;
+    }
 
-	//check absorbtion
-	if (!(absorbtion_mc(dx,dy))) {
-		out_val.t = -1337;
-		return;
-	}
-	mm_index += warp_sens_plane(\
-			out_val,\
-			x,\
-			y,\
-			z,\
-			dx,\
-			dy,\
-			dz);
-	double dist_lim = 50000;
-	//dist_lim = 500000000;
+    //check absorbtion
+    if (!(absorbtion_mc(dx,dy))) {
+	out_val.t = -1337;
+	return;
+    }
+    mm_index += warp_sens_plane(out_val,
+				x,
+				y,
+				z,
+				dx,
+				dy,
+				dz);
+    double dist_lim = 50000;
+    if (z > 0 || mm_index/quartzIndex > dist_lim) {
+	out_val.t = -1337;
+	return;
+    }
 
-	if (z > 0 || mm_index/quartzIndex > dist_lim) {
-		out_val.t = -1337;
-		return;
-	}
-
-	out_val.t = mm_index/(c_mm_ns);
-	out_val.x += get_bar_offset(particle_bar);
+    out_val.t = mm_index/(c_mm_ns);
+    out_val.x += get_bar_offset(particle_bar);
 	
-	//Must reflect after offset....
-	sidemirror_reflect_point(out_val);
+    //Must reflect after offset....
+    sidemirror_reflect_point(out_val);
 }
 bool DircThreeSegBoxSim::absorbtion_mc(double dx, double dy) {
 	//True if the particle makes it
@@ -816,8 +800,8 @@ double DircThreeSegBoxSim::cylindrical_reflect(\
 		rotate_2d(localNz,localNy,cos(offang),sin(offang));
 	}
 
-
-	double norm_loc = sqrt(localNy*localNy + localNz*localNz);//there's gotta be a better way to normalize this
+	// there's gotta be a better way to normalize this
+	double norm_loc = sqrt(localNy*localNy + localNz*localNz);
 
 	localNy /= norm_loc;
 	localNz /= norm_loc;

@@ -20,8 +20,6 @@ DircRectDigitizer::DircRectDigitizer(\
 	resy = iresy;
 	t_unc = it_unc;
 	t_bin_size = it_bin_size;
-	
-	dig_rand = new TRandom3();
 }
 void DircRectDigitizer::digitize_point(dirc_point &pt)
 {
@@ -54,7 +52,7 @@ void DircRectDigitizer::digitize_point(dirc_point &pt)
 	
 	pt.x = xout;
 	pt.y = yout;
-	pt.t += dig_rand->Gaus(0,t_unc);
+	pt.t += dig_rand.Gaus(0,t_unc);
 	if (fabs(t_bin_size) > t_unc/100)
 	{
 		//Don't bother with binning if it's small
