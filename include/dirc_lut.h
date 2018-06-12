@@ -6,9 +6,9 @@
 #define DIRC_LUT
 struct lut_entry
 {
-	double phi;
-	double theta;
-	double time;
+	float phi;
+	float theta;
+	float time;
 };
 
 class DircLUT
@@ -24,49 +24,49 @@ class DircLUT
 	public:
 		DircLUT(DircLUTEnum* ipt_to_ind);
 
-		void add_table_pt(dirc_point pt, double phi, double theta);
+		void add_table_pt(dirc_point pt, float phi, float theta);
 
-		void get_ckov_theta_all(std::vector<double> &rval, std::vector<double> &ret_dt, std::vector<dirc_point> pt,double inc_phi, double inc_theta, double inc_y);
+		void get_ckov_theta_all(std::vector<float> &rval, std::vector<float> &ret_dt, std::vector<dirc_point> pt,float inc_phi, float inc_theta, float inc_y);
 		//Needed?  Private?
 		void get_base_phi_theta_all(std::vector<lut_entry> &rval, std::vector<dirc_point> pts);
 	/*
-		void get_ckov_theta_single_oval_cut(std::vector<double> &rval, \
-				std::vector<double> &ret_dt, \
+		void get_ckov_theta_single_oval_cut(std::vector<float> &rval, \
+				std::vector<float> &ret_dt, \
 				std::vector<dirc_point> pts, \
-				double inc_phi, \
-				double inc_theta, \
-				double inc_y, \
-				double center_ang, \
-				double center_ang_spread,\
-				double center_time_spread);
+				float inc_phi, \
+				float inc_theta, \
+				float inc_y, \
+				float center_ang, \
+				float center_ang_spread,\
+				float center_time_spread);
 	*/
 		void get_chromcorr_m_b_single_oval_cut(
 				std::vector<dirc_point> pts, \
-				double inc_phi, \
-				double inc_theta, \
-				double inc_y, \
-				double center_ang, \
-				double center_ang_spread_sq,\
-				double time_spread_sq,\
-				double expected_angle,\
-				double &m_direct,\
-				double &b_direct,\
-				double &m_indirect,\
-				double &b_indirect);
+				float inc_phi, \
+				float inc_theta, \
+				float inc_y, \
+				float center_ang, \
+				float center_ang_spread_sq,\
+				float time_spread_sq,\
+				float expected_angle,\
+				float &m_direct,\
+				float &b_direct,\
+				float &m_indirect,\
+				float &b_indirect);
 		void get_ckov_theta_single_oval_cut(
-				std::vector<double> &rval, \
-				std::vector<double> &ret_dt_dl, \
+				std::vector<float> &rval, \
+				std::vector<float> &ret_dt_dl, \
 				std::vector<dirc_point> pts, \
-				double inc_phi, \
-				double inc_theta, \
-				double inc_y, \
-				double center_ang, \
-				double center_ang_spread_sq,\
-				double time_spread_sq,\
-				double m_direct=0,\
-				double b_direct=0,\
-				double m_indirect=0,\
-				double b_indirect=0);
+				float inc_phi, \
+				float inc_theta, \
+				float inc_y, \
+				float center_ang, \
+				float center_ang_spread_sq,\
+				float time_spread_sq,\
+				float m_direct=0,\
+				float b_direct=0,\
+				float m_indirect=0,\
+				float b_indirect=0);
 
 
 

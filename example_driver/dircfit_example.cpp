@@ -41,26 +41,26 @@ int main(int nargs, char* argv[])
 {  
 	bool out_csv = false;
 
-	double energy = 5.0;
-	double energy_mean = energy;
-	double energy_spread = 0;
-	double kmass = .4937;
-	double pimass = .1396;
-	//double mumass = .1057;
+	float energy = 5.0;
+	float energy_mean = energy;
+	float energy_spread = 0;
+	float kmass = .4937;
+	float pimass = .1396;
+	//float mumass = .1057;
 
-	double particle_x = 0;
-	double particle_y = 0;
-	double particle_x_mean = particle_x;
-	double particle_y_mean = particle_y;
-	double particle_x_spread = 0;
-	double particle_y_spread = 0;
-	double particle_theta = 4;
-	double particle_theta_mean = particle_theta;
-	double particle_theta_spread = 0;
-	double particle_phi = 40;
-	double const_track_off = 0;
+	float particle_x = 0;
+	float particle_y = 0;
+	float particle_x_mean = particle_x;
+	float particle_y_mean = particle_y;
+	float particle_x_spread = 0;
+	float particle_y_spread = 0;
+	float particle_theta = 4;
+	float particle_theta_mean = particle_theta;
+	float particle_theta_spread = 0;
+	float particle_phi = 40;
+	float const_track_off = 0;
 
-	double particle_flight_distance = 0;
+	float particle_flight_distance = 0;
 
 
 	bool monochrome_plot = false;
@@ -78,32 +78,32 @@ int main(int nargs, char* argv[])
 	int gaus_ll_n = -1;
 	int sim_time_test_n = -1;
 
-	double gaus_ll_spread = 2;
+	float gaus_ll_spread = 2;
 
-	double mean_n_phot = 40;
-	double spread_n_phot = 0;
+	float mean_n_phot = 40;
+	float spread_n_phot = 0;
 
-	double wedge_uncertainty = 0/57.3;
-	double refrac_index=1.47;
-	double mirror_angle_change = 0;
-	double mirror_angle_change_unc = 0;
-	double mirror_angle_change_yunc = 0;
-	double box_rot = 0;
-	double box_rot_unc = 0;
-	double bar_box_box_angle = 0/57.3;
-	double mirror_r_difference = 400;//1200 - 400 = 800.  Changed 05/09/2016.  Does not affect threeseg mirror reconstruction as far as I can tell - this was known.
-	//	double mirror_r_difference = 0;
-	double wedge_non_uniformity = 0;
-	double pmt_offset = 0;
-	double main_mirror_nonuniformity = 0;
-	double foc_mirror_size = 288;
+	float wedge_uncertainty = 0/57.3;
+	float refrac_index=1.47;
+	float mirror_angle_change = 0;
+	float mirror_angle_change_unc = 0;
+	float mirror_angle_change_yunc = 0;
+	float box_rot = 0;
+	float box_rot_unc = 0;
+	float bar_box_box_angle = 0/57.3;
+	float mirror_r_difference = 400;//1200 - 400 = 800.  Changed 05/09/2016.  Does not affect threeseg mirror reconstruction as far as I can tell - this was known.
+	//	float mirror_r_difference = 0;
+	float wedge_non_uniformity = 0;
+	float pmt_offset = 0;
+	float main_mirror_nonuniformity = 0;
+	float foc_mirror_size = 288;
 
 
 
-	double pmt_min_z = -1000;
-	double pmt_max_z = 1000;
-	double large_mirror_min_z = -1000;
-	double large_mirror_max_z = 1000;
+	float pmt_min_z = -1000;
+	float pmt_max_z = 1000;
+	float large_mirror_min_z = -1000;
+	float large_mirror_max_z = 1000;
 
 	//Set boundaries for photons to optical plane in large box
 	pmt_min_z = -559;
@@ -111,27 +111,27 @@ int main(int nargs, char* argv[])
 	large_mirror_min_z = -559;
 	large_mirror_max_z = -130;
 
-	double upper_wedge_yang_spread = 0;
+	float upper_wedge_yang_spread = 0;
 	int rseed = 1337;
 
-	double tracking_unc = .0000*57.3; //mrad
-	// 	double ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
-	double ckov_unc = .003*57.3; //transport = 3mrad
+	float tracking_unc = .0000*57.3; //mrad
+	// 	float ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
+	float ckov_unc = .003*57.3; //transport = 3mrad
 
-	double resx = 6;
-	double resy = 6;
-	double rest = 1;
-	double minx = -1500;
-	double maxx = 1500;
-	double miny = -500;
-	double maxy = 500;
-	double mint = 0;
-	double maxt = 1000;
-	double t_unc = .27;
-	double t_bin_size = 1;
+	float resx = 6;
+	float resy = 6;
+	float rest = 1;
+	float minx = -1500;
+	float maxx = 1500;
+	float miny = -500;
+	float maxy = 500;
+	float mint = 0;
+	float maxt = 1000;
+	float t_unc = .27;
+	float t_bin_size = 1;
 
-	double digit_miny = -50;
-	double digit_maxy = 300;
+	float digit_miny = -50;
+	float digit_maxy = 300;
 
 	digit_miny = miny;
 	digit_maxy = maxy;
@@ -139,15 +139,15 @@ int main(int nargs, char* argv[])
 
 
 	//Sets the side boundarys of the distributions
-	double sm_xl = -10000000;
-	double sm_xr = -sm_xl;
+	float sm_xl = -10000000;
+	float sm_xr = -sm_xl;
 
-	//double s_func_x = 6;
-	double s_func_x = 6;
-	double s_func_y = s_func_x;
-	//double s_func_t = 2;
-	double s_func_t = 1.0;
-	double sfunc_sig = 1;
+	//float s_func_x = 6;
+	float s_func_x = 6;
+	float s_func_y = s_func_x;
+	//float s_func_t = 2;
+	float s_func_t = 1.0;
+	float sfunc_sig = 1;
 
 #ifdef USE_BABAR_BOX
 	s_func_x = 29;
@@ -163,17 +163,17 @@ int main(int nargs, char* argv[])
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
 	bool fill_kinematics_yields = false;
-	double kinematics_yields_min_theta = 0;
-	double kinematics_yields_max_theta = 12;
-	double kinematics_yields_step_theta = .25;
-	double kinematics_yields_min_phi = 0;
-	double kinematics_yields_max_phi = 45;
-	double kinematics_yields_step_phi = 1;
+	float kinematics_yields_min_theta = 0;
+	float kinematics_yields_max_theta = 12;
+	float kinematics_yields_step_theta = .25;
+	float kinematics_yields_min_phi = 0;
+	float kinematics_yields_max_phi = 45;
+	float kinematics_yields_step_phi = 1;
 	int  kinematics_n_phots = 100000;
 
 
-	double liquid_absorbtion = 0*-log(.7)/1000;
-	double liquid_index = 1.33;
+	float liquid_absorbtion = 0*-log(.7)/1000;
+	float liquid_index = 1.33;
 
 	bool coverage_plot = false;
 	int num_cov = 100000;
@@ -487,18 +487,18 @@ int main(int nargs, char* argv[])
 	}
 
 
-	double main_mirror_angle = 74.11+mirror_angle_change;
+	float main_mirror_angle = 74.11+mirror_angle_change;
 
-	double rad_to_deg = 57.2958;
+	float rad_to_deg = 57.2958;
 
-	double res_enhance = 1;
+	float res_enhance = 1;
 
 	if (flatten_time == true)
 	{
 		s_func_t = 100000000;
 	}	
 
-	double outcsv_x,outcsv_y;
+	float outcsv_x,outcsv_y;
 	outcsv_x = 0*35;//bars are 35mm wide
 	outcsv_y = 0;//mm
 
@@ -507,7 +507,7 @@ int main(int nargs, char* argv[])
 		n_phi_phots = 4000;
 		n_z_phots = 8;
 		particle_y += outcsv_y;}
-	double pdf_unc_red_fac = 1;
+	float pdf_unc_red_fac = 1;
 
 
 	TRandom3 spread_ang(rseed+3);
@@ -521,9 +521,9 @@ int main(int nargs, char* argv[])
 	maxx = -minx;
 	miny = 0;
 	maxy = dirc_model->get_sens_r()*dirc_model->get_sens_subtend_angle()/57.3;
-	double babar_t_unc = 1;
-	double babar_t_bin = 1;
-	double babar_pmt_r = 29./2;
+	float babar_t_unc = 1;
+	float babar_t_bin = 1;
+	float babar_pmt_r = 29./2;
 #else
 	DircThreeSegBoxSim *dirc_model = new DircThreeSegBoxSim(\
 			rseed,\
@@ -543,9 +543,9 @@ int main(int nargs, char* argv[])
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);
 
 
-	double pion_beta, kaon_beta/*, electron_beta:=1*/;
+	float pion_beta, kaon_beta/*, electron_beta:=1*/;
 	pion_beta=kaon_beta=-1;
-	double pion_angle, kaon_angle;
+	float pion_angle, kaon_angle;
 	pion_angle=kaon_angle = -1;
 
 
@@ -658,7 +658,7 @@ int main(int nargs, char* argv[])
 #endif
 	//  	
 	printf("Beginning Run\n");
-	double llc, llf, ll_diff;
+	float llc, llf, ll_diff;
 	llc=llf=ll_diff=0;
 	std::vector<dirc_point> sim_points;
 	std::vector<dirc_point> confound_points;
@@ -702,8 +702,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 		dirc_model->sim_reg_n_photons(\
 				hit_points_pion,\
@@ -1007,11 +1007,11 @@ int main(int nargs, char* argv[])
 			int itheta_bin = 0;
 			int iphi_bin = 0;
 			printf("starting kinematics yields ouput\n");
-			for (double itheta = kinematics_yields_min_theta + kinematics_yields_step_theta/2; itheta < kinematics_yields_max_theta; itheta += kinematics_yields_step_theta)
+			for (float itheta = kinematics_yields_min_theta + kinematics_yields_step_theta/2; itheta < kinematics_yields_max_theta; itheta += kinematics_yields_step_theta)
 			{
 				itheta_bin++;//I know there's a better way to do this, but I'm lazy
 				iphi_bin = 0;
-				for (double iphi = kinematics_yields_min_phi + kinematics_yields_step_phi/2; iphi < kinematics_yields_max_phi; iphi += kinematics_yields_step_phi)
+				for (float iphi = kinematics_yields_min_phi + kinematics_yields_step_phi/2; iphi < kinematics_yields_max_phi; iphi += kinematics_yields_step_phi)
 				{
 					iphi_bin++;
 					printf("\r                                                                             ");
@@ -1049,7 +1049,7 @@ int main(int nargs, char* argv[])
 			ckov_unc = 0;
 		}
 		//	printf("Found %d pion points on the target\n", (int) hit_points_pion.size());
-		double x,y,t_ns;
+		float x,y,t_ns;
 		for (unsigned int i = 0; i < hit_points_pion.size(); i++)
 		{
 			x = hit_points_pion[i].x;
@@ -1088,17 +1088,17 @@ int main(int nargs, char* argv[])
 		pion_beta = dirc_model->get_beta(energy,pimass);
 		kaon_beta = dirc_model->get_beta(energy,kmass);
 
-		double quartz_index = 1.473;
-		double pion_cerenkov = acos(1/(quartz_index*pion_beta));
-		double kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
-		double gaus_mean_a = 0;
-		double gaus_mean_b = 1000*(pion_cerenkov-kaon_cerenkov);
+		float quartz_index = 1.473;
+		float pion_cerenkov = acos(1/(quartz_index*pion_beta));
+		float kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
+		float gaus_mean_a = 0;
+		float gaus_mean_b = 1000*(pion_cerenkov-kaon_cerenkov);
 
 		printf("Filling Histos with %d points\n",gaus_ll_n);
 		printf("Mean separation:  %12.04f \"mrad\"\n",gaus_mean_b);
 		printf("Gaussian Sigma:   %12.04f \"mrad\"\n",gaus_ll_spread);
 
-		double filla,fillb;
+		float filla,fillb;
 		for (int i = 0; i < gaus_ll_n; i++)
 		{
 			filla = spread_ang.Gaus(gaus_mean_a,gaus_ll_spread);
@@ -1127,23 +1127,23 @@ int main(int nargs, char* argv[])
 		pion_beta = dirc_model->get_beta(energy,pimass);
 		kaon_beta = dirc_model->get_beta(energy,kmass);
 
-		double quartz_index = 1.473;
-		double pion_cerenkov = acos(1/(quartz_index*pion_beta));
-		double kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
+		float quartz_index = 1.473;
+		float pion_cerenkov = acos(1/(quartz_index*pion_beta));
+		float kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
 
 		std::vector<dirc_point> hit_points_pion;
 		std::vector<dirc_point> hit_points_kaon;
-		std::vector<double> pion_ckov;
-		std::vector<double> kaon_ckov;
-		std::vector<double> pion_dts;
-		std::vector<double> kaon_dts;
+		std::vector<float> pion_ckov;
+		std::vector<float> kaon_ckov;
+		std::vector<float> pion_dts;
+		std::vector<float> kaon_dts;
 
-		std::vector<double> pion_angle_means;
-		std::vector<double> kaon_angle_means;
+		std::vector<float> pion_angle_means;
+		std::vector<float> kaon_angle_means;
 
 		std::vector<dirc_point> lut_points;
-		std::vector<double> lut_phis;
-		std::vector<double> lut_thetas;
+		std::vector<float> lut_phis;
+		std::vector<float> lut_thetas;
 		dirc_model->sim_lut_points(\
 				lut_points,\
 				lut_phis,\
@@ -1156,34 +1156,34 @@ int main(int nargs, char* argv[])
 			dirc_lut->add_table_pt(lut_points[i],lut_phis[i],lut_thetas[i]);
 		}
 		printf("LUT Table filled with %d points\n", (int) lut_points.size());
-		double fmin = 57.3*(pion_cerenkov+kaon_cerenkov)/2 - 1;
-		double fmax = 57.3*(pion_cerenkov+kaon_cerenkov)/2 + 1;
+		float fmin = 57.3*(pion_cerenkov+kaon_cerenkov)/2 - 1;
+		float fmax = 57.3*(pion_cerenkov+kaon_cerenkov)/2 + 1;
 
-		double oval_cut_angle_center = (pion_cerenkov+kaon_cerenkov)/2;
-		double oval_cut_angle_spread_sq = .018;//radians
-		//double oval_cut_angle_spread_sq = .1;//radians
+		float oval_cut_angle_center = (pion_cerenkov+kaon_cerenkov)/2;
+		float oval_cut_angle_spread_sq = .018;//radians
+		//float oval_cut_angle_spread_sq = .1;//radians
 		oval_cut_angle_spread_sq *= oval_cut_angle_spread_sq;
-		double oval_cut_time_spread_sq = .5;//ns/m - scaled by pathlength
-		//double oval_cut_time_spread_sq = 4;//ns/m - scaled by pathlength
+		float oval_cut_time_spread_sq = .5;//ns/m - scaled by pathlength
+		//float oval_cut_time_spread_sq = 4;//ns/m - scaled by pathlength
 		oval_cut_time_spread_sq *= oval_cut_time_spread_sq;//ns
 
-		double ll_mean_adjust = 47.1;
-		double ll_mean_enhance = 17.45;
+		float ll_mean_adjust = 47.1;
+		float ll_mean_enhance = 17.45;
 
 		//all in radians
-		double iter_ang_spread_sq = oval_cut_angle_spread_sq/2;
-		double iter_time_spread_sq = oval_cut_time_spread_sq/2;
+		float iter_ang_spread_sq = oval_cut_angle_spread_sq/2;
+		float iter_time_spread_sq = oval_cut_time_spread_sq/2;
 		int max_lut_iter = 20;
-		double iter_mean_change_stop = .00002;
-		double iter_last_mean = -10;
-		double iter_mean = oval_cut_angle_center;
+		float iter_mean_change_stop = .00002;
+		float iter_last_mean = -10;
+		float iter_mean = oval_cut_angle_center;
 
 
 		//estimate chromatic correction, use a pion at our kinematics and repost vals
-		double m_cc_direct = 0;
-		double b_cc_direct = 0;
-		double m_cc_indirect = 0;
-		double b_cc_indirect = 0;
+		float m_cc_direct = 0;
+		float b_cc_direct = 0;
+		float m_cc_indirect = 0;
+		float b_cc_indirect = 0;
 		int n_cc_particles = 10000;
 
 		if (perform_chromatic_correction == true)
@@ -1229,10 +1229,10 @@ int main(int nargs, char* argv[])
 			if (lut_slac == true)
 			{
 				//SLAC acceptance
-				double x_bound = tan(17/57.3);
-				double y_bound = tan(27/57.3);
-				double tmp_x = spread_ang.Uniform(-x_bound,x_bound);
-				double tmp_y = spread_ang.Uniform(-y_bound,y_bound);
+				float x_bound = tan(17/57.3);
+				float y_bound = tan(27/57.3);
+				float tmp_x = spread_ang.Uniform(-x_bound,x_bound);
+				float tmp_y = spread_ang.Uniform(-y_bound,y_bound);
 
 				particle_theta = 57.3*atan(sqrt(tmp_x*tmp_x+tmp_y*tmp_y));
 				particle_phi = 57.3*atan2(tmp_x,tmp_y); //This is the correct otdering - I want 0 to be along the bar.
@@ -1270,10 +1270,10 @@ int main(int nargs, char* argv[])
 			//pass by reference?  Probably pretty small and doesn't matter
 			dirc_lut->get_ckov_theta_all(pion_ckov,pion_dts,hit_points_pion, particle_phi, particle_theta, particle_y);
 			dirc_lut->get_ckov_theta_all(kaon_ckov,kaon_dts,hit_points_kaon, particle_phi, particle_theta, particle_y);
-			double pion_lut_mean = 0;
-			double pion_lut_count = 0;
-			double kaon_lut_mean = 0;
-			double kaon_lut_count = 0;
+			float pion_lut_mean = 0;
+			float pion_lut_count = 0;
+			float kaon_lut_mean = 0;
+			float kaon_lut_count = 0;
 
 			iter_last_mean = -10;
 			iter_mean = oval_cut_angle_center;
@@ -1424,10 +1424,10 @@ int main(int nargs, char* argv[])
 		TH1F* tmp_pion_lut = new TH1F(*pion_lut_vals);
 		TH1F* tmp_kaon_lut = new TH1F(*kaon_lut_vals);
 
-		double pion_mean = 0;//Degrees
-		double pion_sigma = 0;//mrad
-		double kaon_mean = 0;//Degrees
-		double kaon_sigma = 0;//mrad
+		float pion_mean = 0;//Degrees
+		float pion_sigma = 0;//mrad
+		float kaon_mean = 0;//Degrees
+		float kaon_sigma = 0;//mrad
 
 
 
@@ -1482,14 +1482,14 @@ int main(int nargs, char* argv[])
 		printf("Line Output for %d Phi steps\n",sparse_sim_n);
 		dirc_point out_val;
 		//assume speed of light particle and "thin" cone.
-		double emit_angle;
-		double pion_beta = dirc_model->get_beta(energy,pimass);
-		double wavelength = 0;
+		float emit_angle;
+		float pion_beta = dirc_model->get_beta(energy,pimass);
+		float wavelength = 0;
 		std::vector<dirc_point> left_points;
 		std::vector<dirc_point> right_points;
 		emit_angle = 57.3*acos(pion_beta/(.996*refrac_index)) + spread_ang.Gaus(0,particle_theta_spread);
 		emit_angle = dirc_model->get_cerenkov_angle_rand(pion_beta,0,wavelength);
-		double particle_time = particle_flight_distance/(pion_beta*.3);
+		float particle_time = particle_flight_distance/(pion_beta*.3);
 
 		//emit_z = -17.25/2;
 
@@ -1506,9 +1506,9 @@ int main(int nargs, char* argv[])
 				particle_time,\
 				1);
 		//last 3 are z, t, and bar;
-		double x,y,t,phi;
-		double last_x,last_y,last_t,last_phi;
-		double x_lim,y_lim,t_lim,phi_lim;
+		float x,y,t,phi;
+		float last_x,last_y,last_t,last_phi;
+		float x_lim,y_lim,t_lim,phi_lim;
 
 		x = 0;
 		y = 0;
@@ -1584,9 +1584,9 @@ int main(int nargs, char* argv[])
 					pion_beta);
 		}
 		tmp_clock = clock() - tmp_clock ;
-		double time_taken = ((float)tmp_clock)/(CLOCKS_PER_SEC);
-		double per_particle_time = time_taken/sim_time_test_n;
-		double sim_rate = 1/per_particle_time;
+		float time_taken = ((float)tmp_clock)/(CLOCKS_PER_SEC);
+		float per_particle_time = time_taken/sim_time_test_n;
+		float sim_rate = 1/per_particle_time;
 
 		printf("Total Time Taken: %12.02es\n",time_taken);
 		printf("Time per event:   %12.02ems\n",per_particle_time * 1000);
@@ -1632,11 +1632,11 @@ int main(int nargs, char* argv[])
 
 
 
-	double t_lambda = 0;
+	float t_lambda = 0;
 	for (int i = 0; i < 1000000; i++)
 	{
-		double pion_beta = dirc_model->get_beta(energy,pimass);
-		double kaon_beta = dirc_model->get_beta(energy,kmass);
+		float pion_beta = dirc_model->get_beta(energy,pimass);
+		float kaon_beta = dirc_model->get_beta(energy,kmass);
 
 		//printf("%12.04f\n",dirc_model->get_cerenkov_angle_rand(pion_beta,0,t_lambda));
 

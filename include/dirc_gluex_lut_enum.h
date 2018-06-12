@@ -6,15 +6,15 @@
 class DircGluexLUTEnum: public DircLUTEnum
 {
 private:
-	double minx,maxx,miny,maxy,resx,resy;
+	float minx,maxx,miny,maxy,resx,resy;
 	int x_n, y_n;
 public:
-	DircGluexLUTEnum(double iminx,\
-                double imaxx,\
-                double iresx,\
-                double iminy,\
-                double imaxy,\
-                double iresy);
+	DircGluexLUTEnum(float iminx,\
+                float imaxx,\
+                float iresx,\
+                float iminy,\
+                float imaxy,\
+                float iresy);
 
 	int return_enum(dirc_point &pt);
 };

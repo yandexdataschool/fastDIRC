@@ -13,11 +13,11 @@ DircProbabilitySeparation::DircProbabilitySeparation(\
 	pos_dens = ipos_dens;
 }
 
-double DircProbabilitySeparation::spread_function(double neg, double pos)
+float DircProbabilitySeparation::spread_function(float neg, float pos)
 {
-	double rval;
-	double pmn = pos-neg;
-	double power = 1;
+	float rval;
+	float pmn = pos-neg;
+	float power = 1;
 	if (pmn > 0)
 	{
 // 		rval = pmn*pmn;
@@ -35,11 +35,11 @@ double DircProbabilitySeparation::spread_function(double neg, double pos)
 // 	rval = pmn;
 	return rval;
 }
-double DircProbabilitySeparation::get_log_likelihood_spread_diff(std::vector<dirc_point> inpoints)
+float DircProbabilitySeparation::get_log_likelihood_spread_diff(std::vector<dirc_point> inpoints)
 {
-	double rval = 0;
-	double tpos = 0;
-	double tneg = 0;
+	float rval = 0;
+	float tpos = 0;
+	float tneg = 0;
 	for (unsigned int i = 0; i < inpoints.size(); i++)
 	{
 		tpos = pos_dens->get_single_likelihood(inpoints[i]);

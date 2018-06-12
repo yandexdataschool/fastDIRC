@@ -2,13 +2,13 @@
 #include "../include/dirc_babar_digitizer.h"
 #include <vector>
 DircBaBarDigitizer::DircBaBarDigitizer(\
-		double iminx,\
-		double imaxx,\
-		double iminy,\
-		double imaxy,\
-		double ipmt_r,\
-		double it_unc,\
-		double it_bin_size):DircDigitizer()
+		float iminx,\
+		float imaxx,\
+		float iminy,\
+		float imaxy,\
+		float ipmt_r,\
+		float it_unc,\
+		float it_bin_size):DircDigitizer()
 {
 //Assumes a set of Hexagonally packed circles and rounds to the center that was hit
 //Rejects things outside the circle
@@ -32,28 +32,28 @@ DircBaBarDigitizer::DircBaBarDigitizer(\
 void DircBaBarDigitizer::digitize_point(dirc_point &pt)
 {
 		//overflow/underflow?
-	double xout,yout,tout;
-	double x = pt.x;
-	double y = pt.y;
+	float xout,yout,tout;
+	float x = pt.x;
+	float y = pt.y;
 	int xdig_1 = 1.0000001*round((x - minx)/pmt_sep_x);
 	int ydig_1 = 1.0000001*round((y - miny)/pmt_sep_y);
 	int xdig_2 = 1.0000001*round((x - second_grid_minx)/pmt_sep_x);
 	int ydig_2 = 1.0000001*round((y - second_grid_miny)/pmt_sep_y);
 
-	double xd1 = pmt_sep_x*xdig_1 + minx;
-	double xd2 = pmt_sep_x*xdig_2 + second_grid_minx;
-	double yd1 = pmt_sep_y*ydig_1 + miny;
-	double yd2 = pmt_sep_y*ydig_2 + second_grid_miny;
+	float xd1 = pmt_sep_x*xdig_1 + minx;
+	float xd2 = pmt_sep_x*xdig_2 + second_grid_minx;
+	float yd1 = pmt_sep_y*ydig_1 + miny;
+	float yd2 = pmt_sep_y*ydig_2 + second_grid_miny;
 	
-	double dxd1 = x - xd1;
-	double dyd1 = y - yd1;
-	double dxd2 = x - xd2;
-	double dyd2 = y - yd2;
+	float dxd1 = x - xd1;
+	float dyd1 = y - yd1;
+	float dxd2 = x - xd2;
+	float dyd2 = y - yd2;
 
-	double dist1 = sqrt(dxd1*dxd1 + dyd1*dyd1);
-	double dist2 = sqrt(dxd2*dxd2 + dyd2*dyd2);
+	float dist1 = sqrt(dxd1*dxd1 + dyd1*dyd1);
+	float dist2 = sqrt(dxd2*dxd2 + dyd2*dyd2);
 	
-	double mindist = std::min(dist1,dist2);
+	float mindist = std::min(dist1,dist2);
 
 	//printf("x,ydig1: %5d %5d x,y,dig2: %5d %5d x,yd1: %12.04f %12.04f x,yd2: %12.04f %12.04f mindist: %12.04f %5d\n",xdig_1,ydig_1,xdig_2,ydig_2,xd1,yd1,xd2,yd2,mindist,ttat);
 	

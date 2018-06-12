@@ -11,15 +11,15 @@ using namespace Goptical;
 class DircGopticalSim
 {
 private:
-	double foc_r;
-	double foc_mirror_size;
-	double foc_rot;
-	double sens_size;
-	double sens_rot;
+	float foc_r;
+	float foc_mirror_size;
+	float foc_rot;
+	float sens_size;
+	float sens_rot;
 	
-	double barLength;
-	double barWidth;
-	double barDepth;
+	float barLength;
+	float barWidth;
+	float barDepth;
 	
 	Sys::System sys;
 	
@@ -27,17 +27,17 @@ private:
 	
 	void build_system();
 public:
-	DircGopticalSim(double ifoc_r = 540.66, \
-		double ifoc_mirror_size = 300.38, \
-		double ifoc_rot = 73.503, \
-		double isens_size = 600, \
-		double isens_rot = 90);
+	DircGopticalSim(float ifoc_r = 540.66, \
+		float ifoc_mirror_size = 300.38, \
+		float ifoc_rot = 73.503, \
+		float isens_size = 600, \
+		float isens_rot = 90);
 	std::vector<dirc_point> sim_n_photons(int n_photons, \
-		double ckov_theta = 47, \
-		double particle_x = 0, \
-		double particle_y = 0, \
-		double particle_theta = 0, \
-		double particle_phi = 0, \
+		float ckov_theta = 47, \
+		float particle_x = 0, \
+		float particle_y = 0, \
+		float particle_theta = 0, \
+		float particle_phi = 0, \
 		bool outfile = false);	
 };
 #endif

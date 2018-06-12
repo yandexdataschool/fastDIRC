@@ -49,11 +49,11 @@
 using namespace Goptical;
 
 //Using close simplex 
-DircGopticalSim::DircGopticalSim(double ifoc_r/*=540.66*/, \
-	double ifoc_mirror_size/*=300.38*/, \
-	double ifoc_rot/*=-73.503*/, \
-	double isens_size/*=600*/, \
-	double isens_rot/*=90*/)
+DircGopticalSim::DircGopticalSim(float ifoc_r/*=540.66*/, \
+	float ifoc_mirror_size/*=300.38*/, \
+	float ifoc_rot/*=-73.503*/, \
+	float isens_size/*=600*/, \
+	float isens_rot/*=90*/)
 {
 	foc_r = ifoc_r;
 	foc_mirror_size = ifoc_mirror_size;
@@ -78,21 +78,21 @@ void DircGopticalSim::build_system()
 	//  std::cout << "START EVAL" << std::endl;
 	
 	//TODO:make these params
-	double size = 2200;//overal System scale 13.1 deg = 10+3.1 at 4m
-	double testSize = 1800;
-	//  double sourceDist = ((double*)params)[1];
+	float size = 2200;//overal System scale 13.1 deg = 10+3.1 at 4m
+	float testSize = 1800;
+	//  float sourceDist = ((float*)params)[1];
 	
-	//  double barLength=2450;
+	//  float barLength=2450;
 
-// 	double sourceDist = barDepth*.99;
+// 	float sourceDist = barDepth*.99;
 	
-	double focR = foc_r;
-	double focMirrorSize = foc_mirror_size;
-	double focRot = foc_rot;
-	double sensSize = sens_size;
-	double sensRot = sens_rot;
+	float focR = foc_r;
+	float focMirrorSize = foc_mirror_size;
+	float focRot = foc_rot;
+	float sensSize = sens_size;
+	float sensRot = sens_rot;
 	
-	double testy = barLength/2+1000;
+	float testy = barLength/2+1000;
 	
 	ref<qwartzCrystal> qwartz = ref<qwartzCrystal>::create();
 	ref<mineralOil> oil = ref<mineralOil>::create();
@@ -130,14 +130,14 @@ void DircGopticalSim::build_system()
 	
 	//Wedge
 	
-	double wedgeWidthOff = 5;
-	double wedgeDepthOff = 10;
-	double wedgeFarAngle = .006*57.3;
-	double wedgeCloseAngle = 30;
-	double wedgeWidth=barWidth - wedgeWidthOff;
-// 	double wedgeDepthLow = barDepth+wedgeDepthOff;
-	double wedgeDepthHigh = 79;
-	double wedgeHeight = 91;
+	float wedgeWidthOff = 5;
+	float wedgeDepthOff = 10;
+	float wedgeFarAngle = .006*57.3;
+	float wedgeCloseAngle = 30;
+	float wedgeWidth=barWidth - wedgeWidthOff;
+// 	float wedgeDepthLow = barDepth+wedgeDepthOff;
+	float wedgeDepthHigh = 79;
+	float wedgeHeight = 91;
 	
 	ref<Curve::Flat> wedgeCurve = ref<Curve::Flat>::create();
 	ref<Shape::Rectangle> wedgeFarShape = ref<Shape::Rectangle>::create(wedgeWidth,wedgeHeight/cos(wedgeFarAngle/57.3));
@@ -176,11 +176,11 @@ void DircGopticalSim::build_system()
 	 */
 	
 	//Window implemented as a gap
-	//TODO - put in double x,y,z for readability
+	//TODO - put in float x,y,z for readability
 	
-	double upperWedgeDepthHigh = 130;
-	double upperWedgeTop = 178.6;
-	double upperWedgeHeight = 78;
+	float upperWedgeDepthHigh = 130;
+	float upperWedgeTop = 178.6;
+	float upperWedgeHeight = 78;
 	
 	ref<Curve::Flat> upperWedgeCurve = ref<Curve::Flat>::create();
 	ref<Shape::Rectangle> upperWedgeFarShape = ref<Shape::Rectangle>::create(wedgeWidth,upperWedgeHeight);
@@ -189,9 +189,9 @@ void DircGopticalSim::build_system()
 	// ref<Shape::Rectangle> wedgeBottomShape = ref<Shape::Rectangle>::create(wedgeDepthLow,wedgeWidth);
 	ref<Shape::Rectangle> upperWedgeTopShape = ref<Shape::Rectangle>::create(wedgeWidth,upperWedgeDepthHigh);
 	
-	double uwx = (-barWidth+wedgeWidth)/2;
-	double uwy = barLength/2+upperWedgeTop-upperWedgeHeight/2;
-	double uwz = 0;
+	float uwx = (-barWidth+wedgeWidth)/2;
+	float uwy = barLength/2+upperWedgeTop-upperWedgeHeight/2;
+	float uwz = 0;
 	
 	Sys::OpticalSurface upperWedgeFarPlane(Math::VectorPair<3>(uwx,uwy,uwz),upperWedgeCurve,upperWedgeFarShape,qwartz,_Goptical::Material::vacuum);
 	wedgeFarPlane.rotate(0,0,0);
@@ -231,24 +231,24 @@ void DircGopticalSim::build_system()
 	sys.add(upperWedgeTopPlane);
 	//Box
 	//Focus Mirror
-	double boxSize = barWidth*35;
-	double mirrorDepth = 288;
+	float boxSize = barWidth*35;
+	float mirrorDepth = 288;
 	focRot = 74.11;
 	focR = -1200;
 	focMirrorSize = mirrorDepth;
 	
-// 	double focSag = focR-sqrt(focR*focR-focMirrorSize*focMirrorSize/4);
-// 	double focAng = atan(focSag*2/focMirrorSize) - focRot/57.3;
+// 	float focSag = focR-sqrt(focR*focR-focMirrorSize*focMirrorSize/4);
+// 	float focAng = atan(focSag*2/focMirrorSize) - focRot/57.3;
 	
-	//  double focz = -focSag*cos(focRot/57.3)+focMirrorSize*sin(focRot/57.3)/2;
-	//  double focy = focSag*sin(focRot/57.3)+focMirrorSize*cos(focRot/57.3)/2;
+	//  float focz = -focSag*cos(focRot/57.3)+focMirrorSize*sin(focRot/57.3)/2;
+	//  float focy = focSag*sin(focRot/57.3)+focMirrorSize*cos(focRot/57.3)/2;
 	
-	double focz = -focMirrorSize*sin(focRot/57.3)/2;
-	double focy = focMirrorSize*cos(focRot/57.3)/2;
+	float focz = -focMirrorSize*sin(focRot/57.3)/2;
+	float focy = focMirrorSize*cos(focRot/57.3)/2;
 	
-	double focYoff = 139;
+	float focYoff = 139;
 	
-	double fx,fy,fz;
+	float fx,fy,fz;
 	fx = 0;
 	fy = focy + barLength/2+upperWedgeTop+focYoff;
 	fz = focz;
@@ -265,10 +265,10 @@ void DircGopticalSim::build_system()
 	sensSize = 312;
 	//sensSize = 600;
 	sensRot = 47.87;
-	double boxCloseZ = -614;
+	float boxCloseZ = -614;
 	
-	double reflOff = 9;
-	double sx,sy,sz;
+	float reflOff = 9;
+	float sx,sy,sz;
 	sx = 0;
 	sy = -sensSize*cos(sensRot/57.3)/2-reflOff+barLength/2;
 	sz = boxCloseZ + sensSize*sin(sensRot/57.3)/2;
@@ -295,29 +295,29 @@ void DircGopticalSim::build_system()
 	printf("sys pointer loc build sim: %p\n",&sys);
 }
 std::vector<dirc_point> DircGopticalSim::sim_n_photons(int n_photons, \
-	double ckov_theta /*= 47*/, \
-	double particle_x /*= 0*/, \
-	double particle_y /*= 0*/, \
-	double particle_theta /*= 0*/, \
-	double particle_phi /*= 0*/, \
+	float ckov_theta /*= 47*/, \
+	float particle_x /*= 0*/, \
+	float particle_y /*= 0*/, \
+	float particle_theta /*= 0*/, \
+	float particle_phi /*= 0*/, \
 	bool outfile /*= false*/)
 {
 	printf("sys pointer loc trace sim: %p\n",&sys);
 	
-// 	double sourceAngle = 0;
-	double sDepth = .95*barDepth;
-// 	double sHeight = sDepth*tan(sourceAngle/57.3);
-	double emitAngle = ckov_theta;
-	double particleTheta = particle_theta;
-	double particlePhi = particle_phi;
+// 	float sourceAngle = 0;
+	float sDepth = .95*barDepth;
+// 	float sHeight = sDepth*tan(sourceAngle/57.3);
+	float emitAngle = ckov_theta;
+	float particleTheta = particle_theta;
+	float particlePhi = particle_phi;
 	
 	int numPhots = n_photons;
 	
-	double sourcez = -sDepth;
-	double sourcey = particle_y-barDepth*tan(particleTheta/57.3);
-	double sourcex = particle_x;
-	double tsy = sourcey;
-	double tsx = sourcex;
+	float sourcez = -sDepth;
+	float sourcey = particle_y-barDepth*tan(particleTheta/57.3);
+	float sourcex = particle_x;
+	float tsy = sourcey;
+	float tsx = sourcex;
 	sourcey = tsy*cos(particlePhi/57.3)-tsx*sin(particlePhi/57.3);
 	sourcex = tsy*sin(particlePhi/57.3)+tsx*cos(particlePhi/57.3);
 	
@@ -327,7 +327,7 @@ std::vector<dirc_point> DircGopticalSim::sim_n_photons(int n_photons, \
 	Sys::SourceRays srcrays(Math::Vector<3>(sourcex,sourcey,sourcez));
 	srcrays.set_material(qwartz);
 	
-	double sourceOff,randPhi;
+	float sourceOff,randPhi;
 	
 	for (int i = 0; i < numPhots; i++)
 	{ 
@@ -357,7 +357,7 @@ std::vector<dirc_point> DircGopticalSim::sim_n_photons(int n_photons, \
 	
 	_Goptical::Trace::rays_queue_t rays = tracer.get_trace_result().get_generated(srcrays);
 	
-	double x, y;
+	float x, y;
 	for (unsigned int i = 0; i < rays.size(); i++)
 	{
 		x = ((Math::Vector3)rays[i]->get_intercept_point()).x();

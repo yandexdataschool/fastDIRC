@@ -14,7 +14,7 @@ DircLUT::DircLUT(DircLUTEnum* ipt_to_ind)
 		lu_table[i].clear();
 	}
 }
-void DircLUT::add_table_pt(dirc_point pt, double phi, double theta)
+void DircLUT::add_table_pt(dirc_point pt, float phi, float theta)
 {
 	lut_entry add_entry;
 	add_entry.phi = phi;
@@ -64,26 +64,26 @@ void DircLUT::get_base_phi_theta_all(std::vector<lut_entry> &rval, std::vector<d
 	}
 	//	return rval;
 }
-void DircLUT::get_ckov_theta_all(std::vector<double> &rval, std::vector<double> &ret_dt_dl, std::vector<dirc_point> pts,double inc_phi, double inc_theta,double inc_y)
+void DircLUT::get_ckov_theta_all(std::vector<float> &rval, std::vector<float> &ret_dt_dl, std::vector<dirc_point> pts,float inc_phi, float inc_theta,float inc_y)
 {
 	ret_dt_dl.clear();//syncronized return of time deviations divided by propagation distance in ps/mm
 	rval.clear();//DO NOT FORGET!
 
 	//report inc y as distance from top of bar
-	double bar_length = 4900; //hardcoded for now, but improving
-	double quartz_index = 1.47; //hardcoded for now, but improving
-	double c_mm_ns = 300; //hardcoded for now, but improving
+	float bar_length = 4900; //hardcoded for now, but improving
+	float quartz_index = 1.47; //hardcoded for now, but improving
+	float c_mm_ns = 300; //hardcoded for now, but improving
 
-	double px,py,pz;
+	float px,py,pz;
 
 	px = sin(inc_phi/57.3)*sin(inc_theta/57.3);
 	py = cos(inc_phi/57.3)*sin(inc_theta/57.3);
 	pz = cos(inc_theta/57.3);
 
 	//possible orientations;
-	double pxs[4];
-	double pys[4];
-	double pzs[4];
+	float pxs[4];
+	float pys[4];
+	float pzs[4];
 	int ind = 0;
 	for (int i = -1; i <=1; i+=2)
 	{
@@ -98,19 +98,19 @@ void DircLUT::get_ckov_theta_all(std::vector<double> &rval, std::vector<double> 
 	}
 
 
-	double fill_val = 0;
-	double vx,vy,vz;
-	double vphi,vtheta;
-	double vt,vt_direct,vt_indirect;
-	double y_direct = .5*bar_length - inc_y;
-	double y_indirect = 1.5*bar_length + inc_y;
+	float fill_val = 0;
+	float vx,vy,vz;
+	float vphi,vtheta;
+	float vt,vt_direct,vt_indirect;
+	float y_direct = .5*bar_length - inc_y;
+	float y_indirect = 1.5*bar_length + inc_y;
 
-	double internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
+	float internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
 
-	double time_cut = 10;//very loose 10ns cut;
-	double fabs_off = 0;//fudge factor;
-	double angle_mid = 47.1/57.3;
-	double angle_loose = 3/57.3;
+	float time_cut = 10;//very loose 10ns cut;
+	float fabs_off = 0;//fudge factor;
+	float angle_mid = 47.1/57.3;
+	float angle_loose = 3/57.3;
 	int passed_ind = 0;
 	int passed_refl = 0;
 	int passed_time = 0;
@@ -122,10 +122,10 @@ void DircLUT::get_ckov_theta_all(std::vector<double> &rval, std::vector<double> 
 		{
 			continue;
 		}
-		double avg_vx=0;
-		double avg_vy=0;
-		double avg_vz=0;
-		double num_in_avg=0;
+		float avg_vx=0;
+		float avg_vy=0;
+		float avg_vz=0;
+		float num_in_avg=0;
 
 		int time_direction = 0;	
 		passed_ind++;
@@ -168,8 +168,8 @@ void DircLUT::get_ckov_theta_all(std::vector<double> &rval, std::vector<double> 
 			}
 			passed_time++;
 			//printf("%12.04f %12.04f %12.04f\n",vt,vt_direct,vt_indirect);	
-			double avg_angle_pt = 0;
-			double avg_angle_count = 0;
+			float avg_angle_pt = 0;
+			float avg_angle_count = 0;
 			for (int k = 0; k < 4; k++)
 			{
 				//printf("p: %12.04f %12.04f %12.04f v: %12.04f %12.04f, %12.04f\n",pxs[k],pys[k],pzs[k],vx,vy,vz);
@@ -215,41 +215,41 @@ void DircLUT::get_ckov_theta_all(std::vector<double> &rval, std::vector<double> 
 }
 void DircLUT::get_chromcorr_m_b_single_oval_cut(
 		std::vector<dirc_point> pts, \
-		double inc_phi, \
-		double inc_theta, \
-		double inc_y, \
-		double center_ang, \
-		double center_ang_spread_sq,\
-		double time_spread_sq,\
-		double expected_angle,\
-		double &m_direct,\
-		double &b_direct,\
-		double &m_indirect,\
-		double &b_indirect)
+		float inc_phi, \
+		float inc_theta, \
+		float inc_y, \
+		float center_ang, \
+		float center_ang_spread_sq,\
+		float time_spread_sq,\
+		float expected_angle,\
+		float &m_direct,\
+		float &b_direct,\
+		float &m_indirect,\
+		float &b_indirect)
 {
-	std::vector<double> dtdl_direct;
-	std::vector<double> dang_direct;
-	std::vector<double> dtdl_indirect;
-	std::vector<double> dang_indirect;
+	std::vector<float> dtdl_direct;
+	std::vector<float> dang_direct;
+	std::vector<float> dtdl_indirect;
+	std::vector<float> dang_indirect;
 
 	//center_ang_spread_sq /= 12;
 	//time_spread_sq /= 12;
 
 	//report inc y as distance from top of bar
-	double bar_length = 4900; //hardcoded for now, but improving
-	double quartz_index = 1.47; //hardcoded for now, but improving
-	double c_mm_ns = 300; //hardcoded for now, but improving
+	float bar_length = 4900; //hardcoded for now, but improving
+	float quartz_index = 1.47; //hardcoded for now, but improving
+	float c_mm_ns = 300; //hardcoded for now, but improving
 
-	double px,py,pz;
+	float px,py,pz;
 
 	px = sin(inc_phi/57.3)*sin(inc_theta/57.3);
 	py = cos(inc_phi/57.3)*sin(inc_theta/57.3);
 	pz = cos(inc_theta/57.3);
 
 	//possible orientations;
-	double pxs[4];
-	double pys[4];
-	double pzs[4];
+	float pxs[4];
+	float pys[4];
+	float pzs[4];
 	int ind = 0;
 	//I'm pretty sure there are only 8 geometries to test here.
 	for (int i = -1; i <=1; i+=2)
@@ -265,21 +265,21 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 	}
 
 
-	double fill_val = 0;
-	double vx,vy,vz;
-	double vphi,vtheta;
-	double vt,vt_direct,vt_indirect;
-	double y_direct = .5*bar_length - inc_y;
-	double y_indirect = 1.5*bar_length + inc_y;
+	float fill_val = 0;
+	float vx,vy,vz;
+	float vphi,vtheta;
+	float vt,vt_direct,vt_indirect;
+	float y_direct = .5*bar_length - inc_y;
+	float y_indirect = 1.5*bar_length + inc_y;
 
-	double internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
+	float internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
 
-	double time_cut = 10;//very loose 3ns cut;
+	float time_cut = 10;//very loose 3ns cut;
 	int passed_ind = 0;
 	int passed_refl = 0;
 	int passed_time = 0;
 //	int rval_filled = 0;
-	double used_dt = 0;
+	float used_dt = 0;
 	for (unsigned int i = 0; i < pts.size(); i++)
 	{
 		int ind = pt_to_ind->return_enum(pts[i]);
@@ -287,10 +287,10 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 		{
 			continue;
 		}
-		double avg_vx=0;
-		double avg_vy=0;
-		double avg_vz=0;
-		double num_in_avg=0;
+		float avg_vx=0;
+		float avg_vy=0;
+		float avg_vz=0;
+		float num_in_avg=0;
 
 		int time_direction = 0;	
 		passed_ind++;
@@ -333,8 +333,8 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 			}
 			passed_time++;
 			//printf("%12.04f %12.04f %12.04f\n",vt,vt_direct,vt_indirect);	
-			double avg_angle_pt = 0;
-			double avg_angle_count = 0;
+			float avg_angle_pt = 0;
+			float avg_angle_count = 0;
 			for (int k = 0; k < 4; k++)
 			{
 				//printf("p: %12.04f %12.04f %12.04f v: %12.04f %12.04f, %12.04f\n",pxs[k],pys[k],pzs[k],vx,vy,vz);
@@ -376,10 +376,10 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 		}
 	}
 	//now do the linear regression
-	double mean_dtdl_direct=0;
-	double mean_dang_direct=0;
-	double mean_dtdl_indirect=0;
-	double mean_dang_indirect=0;
+	float mean_dtdl_direct=0;
+	float mean_dang_direct=0;
+	float mean_dtdl_indirect=0;
+	float mean_dang_indirect=0;
 	for (unsigned int i = 0; i < dtdl_direct.size(); i++)
 	{
 		mean_dtdl_direct += dtdl_direct[i];
@@ -401,10 +401,10 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 	}
 	mean_dang_indirect /= dang_indirect.size();
 
-	double dtdl_dev2_direct = 0; //Sum[(x-meanx)^2]
-	double dtdldang_dev_direct = 0;	//Sum[(x-meanx)(y-meany)]
-	double dtdl_dev2_indirect = 0; //Sum[(x-meanx)^2]
-	double dtdldang_dev_indirect = 0;	//Sum[(x-meanx)(y-meany)]
+	float dtdl_dev2_direct = 0; //Sum[(x-meanx)^2]
+	float dtdldang_dev_direct = 0;	//Sum[(x-meanx)(y-meany)]
+	float dtdl_dev2_indirect = 0; //Sum[(x-meanx)^2]
+	float dtdldang_dev_indirect = 0;	//Sum[(x-meanx)(y-meany)]
 
 	for (unsigned int i = 0; i < dtdl_direct.size(); i++)
 	{
@@ -422,38 +422,38 @@ void DircLUT::get_chromcorr_m_b_single_oval_cut(
 	b_indirect = mean_dang_indirect - m_indirect*mean_dtdl_indirect;
 }
 void DircLUT::get_ckov_theta_single_oval_cut(
-		std::vector<double> &rval, \
-		std::vector<double> &ret_dt_dl, \
+		std::vector<float> &rval, \
+		std::vector<float> &ret_dt_dl, \
 		std::vector<dirc_point> pts, \
-		double inc_phi, \
-		double inc_theta, \
-		double inc_y, \
-		double center_ang, \
-		double center_ang_spread_sq,\
-		double time_spread_sq,\
-		double m_direct,/*=0*/\
-		double b_direct,/*=0*/\
-		double m_indirect,/*=0*/\
-		double b_indirect/*=0*/)
+		float inc_phi, \
+		float inc_theta, \
+		float inc_y, \
+		float center_ang, \
+		float center_ang_spread_sq,\
+		float time_spread_sq,\
+		float m_direct,/*=0*/\
+		float b_direct,/*=0*/\
+		float m_indirect,/*=0*/\
+		float b_indirect/*=0*/)
 {
 	ret_dt_dl.clear();//syncronized return of time deviations
 	rval.clear();//DO NOT FORGET!
 
 	//report inc y as distance from top of bar
-	double bar_length = 4900; //hardcoded for now, but improving
-	double quartz_index = 1.47; //hardcoded for now, but improving
-	double c_mm_ns = 300; //hardcoded for now, but improving
+	float bar_length = 4900; //hardcoded for now, but improving
+	float quartz_index = 1.47; //hardcoded for now, but improving
+	float c_mm_ns = 300; //hardcoded for now, but improving
 
-	double px,py,pz;
+	float px,py,pz;
 
 	px = sin(inc_phi/57.3)*sin(inc_theta/57.3);
 	py = cos(inc_phi/57.3)*sin(inc_theta/57.3);
 	pz = cos(inc_theta/57.3);
 
 	//possible orientations;
-	double pxs[4];
-	double pys[4];
-	double pzs[4];
+	float pxs[4];
+	float pys[4];
+	float pzs[4];
 	int ind = 0;
 	//I'm pretty sure there are only 8 geometries to test here.
 	for (int i = -1; i <=1; i+=2)
@@ -469,21 +469,21 @@ void DircLUT::get_ckov_theta_single_oval_cut(
 	}
 
 
-	double fill_val = 0;
-	double vx,vy,vz;
-	double vphi,vtheta;
-	double vt,vt_direct,vt_indirect;
-	double y_direct = .5*bar_length - inc_y;
-	double y_indirect = 1.5*bar_length + inc_y;
+	float fill_val = 0;
+	float vx,vy,vz;
+	float vphi,vtheta;
+	float vt,vt_direct,vt_indirect;
+	float y_direct = .5*bar_length - inc_y;
+	float y_indirect = 1.5*bar_length + inc_y;
 
-	double internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
+	float internal_refl_limit = sqrt(quartz_index*quartz_index-1)/quartz_index;
 
-	double time_cut = 3;//very loose 3ns/m cut;
+	float time_cut = 3;//very loose 3ns/m cut;
 	int passed_ind = 0;
 	int passed_refl = 0;
 	int passed_time = 0;
 	//int rval_filled = 0;
-	double used_dt = 0;
+	float used_dt = 0;
 	for (unsigned int i = 0; i < pts.size(); i++)
 	{
 		int ind = pt_to_ind->return_enum(pts[i]);
@@ -491,10 +491,10 @@ void DircLUT::get_ckov_theta_single_oval_cut(
 		{
 			continue;
 		}
-		double avg_vx=0;
-		double avg_vy=0;
-		double avg_vz=0;
-		double num_in_avg=0;
+		float avg_vx=0;
+		float avg_vy=0;
+		float avg_vz=0;
+		float num_in_avg=0;
 
 		int time_direction = 0;	
 		passed_ind++;
@@ -537,9 +537,9 @@ void DircLUT::get_ckov_theta_single_oval_cut(
 			}
 			passed_time++;
 			//printf("%12.04f %12.04f %12.04f\n",vt,vt_direct,vt_indirect);	
-			double avg_angle_pt = 0;
-			double avg_angle_count = 0;
-			double chrom_corr = 0;
+			float avg_angle_pt = 0;
+			float avg_angle_count = 0;
+			float chrom_corr = 0;
 			for (int k = 0; k < 4; k++)
 			{
 				//printf("p: %12.04f %12.04f %12.04f v: %12.04f %12.04f, %12.04f\n",pxs[k],pys[k],pzs[k],vx,vy,vz);

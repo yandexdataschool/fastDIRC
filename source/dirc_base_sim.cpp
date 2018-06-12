@@ -16,10 +16,10 @@
 
 DircBaseSim::DircBaseSim(
 		int rand_seed /*=4357*/,\
-		double ibarLength/*=4900*/, \
-		double ibarWidth/*=35*/, \
-		double ibarDepth/*=17.25*/,
-		double iupperWedgeTop/*=178.6*/) {
+		float ibarLength/*=4900*/, \
+		float ibarWidth/*=35*/, \
+		float ibarDepth/*=17.25*/,
+		float iupperWedgeTop/*=178.6*/) {
 
 	barLength=ibarLength;
 	barWidth=ibarWidth;
@@ -111,7 +111,7 @@ DircBaseSim::DircBaseSim(
 	sep_transmittance = (max_transmittance - min_transmittance)/(num_transmittance - 1);
 
 	//Numbers from Baptise
-	double tmp_quartz_transmittance[36] = {\
+	float tmp_quartz_transmittance[36] = {\
 		0.999572036,0.999544661,0.999515062,0.999483019,0.999448285,\
 			0.999410586,0.999369611,0.999325013,0.999276402,0.999223336,\
 			0.999165317,0.999101778,0.999032079,0.998955488,0.998871172,\
@@ -145,38 +145,38 @@ void DircBaseSim::set_store_bounces(bool isb)
 {
 	store_bounces = isb;
 }
-void DircBaseSim::rotate_2d(double &x, double &y, double cval, double sval) {
+void DircBaseSim::rotate_2d(float &x, float &y, float cval, float sval) {
 	//Standard rotatation allows precomputation of matrix elements
 	//Only store one variable for speed
 	//Sin should be actual sin (not negative sin)
-	double tx = x;
+	float tx = x;
 	x = cval*tx - sval*y;
 	y = sval*tx + cval*y;
 }
 
-void DircBaseSim::set_bar_box_angle(double ang) {
+void DircBaseSim::set_bar_box_angle(float ang) {
 	//expect degrees
 	//sets angle between readout box and bars - rotates angle coming out of bars
 	box_angle_off_cval = cos(ang/57.3);
 	box_angle_off_sval = sin(ang/57.3);
 }
-void DircBaseSim::set_bar_box_offsets(double x, double y, double z) {
+void DircBaseSim::set_bar_box_offsets(float x, float y, float z) {
 	//expect degrees
 	//sets angle between readout box and bars - rotates angle coming out of bars
 	bar_box_xoff = x;
 	bar_box_yoff = y;
 	bar_box_zoff = z;
 }
-std::vector<double> DircBaseSim::get_dist_traveled() {
+std::vector<float> DircBaseSim::get_dist_traveled() {
 	return dist_traveled;
 }
-void DircBaseSim::set_liquid_index(double li) {
+void DircBaseSim::set_liquid_index(float li) {
 	//Sets the index of the upper quartz wedge
 	liquidIndex = li;
 	//printf("Liquid index set: %12.04f\n",liquidIndex);
 
 }
-void DircBaseSim::set_upper_wedge_angle_diff(double rads, double rads_y) {
+void DircBaseSim::set_upper_wedge_angle_diff(float rads, float rads_y) {
 	upperWedgeClosePlaneNx = 0; //Shouldn't be needed
 	upperWedgeClosePlaneNy = sin(wedgeCloseAngle/57.296 + rads);
 	upperWedgeClosePlaneNz = cos(wedgeCloseAngle/57.296 + rads);
@@ -192,7 +192,7 @@ void DircBaseSim::set_upper_wedge_angle_diff(double rads, double rads_y) {
 
 	upperWedgeFarPlaneD = upperWedgeBottom*upperWedgeFarPlaneNy;
 }
-void DircBaseSim::set_wedge_mirror_rand(double ispread) {
+void DircBaseSim::set_wedge_mirror_rand(float ispread) {
 	if (ispread > 0) {
 		upperWedgeNonUniform = true;
 		upperWedgeNonUniformSpread = ispread;
@@ -205,7 +205,7 @@ void DircBaseSim::set_wedge_mirror_rand(double ispread) {
 void DircBaseSim::spread_wedge_mirror() {
 
 	if (upperWedgeNonUniform == true) {
-		double spread_ang = wedgeCloseAngle;
+		float spread_ang = wedgeCloseAngle;
 		spread_ang += rand_gen->Gaus(0,upperWedgeNonUniformSpread);
 		upperWedgeClosePlaneNx = 0; //Shouldn't be needed
 		upperWedgeClosePlaneNy = sin(spread_ang/57.296);
@@ -216,16 +216,16 @@ void DircBaseSim::spread_wedge_mirror() {
 void DircBaseSim::build_system() {
 	spread_wedge_mirror();
 }
-double DircBaseSim::get_quartz_n(double lambda) {
-	double B1,B2,B3,C1,C2,C3;
+float DircBaseSim::get_quartz_n(float lambda) {
+	float B1,B2,B3,C1,C2,C3;
 	B1 = 0.6961663;             // B1
 	B2 = 0.4079426;             // B2
 	B3 = 0.8974794;             // B3
 	C1 = 0.0046791;             // C1
 	C2 = 0.0135121;             // C2
 	C3 = 97.9340025;          // C3
-	double lam2;
-	double n_lam;
+	float lam2;
+	float n_lam;
 	lam2 = lambda*lambda/1000000;
 
 	n_lam = sqrt(1 + B1*lam2/(lam2-C1) + B2*lam2/(lam2-C2) + B3*lam2/(lam2-C3));
@@ -236,7 +236,7 @@ void DircBaseSim::set_use_quartz_n_for_liquid(bool iu)
 {
 	use_quartz_n_for_liquid = iu;
 }
-double DircBaseSim::get_liquid_n(double lambda) 
+float DircBaseSim::get_liquid_n(float lambda) 
 {
 	if (use_liquid_n == true)
 	{
@@ -249,18 +249,18 @@ double DircBaseSim::get_liquid_n(double lambda)
 	else
 	{
 		//2 line approximation
-		double ln1 = 1.3786 - 0.1*lambda/1000;
-		double ln2 = 1.3529 - 0.0353*lambda/1000;
-		double rval = std::max(ln1,ln2);
+		float ln1 = 1.3786 - 0.1*lambda/1000;
+		float ln2 = 1.3529 - 0.0353*lambda/1000;
+		float rval = std::max(ln1,ln2);
 		return rval;
 	}
 }
-bool DircBaseSim::quartz_transmission_mc(double R, double lambda) {
+bool DircBaseSim::quartz_transmission_mc(float R, float lambda) {
 	int ind_transmittance;
-	double above_ind;
-	double tmp_transmittance;
-	double tmp_transmittance_constant;
-	double trans_prob;
+	float above_ind;
+	float tmp_transmittance;
+	float tmp_transmittance_constant;
+	float trans_prob;
 
 	ind_transmittance = (lambda - min_transmittance)/sep_transmittance;
 
@@ -280,8 +280,8 @@ bool DircBaseSim::quartz_transmission_mc(double R, double lambda) {
 	return (rand_gen->Uniform(0,1) < trans_prob);
 
 }
-double DircBaseSim::get_beta(double E, double m) {
-	double gam = E/m;
+float DircBaseSim::get_beta(float E, float m) {
+	float gam = E/m;
 	if (gam > 5) {
 		//Approximate and possibly save time
 		return 1-1/(2*gam*gam);
@@ -290,11 +290,11 @@ double DircBaseSim::get_beta(double E, double m) {
 	}
 
 }
-double DircBaseSim::get_bar_offset(int bar)
+float DircBaseSim::get_bar_offset(int bar)
 {
 	return fabs(bar)/bar*((150-0.5*(barWidth))+bar*(barWidth+.015));
 }
-int DircBaseSim::get_bar_from_x(double x)
+int DircBaseSim::get_bar_from_x(float x)
 {
 
 	if (x < -150)
@@ -315,23 +315,23 @@ void DircBaseSim::set_upper_wedge_angle_store(bool istore)
 {
 	upperWedgeAngleStore = istore;
 }
-std::vector<double> DircBaseSim::get_upper_wedge_incident()
+std::vector<float> DircBaseSim::get_upper_wedge_incident()
 {
 	return upper_wedge_incident;
 }
 void DircBaseSim::sim_rand_n_photons(\
 		std::vector<dirc_point> &out_points,\
 		int n_photons, \
-		double ckov_theta /*= 47*/, \
-		double particle_bar /*=0*/, \
-		double particle_x /*= 0*/, \
-		double particle_y /*= 0*/, \
-		double particle_t /*=0*/,\
-		double particle_theta /*= 0*/, \
-		double particle_phi /*= 0*/,\
-		double phi_theta_unc /*= .0015*57.3*/,\
-		double ckov_theta_unc /* = .0055*57.3*/,\
-		double beta /* = -1*/) {
+		float ckov_theta /*= 47*/, \
+		float particle_bar /*=0*/, \
+		float particle_x /*= 0*/, \
+		float particle_y /*= 0*/, \
+		float particle_t /*=0*/,\
+		float particle_theta /*= 0*/, \
+		float particle_phi /*= 0*/,\
+		float phi_theta_unc /*= .0015*57.3*/,\
+		float ckov_theta_unc /* = .0055*57.3*/,\
+		float beta /* = -1*/) {
 
 	out_points.clear();
 	fill_rand_phi(\
@@ -352,16 +352,16 @@ void DircBaseSim::sim_reg_n_photons(\
 		std::vector<dirc_point> &out_points,\
 		int n_photons_phi, \
 		int n_photons_z,\
-		double ckov_theta /*= 47*/, \
-		double particle_bar /*=0*/, \
-		double particle_x /*= 0*/, \
-		double particle_y /*= 0*/, \
-		double particle_t /*=0*/,\
-		double particle_theta /*= 0*/, \
-		double particle_phi /*= 0*/,\
-		double phi_theta_unc /*= 0*/,\
-		double ckov_theta_unc /* = 0*/,\
-		double beta /* = -1*/) {
+		float ckov_theta /*= 47*/, \
+		float particle_bar /*=0*/, \
+		float particle_x /*= 0*/, \
+		float particle_y /*= 0*/, \
+		float particle_t /*=0*/,\
+		float particle_theta /*= 0*/, \
+		float particle_phi /*= 0*/,\
+		float phi_theta_unc /*= 0*/,\
+		float ckov_theta_unc /* = 0*/,\
+		float beta /* = -1*/) {
 	out_points.clear();
 	fill_reg_phi(\
 			out_points,\
@@ -384,30 +384,30 @@ void DircBaseSim::sim_reg_n_photons(\
 void DircBaseSim::test_from_wedge_top(\
 		std::vector<dirc_point> &ovals,\
 		int n_photons, \
-		double particle_bar /*= 1*/, \
-		double particle_x /*= 0*/, \
-		double phot_theta /*= 0*/, \
-		double phot_phi /*= 0*/,\
-		double theta_unc, /*= 0*/
-		double phi_unc /* = 0*/,\
-		double overall_theta) {
+		float particle_bar /*= 1*/, \
+		float particle_x /*= 0*/, \
+		float phot_theta /*= 0*/, \
+		float phot_phi /*= 0*/,\
+		float theta_unc, /*= 0*/
+		float phi_unc /* = 0*/,\
+		float overall_theta) {
 
 	ovals.clear();
 	//Note that Theta and Phi are defined along the bar axis, not as they are elsewhere
 	//negative bar number is - x axis?
 	int numPhots = n_photons;
 
-	double sourcez = -barDepth/2;
+	float sourcez = -barDepth/2;
 	sourcez = -wedgeDepthHigh/2;
 	sourcez = 0;
-	double sourcey = barLength/2 + upperWedgeTop + .1;
-	double sourcex = particle_x;
+	float sourcey = barLength/2 + upperWedgeTop + .1;
+	float sourcex = particle_x;
 
-	double temit, randPhi;
+	float temit, randPhi;
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 
-	double mm_index = 0;
+	float mm_index = 0;
 
 	for (int i = 0; i < numPhots; i++) {
 		mm_index = 0;
@@ -438,12 +438,12 @@ void DircBaseSim::test_from_wedge_top(\
 	}
 }
 void DircBaseSim::bar_box_interface(\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
-		double &dz)
+		float &x,\
+		float &y,\
+		float &z,\
+		float &dx,\
+		float &dy,\
+		float &dz)
 {
 	x += bar_box_xoff;
 	y += bar_box_yoff;
@@ -452,27 +452,27 @@ void DircBaseSim::bar_box_interface(\
 }
 void DircBaseSim::sim_lut_points(\
 		std::vector<dirc_point> &ovals,\
-		std::vector<double> &phis,\
-		std::vector<double> &thetas,\
+		std::vector<float> &phis,\
+		std::vector<float> &thetas,\
 		int n_photons, \
-		double particle_bar /*= 0*/){
+		float particle_bar /*= 0*/){
 
 	ovals.clear();
 	phis.clear();
 	thetas.clear();
 
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 
-	double randPhi;
-	double randTheta;	
+	float randPhi;
+	float randTheta;	
 
-	double mm_index = 0;
+	float mm_index = 0;
 
-//	double c_mm_ns = 300;
+//	float c_mm_ns = 300;
 
-	double saveGeneralQuartzIndex = quartzIndex;
-	double saveGeneralLiquidIndex = liquidIndex;
+	float saveGeneralQuartzIndex = quartzIndex;
+	float saveGeneralLiquidIndex = liquidIndex;
 	//Using approximate peak wavelength
 	quartzIndex = get_quartz_n(380);//Painful way of doing this - saving and correcting is inelegant
 	liquidIndex = get_liquid_n(380);//Painful way of doing this - saving and correcting is inelegant
@@ -541,46 +541,46 @@ void DircBaseSim::sim_lut_points(\
 void DircBaseSim::fill_rand_phi(\
 		std::vector<dirc_point> &ovals,\
 		int n_photons, \
-		double ckov_theta /*= 47*/, \
-		double particle_bar /*= 0*/, \
-		double particle_x /*= 0*/, \
-		double particle_y /*= 0*/, \
-		double particle_t /*= 0*/, \
-		double particle_theta /*= 0*/, \
-		double particle_phi /*= 0*/,\
-		double phi_theta_unc, /*= .0015*57.3*/
-		double ckov_theta_unc /* = .0055*57.3*/,\
-		double beta/* = -1*/) {
+		float ckov_theta /*= 47*/, \
+		float particle_bar /*= 0*/, \
+		float particle_x /*= 0*/, \
+		float particle_y /*= 0*/, \
+		float particle_t /*= 0*/, \
+		float particle_theta /*= 0*/, \
+		float particle_phi /*= 0*/,\
+		float phi_theta_unc, /*= .0015*57.3*/
+		float ckov_theta_unc /* = .0055*57.3*/,\
+		float beta/* = -1*/) {
 
 
-	double emitAngle = ckov_theta;
-	double particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
-	double particlePhi = particle_phi + rand_gen->Gaus(0,phi_theta_unc);
+	float emitAngle = ckov_theta;
+	float particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
+	float particlePhi = particle_phi + rand_gen->Gaus(0,phi_theta_unc);
 	int numPhots = n_photons/cos(particle_theta/57.3);
 
-	double randPhi;
+	float randPhi;
 
-	double temit, rand_add;
-	double wavelength = 400;
+	float temit, rand_add;
+	float wavelength = 400;
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 
-	double cos_ptheta = cos(particleTheta/57.3);
-	double sin_ptheta = sin(particleTheta/57.3);
-	double cos_pphi = cos(particlePhi/57.3);
-	double sin_pphi = sin(particlePhi/57.3);
+	float cos_ptheta = cos(particleTheta/57.3);
+	float sin_ptheta = sin(particleTheta/57.3);
+	float cos_pphi = cos(particlePhi/57.3);
+	float sin_pphi = sin(particlePhi/57.3);
 
-	double mm_index = 0;
+	float mm_index = 0;
 
 	int tmp_updown = 0;
 
-	double saveGeneralQuartzIndex = quartzIndex;
-	double saveGeneralLiquidIndex = liquidIndex;
+	float saveGeneralQuartzIndex = quartzIndex;
+	float saveGeneralLiquidIndex = liquidIndex;
 
 	std::vector<dirc_base_sim_tracking_step> track_steps;
-	double dist_traveled = -1;
+	float dist_traveled = -1;
 	//hardcode step length to 1mm for now
-	double step_length = 1;
+	float step_length = 1;
 	//note: These are general tracking vectors - you can implement your own MC with them.  Each refers to position and direction at the start of the step
 	if (useMoliere == true)
 	{
@@ -627,11 +627,11 @@ void DircBaseSim::fill_rand_phi(\
 
 	}
 
-	double track_loc = -1;
+	float track_loc = -1;
 
 	//define numbers to linearly interp
 	int low_ind = 0;
-	double above_ind = 0;
+	float above_ind = 0;
 
 	for (int i = 0; i < numPhots; i++) {
 		randPhi = rand_gen->Uniform(0,2*3.14159265);
@@ -728,22 +728,22 @@ void DircBaseSim::fill_rand_phi(\
 	quartzIndex = saveGeneralQuartzIndex;
 	liquidIndex = saveGeneralLiquidIndex;
 }
-std::vector<std::pair<double,double> > DircBaseSim::get_refraction_rand_phi(\
-		std::vector<double> &before_interface,\
-		std::vector<double> &after_interface,\
-		std::vector<double> &pmt_incidence,\
+std::vector<std::pair<float,float> > DircBaseSim::get_refraction_rand_phi(\
+		std::vector<float> &before_interface,\
+		std::vector<float> &after_interface,\
+		std::vector<float> &pmt_incidence,\
 		int n_photons, \
-		double ckov_theta /*= 47*/, \
-		double particle_x /*= 0*/, \
-		double particle_y /*= 0*/, \
-		double particle_theta /*= 0*/, \
-		double particle_phi /*= 0*/,\
-		double phi_theta_unc /*= .0015*57.3*/,\
-		double ckov_theta_unc /* = .0055*57.3*/,\
-		double beta/* = -1*/) {
+		float ckov_theta /*= 47*/, \
+		float particle_x /*= 0*/, \
+		float particle_y /*= 0*/, \
+		float particle_theta /*= 0*/, \
+		float particle_phi /*= 0*/,\
+		float phi_theta_unc /*= .0015*57.3*/,\
+		float ckov_theta_unc /* = .0055*57.3*/,\
+		float beta/* = -1*/) {
 	//returns theta versus cerenkov phi_theta_unc
 
-	std::vector<std::pair<double,double> > rval;
+	std::vector<std::pair<float,float> > rval;
 
 	before_interface.clear();
 	after_interface.clear();
@@ -751,35 +751,35 @@ std::vector<std::pair<double,double> > DircBaseSim::get_refraction_rand_phi(\
 	refraction_after.clear();
 	pmt_incidence.clear();
 
-	double emitAngle = ckov_theta;
-	double particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
-	double particlePhi = particle_phi + rand_gen->Gaus(0,phi_theta_unc);
+	float emitAngle = ckov_theta;
+	float particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
+	float particlePhi = particle_phi + rand_gen->Gaus(0,phi_theta_unc);
 
 	int numPhots = n_photons/cos(particle_theta/57.3);
 
-	// 	double sourcez = -sDepth;
-	double sourcey = particle_y-barDepth*tan(particleTheta/57.3);
-	double sourcex = particle_x;
-	double tsy = sourcey;
-	double tsx = sourcex;
+	// 	float sourcez = -sDepth;
+	float sourcey = particle_y-barDepth*tan(particleTheta/57.3);
+	float sourcex = particle_x;
+	float tsy = sourcey;
+	float tsx = sourcex;
 	sourcey = tsy*cos(particlePhi/57.3)-tsx*sin(particlePhi/57.3);
 	sourcex = tsy*sin(particlePhi/57.3)+tsx*cos(particlePhi/57.3);
 
 
-	double sourceOff,randPhi;
+	float sourceOff,randPhi;
 
-	double temit, rand_add;
-	double wavelength = 400;
+	float temit, rand_add;
+	float wavelength = 400;
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double mm_index = 0;
-	double c_mm_ns = 300;
+	float mm_index = 0;
+	float c_mm_ns = 300;
 
 	for (int i = 0; i < numPhots; i++) {
 		randPhi = rand_gen->Uniform(0,2*3.14159265);
@@ -862,7 +862,7 @@ std::vector<std::pair<double,double> > DircBaseSim::get_refraction_rand_phi(\
 
 		//should be threading time information into this soon
 		out_val.t = mm_index/(c_mm_ns);
-		std::pair<double, double> add_val;
+		std::pair<float, float> add_val;
 
 		add_val.first = randPhi;
 		add_val.second = refraction_before[refraction_before.size() - 1];
@@ -884,45 +884,45 @@ void DircBaseSim::fill_reg_phi(
 		std::vector<dirc_point> &ovals,
 		int n_photons_phi,
 		int n_photons_z,
-		double ckov_theta /*= 47*/,
-		double particle_bar /*= 0*/,
-		double particle_x /*= 0*/,
-		double particle_y /*= 0*/,
-		double particle_t /*= 0*/,
-		double particle_theta /*= 0*/,
-		double particle_phi /*= 0*/,
-		double phi_theta_unc /*= 0*/,
-		double ckov_theta_unc /* = 0*/,
-		double beta /* = -1*/)
+		float ckov_theta /*= 47*/,
+		float particle_bar /*= 0*/,
+		float particle_x /*= 0*/,
+		float particle_y /*= 0*/,
+		float particle_t /*= 0*/,
+		float particle_theta /*= 0*/,
+		float particle_phi /*= 0*/,
+		float phi_theta_unc /*= 0*/,
+		float ckov_theta_unc /* = 0*/,
+		float beta /* = -1*/)
 {
-	double sDepth = .95*barDepth;
-	double emitAngle = ckov_theta;
+	float sDepth = .95*barDepth;
+	float emitAngle = ckov_theta;
 
 	int tmp_updown = 0;
 
-	double sourceOff,regPhi;
+	float sourceOff,regPhi;
 
-	double temit;
-	double rand_add;
-	double wavelength = 400;
+	float temit;
+	float rand_add;
+	float wavelength = 400;
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double mm_index = 0;
+	float mm_index = 0;
 
-	double sin_emit;
-	double cos_emit;
-	double sin_regphi;
-	double cos_regphi;
+	float sin_emit;
+	float cos_emit;
+	float sin_regphi;
+	float cos_regphi;
 
 	int adj_n_photons_phi = n_photons_phi/cos(particle_theta/57.3);
-	double saveGeneralQuartzIndex = quartzIndex;
-	double saveGeneralLiquidIndex = liquidIndex;
+	float saveGeneralQuartzIndex = quartzIndex;
+	float saveGeneralLiquidIndex = liquidIndex;
 
 	for (int i = 0; i < n_photons_z; i++) {
 		sourceOff = (i+.5)*sDepth/(n_photons_z);
@@ -1023,32 +1023,32 @@ void DircBaseSim::fill_reg_phi(
 }
 bool DircBaseSim::track_single_photon(\
 		dirc_point &out_val,\
-		double emit_theta,\
-		double emit_phi,\
-		double particle_theta,\
-		double particle_phi,\
-		double particle_x,\
-		double particle_y,\
-		double particle_z,\
-		double particle_t,\
+		float emit_theta,\
+		float emit_phi,\
+		float particle_theta,\
+		float particle_phi,\
+		float particle_x,\
+		float particle_y,\
+		float particle_z,\
+		float particle_t,\
 		int particle_bar)
 {
-	double x,y,z,dx,dy,dz;
-	double mm_index;
+	float x,y,z,dx,dy,dz;
+	float mm_index;
 
-	double temit = emit_theta;
-	double regPhi = emit_phi;
+	float temit = emit_theta;
+	float regPhi = emit_phi;
 
-	double cos_emit, sin_emit;
-	double cos_regphi, sin_regphi;
+	float cos_emit, sin_emit;
+	float cos_regphi, sin_regphi;
 	int tmp_updown = 0;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double sourceOff = particle_z + barDepth;
+	float sourceOff = particle_z + barDepth;
 
 	mm_index = (sourceOff - barDepth)*1.47;
 
@@ -1159,46 +1159,46 @@ bool DircBaseSim::track_single_photon(\
 }
 bool DircBaseSim::track_line_photon(\
 		dirc_point &out_val,\
-		double emit_theta,\
-		double emit_phi,\
-		double particle_theta,\
-		double particle_phi,\
-		double particle_x,\
-		double particle_y,\
-		double particle_z,\
-		double particle_t,\
+		float emit_theta,\
+		float emit_phi,\
+		float particle_theta,\
+		float particle_phi,\
+		float particle_x,\
+		float particle_y,\
+		float particle_z,\
+		float particle_t,\
 		int particle_bar,\
-		double z_at_top /*=1*/)
+		float z_at_top /*=1*/)
 {
 	//I'm being bad and breaking encapsulation here, but it's for the greater good
 	//Think of the children
-	double saveBarWidth = barWidth;
-	double saveWedgeWidthOff = wedgeWidthOff;
+	float saveBarWidth = barWidth;
+	float saveWedgeWidthOff = wedgeWidthOff;
 
 	midLineMode = true;
 	midLineMode = false;
-	double width_fraction = 1;
+	float width_fraction = 1;
 	barWidth *= width_fraction;
 	wedgeWidthOff *= width_fraction;
 	wedgeWidthOff = 0;
 	build_system();
 
-	double x,y,z,dx,dy,dz;
-	double mm_index;
+	float x,y,z,dx,dy,dz;
+	float mm_index;
 
-	double temit = emit_theta;
-	double regPhi = emit_phi;
+	float temit = emit_theta;
+	float regPhi = emit_phi;
 
-	double cos_emit, sin_emit;
-	double cos_regphi, sin_regphi;
+	float cos_emit, sin_emit;
+	float cos_regphi, sin_regphi;
 	int tmp_updown = 0;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double sourceOff = particle_z + barDepth;
+	float sourceOff = particle_z + barDepth;
 
 	mm_index = (sourceOff - barDepth)*1.47;
 
@@ -1270,7 +1270,7 @@ bool DircBaseSim::track_line_photon(\
 //	int beforeWedgeLastWall = lastWallX;
 
 /*
-	double target_z = -17.25/2;
+	float target_z = -17.25/2;
 
 	if (z_at_top < 0)
 	{
@@ -1349,34 +1349,34 @@ bool DircBaseSim::track_line_photon(\
 }
 bool DircBaseSim::track_single_photon_beta(\
 		dirc_point &out_val,\
-		double particle_beta,\
-		double emit_phi,\
-		double particle_theta,\
-		double particle_phi,\
-		double particle_x,\
-		double particle_y,\
-		double particle_z,\
-		double particle_t,\
+		float particle_beta,\
+		float emit_phi,\
+		float particle_theta,\
+		float particle_phi,\
+		float particle_x,\
+		float particle_y,\
+		float particle_z,\
+		float particle_t,\
 		int particle_bar)
 {
-	double x,y,z,dx,dy,dz;
-	double mm_index;
+	float x,y,z,dx,dy,dz;
+	float mm_index;
 
-	double wavelength = 400;
+	float wavelength = 400;
 
-	double temit = get_cerenkov_angle_rand(particle_beta,0,wavelength);
-	double regPhi = emit_phi;
+	float temit = get_cerenkov_angle_rand(particle_beta,0,wavelength);
+	float regPhi = emit_phi;
 
-	double cos_emit, sin_emit;
-	double cos_regphi, sin_regphi;
+	float cos_emit, sin_emit;
+	float cos_regphi, sin_regphi;
 	int tmp_updown = 0;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double sourceOff = particle_z + barDepth;
+	float sourceOff = particle_z + barDepth;
 
 	mm_index = (sourceOff - barDepth)*1.47;
 
@@ -1489,57 +1489,57 @@ bool DircBaseSim::track_all_line_photons(\
 		std::vector<dirc_point> &left_vals,\
 		std::vector<dirc_point> &right_vals,\
 		int points_per_side,\
-		double emit_theta,\
-		double particle_theta,\
-		double particle_phi,\
-		double particle_x,\
-		double particle_y,\
-		double particle_z,\
-		double particle_t,\
+		float emit_theta,\
+		float particle_theta,\
+		float particle_phi,\
+		float particle_x,\
+		float particle_y,\
+		float particle_z,\
+		float particle_t,\
 		int particle_bar,\
-		double z_at_top /*=1*/)
+		float z_at_top /*=1*/)
 {
 	//I'm being bad and breaking encapsulation here, but it's for the greater good
 	//Think of the children
-	double saveBarWidth = barWidth;
-	double saveWedgeWidthOff = wedgeWidthOff;
+	float saveBarWidth = barWidth;
+	float saveWedgeWidthOff = wedgeWidthOff;
 
 	left_vals.clear();
 	right_vals.clear();
 
 	midLineMode = true;
-	double width_fraction = .001;
+	float width_fraction = .001;
 	barWidth *= width_fraction;
 	wedgeWidthOff *= width_fraction;
 	wedgeWidthOff = 0;
 	build_system();
 
-	std::vector<double> mustache_phi;
+	std::vector<float> mustache_phi;
 
-	double x,y,z,dx,dy,dz;
+	float x,y,z,dx,dy,dz;
 	//righthand side versions - right hand not needed, just reuse
-	//double x_r,y_r,z_r,dx_r,dy_r,dz_r;
-	double mm_index;
-//	double mm_index_r;
+	//float x_r,y_r,z_r,dx_r,dy_r,dz_r;
+	float mm_index;
+//	float mm_index_r;
 
-	double temit = emit_theta;
-	double regPhi;
+	float temit = emit_theta;
+	float regPhi;
 
-	double cos_emit, sin_emit;
-	double cos_regphi, sin_regphi;
+	float cos_emit, sin_emit;
+	float cos_regphi, sin_regphi;
 	int tmp_updown = 0;
 
-	double cos_ptheta = cos(particle_theta/57.3);
-	double sin_ptheta = sin(particle_theta/57.3);
-	double cos_pphi = cos(particle_phi/57.3);
-	double sin_pphi = sin(particle_phi/57.3);
+	float cos_ptheta = cos(particle_theta/57.3);
+	float sin_ptheta = sin(particle_theta/57.3);
+	float cos_pphi = cos(particle_phi/57.3);
+	float sin_pphi = sin(particle_phi/57.3);
 
-	double sourceOff = particle_z + barDepth;
+	float sourceOff = particle_z + barDepth;
 
-	double phi_inc = (2*3.14159265359)/points_per_side;
+	float phi_inc = (2*3.14159265359)/points_per_side;
 	regPhi = 0;
-	double saveGeneralQuartzIndex = quartzIndex;
-	double saveGeneralLiquidIndex = liquidIndex;
+	float saveGeneralQuartzIndex = quartzIndex;
+	float saveGeneralLiquidIndex = liquidIndex;
 	//Using approximate peak wavelength
 	quartzIndex = get_quartz_n(380);//Painful way of doing this - saving and correcting is inelegant
 	liquidIndex = get_liquid_n(380);//Painful way of doing this - saving and correcting is inelegant
@@ -1605,7 +1605,7 @@ bool DircBaseSim::track_all_line_photons(\
 //		int beforeWedgeLastWall = lastWallX;
 
 
-		double target_z = -17.25/2;
+		float target_z = -17.25/2;
 
 		if (z_at_top < 0)
 		{
@@ -1732,7 +1732,7 @@ bool DircBaseSim::track_all_line_photons(\
 
 		//now in the mustache => at wall
 		//And going up
-		double target_z = 0;
+		float target_z = 0;
 
 		if (z_at_top < 0)
 		{
@@ -1747,7 +1747,7 @@ bool DircBaseSim::track_all_line_photons(\
 		//Goes backwards first and reflects off of wall.  Could account for 6mrad here as well, consider later.
 		y += -dy/dz*barDepth;
 		//perform proper reflection - factor of 2 for the reflection, and an additional 1 for the corrected wedge.
-		double enhance_rot_fac = 3;
+		float enhance_rot_fac = 3;
 		rotate_2d(dy,dz,cos(enhance_rot_fac*wedgeFarAngle/57.3),-sin(enhance_rot_fac*wedgeFarAngle/57.3));
 
 		dirc_point out_val;
@@ -1803,14 +1803,14 @@ bool DircBaseSim::track_all_line_photons(\
 	midLineMode = false;
 	return true;
 }
-double DircBaseSim::warp_ray(\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
-		double &dz,\
-		double cos_critical_angle) {
+float DircBaseSim::warp_ray(\
+		float &x,\
+		float &y,\
+		float &z,\
+		float &dx,\
+		float &dy,\
+		float &dz,\
+		float cos_critical_angle) {
 	//Implemented to avoid total internal reflection computations
 	//Expects ray to be "prerotated" by particle theta and phi - just propagates the vectors
 	//Uses bar geometry.
@@ -1819,12 +1819,12 @@ double DircBaseSim::warp_ray(\
 	//returns distance traveled (mm) times index
 
 
-	double rval = 0; //stores total distance;
+	float rval = 0; //stores total distance;
 
-	double delx, dely,delz;
-	// 	double xzR;
+	float delx, dely,delz;
+	// 	float xzR;
 	//Start the rays in the quartz for simulation reasons
-	double grace_room = 0;
+	float grace_room = 0;
 
 	bool direct_ray = true;
 
@@ -1861,11 +1861,11 @@ double DircBaseSim::warp_ray(\
 	// 	int nbouncesy;
 	int nbouncesz;
 
-	double remainderx;
-	// 	double remaindery;
-	double lrx;
-	// 	double lrz = 1;
-	double remainderz = 0;
+	float remainderx;
+	// 	float remaindery;
+	float lrx;
+	// 	float lrz = 1;
+	float remainderz = 0;
 	/*Not used right now, so don't branch if you don't have to
 	  if(dy > 0)
 	  {
@@ -1926,9 +1926,9 @@ double DircBaseSim::warp_ray(\
 
 
 
-	//	double bar_front = -barDepth/2;
-	//	double bar_front = -17.25/2;
-	double bar_front = 0;
+	//	float bar_front = -barDepth/2;
+	//	float bar_front = -17.25/2;
+	float bar_front = 0;
 	if (nbouncesz % 2 == 1) {
 		dz = -dz;
 		z = bar_front-remainderz;
@@ -1938,13 +1938,13 @@ double DircBaseSim::warp_ray(\
 
 	return sqrt(rval)*quartzIndex;
 }
-double DircBaseSim::warp_wedge(
-		double &x,
-		double &y,
-		double &z,
-		double &dx,
-		double &dy,
-		double &dz) {
+float DircBaseSim::warp_wedge(
+		float &x,
+		float &y,
+		float &z,
+		float &dx,
+		float &dy,
+		float &dz) {
 	//No Critical angle checking - shouldn't need it
 	//I am abusing the x angle being the same in the bar and wedge here
 	//may have to rotate after to the mirror
@@ -1953,20 +1953,20 @@ double DircBaseSim::warp_wedge(
 	wedge_bounces = 0;
 
 	//must change after close wedge bounce
-	double startz = z;
-	double starty = y;
-	double mm_index = 0;
+	float startz = z;
+	float starty = y;
+	float mm_index = 0;
 	bool passed_interface = false;
-	// 	double x0 = x;
-	double dt = 0; //dummy variable representing parametric line
-	double n_dot_v = 0; //dummy variable to save dot product
-	double n_dot_v0 = 0;
+	// 	float x0 = x;
+	float dt = 0; //dummy variable representing parametric line
+	float n_dot_v = 0; //dummy variable to save dot product
+	float n_dot_v0 = 0;
 
 	//deal with yz first
 
 	//Can't ever not totally internal reflect	
 	//force dz to be negative	
-	//double wedgeCloseIncidentAngle = acos(-dx*wedgeClosePlaneNx - dy*wedgeClosePlaneNy + fabs(dz)*wedgeClosePlaneNz);
+	//float wedgeCloseIncidentAngle = acos(-dx*wedgeClosePlaneNx - dy*wedgeClosePlaneNy + fabs(dz)*wedgeClosePlaneNz);
 	//printf("%12.04f\n",57.3*wedgeCloseIncidentAngle);
 
 
@@ -2020,7 +2020,7 @@ double DircBaseSim::warp_wedge(
 	dt = -(wedgeClosePlaneD+n_dot_v0)/n_dot_v;
 
 	//Assume close enough to determine which wedge it hit
-	double ty = dt*dy + y - barLength/2;
+	float ty = dt*dy + y - barLength/2;
 
 
 	//have to make sure ty intersects IN the wedge - will correctly return a negative if it's below
@@ -2181,7 +2181,7 @@ double DircBaseSim::warp_wedge(
 			printf("wthxyz: %12.04f %12.04f %12.04f %12.04f %12.04f %12.04f dt: %12.04f\n",x,y,z,dx,dy,dz,dt);
 		}
 		//implement reflection off the vack of the walls
-		double wally = starty + (y - starty)*(-startz/(z-startz));
+		float wally = starty + (y - starty)*(-startz/(z-startz));
 		//account for window and gap
 		if (wally > wedgeHeight + barLength/2)
 		{
@@ -2197,9 +2197,9 @@ double DircBaseSim::warp_wedge(
 		}
 		else
 		{
-			//double sz = z;
-			double sdz = dz;
-			double sdy = dy;
+			//float sz = z;
+			float sdz = dz;
+			float sdy = dy;
 			//bounced off lower part - just an appoximation
 			dz = -dz;
 			//printf("%12.04f %12.04f\n",dz,dy);
@@ -2218,18 +2218,18 @@ double DircBaseSim::warp_wedge(
 }
 //Possibly inline these or something for speed, but right now, leave them for sanity
 bool DircBaseSim::optical_interface_z(\
-		double n1,\
-		double n2,\
-		double &dx,\
-		double &dy,\
-		double &dz) {
+		float n1,\
+		float n2,\
+		float &dx,\
+		float &dy,\
+		float &dz) {
 	// n1 is starting index of refraction, n2 is ending
 	// Assume that it's going through the z plane
 	// (this will change the ordering when called in our current geometry)
 
 	//dz and dy are flipped, so this is really acos
-	double n12rat = n1/n2;
-	double n12rat2 = n12rat*n12rat;
+	float n12rat = n1/n2;
+	float n12rat2 = n12rat*n12rat;
 
 	//takes care of trig
 	dz = sqrt(1-n12rat2*(1-dz*dz));
@@ -2243,13 +2243,13 @@ bool DircBaseSim::optical_interface_z(\
 	return true;
 }
 bool DircBaseSim::x_wedge_coerce_check(\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
-		double &dz,\
-		double dt) {
+		float &x,\
+		float &y,\
+		float &z,\
+		float &dx,\
+		float &dy,\
+		float &dz,\
+		float dt) {
 	//already have dt, be sure to add it in when calling this
 
 	//assumes x starts between the sides of the wedge
@@ -2261,9 +2261,9 @@ bool DircBaseSim::x_wedge_coerce_check(\
 	//returns false if it goes out the window on the x step
 	//Will not check for y and z directions (assumes dt corresponds to an intersection/reflection point)
 
-	double cdt = 0;
-	double tdt = 0;
-	double ty = y - barLength/2;
+	float cdt = 0;
+	float tdt = 0;
+	float ty = y - barLength/2;
 
 	//This is bad and encapsulation breaking, but much faster and reduces code duplication
 	if (midLineMode == true)
@@ -2353,7 +2353,7 @@ bool DircBaseSim::x_wedge_coerce_check(\
 
 	return true;//not out the window for the whole trip
 }
-void DircBaseSim::set_moliere_p(double ip)
+void DircBaseSim::set_moliere_p(float ip)
 {
 	moliereP = ip;
 }
@@ -2361,8 +2361,8 @@ void DircBaseSim::set_use_moliere(bool ium)
 {
 	useMoliere = ium;
 }
-double DircBaseSim::generate_cos_moliere_angle(\
-		double rad_length)
+float DircBaseSim::generate_cos_moliere_angle(\
+		float rad_length)
 {
 	//Algorithm from Macro by Mike Williams 07/26/16
 	//Magic numbers taken from limits of scattering
@@ -2370,32 +2370,32 @@ double DircBaseSim::generate_cos_moliere_angle(\
 //	TF1 g2("g2","pow([0]-x,-2)",-1,1); 
 
 	// .17 corresponds to rad_length in this limit
-	//double theta0=(13.6/P)*sqrt(0.17)*(1+0.038*log(0.17)); 
+	//float theta0=(13.6/P)*sqrt(0.17)*(1+0.038*log(0.17)); 
 	rad_length = .17;
-	double theta0=(13.6/moliereP)*sqrt(rad_length)*(1+0.038*log(rad_length)); 
-	double a = pow(theta0,-2);
-	double u0 = 1-3*pow(theta0,2);
-	double b = 1-pow(theta0,2);
+	float theta0=(13.6/moliereP)*sqrt(rad_length)*(1+0.038*log(rad_length)); 
+	float a = pow(theta0,-2);
+	float u0 = 1-3*pow(theta0,2);
+	float b = 1-pow(theta0,2);
 //	g1.SetParameter(0,a);
 //	g2.SetParameter(0,b);
 
-	double c1 = a;
-	double c2 = 1/(1/(3*pow(theta0,2))-1/2.);
+	float c1 = a;
+	float c2 = 1/(1/(3*pow(theta0,2))-1/2.);
 
-	double g10 = exp(-a*(1-u0))*c1;
-	double g20 = pow(b-u0,-2)*c2;
-	double p = g20/(g10+g20);
+	float g10 = exp(-a*(1-u0))*c1;
+	float g20 = pow(b-u0,-2)*c2;
+	float p = g20/(g10+g20);
 
-	double max_g = 0;
+	float max_g = 0;
 
 	//binning chosen based on original ROOT histograms
 	//actually undercounts forward scattering for this formulation
 	//done this way to be able to simulate this in nonzero time
-	double u = 1-.005/100000;
-	double g1val = 0, g2val = 0;
+	float u = 1-.005/100000;
+	float g1val = 0, g2val = 0;
 	if(u >= u0) g1val = c1*exp(-a*(1-u));
 	if(u <= u0) g2val = c2*pow(b-u,-2);
-	double g = p*g1val + (1-p)*g2val;
+	float g = p*g1val + (1-p)*g2val;
 	if(g < 0) g=0;
 	//printf("%12.04f\n",g);
 	max_g = std::max(g,max_g);
@@ -2403,11 +2403,11 @@ double DircBaseSim::generate_cos_moliere_angle(\
 
 	while (true)
 	{
-		double u = rand_gen->Uniform(.99,1);
-		double g1val = 0, g2val = 0;
+		float u = rand_gen->Uniform(.99,1);
+		float g1val = 0, g2val = 0;
 		if(u >= u0) g1val = c1*exp(-a*(1-u));
 		if(u <= u0) g2val = c2*pow(b-u,-2);
-		double g = p*g1val + (1-p)*g2val;
+		float g = p*g1val + (1-p)*g2val;
 		if(g < 0) g=0;
 		//printf("%12.04f\n",g);
 		if (rand_gen->Uniform(0,max_g) < g)
@@ -2418,39 +2418,39 @@ double DircBaseSim::generate_cos_moliere_angle(\
 }
 void DircBaseSim::fill_moliere_tracking_steps(\
 		std::vector<dirc_base_sim_tracking_step> &rsteps,\
-		double &travel_distance,\
-		double step_length,\
-		double start_theta,\
-		double start_phi,\
-		double start_x,\
-		double start_y,\
-		double start_z)
+		float &travel_distance,\
+		float step_length,\
+		float start_theta,\
+		float start_phi,\
+		float start_x,\
+		float start_y,\
+		float start_z)
 {
 		rsteps.clear();
 		travel_distance = 0;
 
-		double max_travel = fabs(barDepth*2/cos(start_theta));
+		float max_travel = fabs(barDepth*2/cos(start_theta));
 		
-		double cur_x = start_x;
-		double cur_y = start_y;
-		double cur_z = start_z;
-		double cur_theta = start_theta;
-		double cur_phi = start_phi;
+		float cur_x = start_x;
+		float cur_y = start_y;
+		float cur_z = start_z;
+		float cur_theta = start_theta;
+		float cur_phi = start_phi;
 
 		//printf("Enter ctheta: %12.04f\n",cur_theta);
 	
-		double cur_sintheta = sin(cur_theta);
-		double cur_costheta = cos(cur_theta);
-		double cur_sinphi = sin(cur_phi);
-		double cur_cosphi = cos(cur_phi);
+		float cur_sintheta = sin(cur_theta);
+		float cur_costheta = cos(cur_theta);
+		float cur_sinphi = sin(cur_phi);
+		float cur_cosphi = cos(cur_phi);
 
-		double sin_scatter_theta;
-		double cos_scatter_theta;
-		double scatter_phi;
-		double sin_scatter_phi;
-		double cos_scatter_phi;
+		float sin_scatter_theta;
+		float cos_scatter_theta;
+		float scatter_phi;
+		float sin_scatter_phi;
+		float cos_scatter_phi;
 
-		double sdx,sdy,sdz;
+		float sdx,sdy,sdz;
 
 
 		while (cur_z < 0 && travel_distance < max_travel)
@@ -2536,24 +2536,24 @@ void DircBaseSim::fill_moliere_tracking_steps(\
 }
 
 void DircBaseSim::plane_reflect(\
-		double Nx,\
-		double Ny,\
-		double Nz,\
-		double D,\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
-		double &dz,\
-		double &dt,\
-		double offang /*=0*/) 
+		float Nx,\
+		float Ny,\
+		float Nz,\
+		float D,\
+		float &x,\
+		float &y,\
+		float &z,\
+		float &dx,\
+		float &dy,\
+		float &dz,\
+		float &dt,\
+		float offang /*=0*/) 
 {
 	//Propagate to the intercept and reflects off a plane
 	//Could use this in the Wedge, but would loose some speed
 
-	double n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
-	double n_dot_v0 = (Nx*x + Ny*y + Nz*z);
+	float n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
+	float n_dot_v0 = (Nx*x + Ny*y + Nz*z);
 
 	dt = (D - n_dot_v0)/n_dot_v;
 
@@ -2570,45 +2570,45 @@ void DircBaseSim::plane_reflect(\
 	dy -= 2*n_dot_v*Ny;
 	dz -= 2*n_dot_v*Nz;
 }
-double DircBaseSim::get_z_intercept(\
-		double Nx,\
-		double Ny,\
-		double Nz,\
-		double D,\
-		double x,\
-		double y,\
-		double z,\
-		double dx,\
-		double dy,\
-		double dz) {
+float DircBaseSim::get_z_intercept(\
+		float Nx,\
+		float Ny,\
+		float Nz,\
+		float D,\
+		float x,\
+		float y,\
+		float z,\
+		float dx,\
+		float dy,\
+		float dz) {
 	//finds z intercept (without modifying x y and z)
 	//Could use this in the Wedge, but would loose some speed
 
-	double n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
-	double n_dot_v0 = (Nx*x + Ny*y + Nz*z);
-	double dt;//optimized by math compression?
+	float n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
+	float n_dot_v0 = (Nx*x + Ny*y + Nz*z);
+	float dt;//optimized by math compression?
 	dt = (D - n_dot_v0)/n_dot_v;
 
 	return z + dt*dz;
 }
-double DircBaseSim::get_intercept_plane(\
-		double Nx,\
-		double Ny,\
-		double Nz,\
-		double D,\
-		double &x,\
-		double &y,\
-		double &z,\
-		double dx,\
-		double dy,\
-		double dz) {
+float DircBaseSim::get_intercept_plane(\
+		float Nx,\
+		float Ny,\
+		float Nz,\
+		float D,\
+		float &x,\
+		float &y,\
+		float &z,\
+		float dx,\
+		float dy,\
+		float dz) {
 	//Just intersects a plane (modifying x,y,z)
 	//Could use this in the Wedge, but would loose some speed
 	//Non returning verion for speed when needed?
 
-	double n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
-	double n_dot_v0 = (Nx*x + Ny*y + Nz*z);
-	double dt;//optimized by math compression?
+	float n_dot_v = (Nx*dx + Ny*dy + Nz*dz);
+	float n_dot_v0 = (Nx*x + Ny*y + Nz*z);
+	float dt;//optimized by math compression?
 	dt = (D - n_dot_v0)/n_dot_v;
 
 	x += dx*dt;
@@ -2617,7 +2617,7 @@ double DircBaseSim::get_intercept_plane(\
 
 	return dt;
 }
-double DircBaseSim::sgn(double val) {
+float DircBaseSim::sgn(float val) {
 	//stolen from http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	return (0 < val) - (val < 0);
 }

@@ -10,13 +10,13 @@ DircProbabilitySpread::DircProbabilitySpread(\
 	support_points = isupport;
 	test_time_dir = itest_time_dir;
 }
-double DircProbabilitySpread::get_log_likelihood(std::vector<dirc_point> inpoints)
+float DircProbabilitySpread::get_log_likelihood(std::vector<dirc_point> inpoints)
 {
-	double tprob = 0;
-	double rval = 0;
+	float tprob = 0;
+	float rval = 0;
 	int eval_count = 0;
-	double log_mult = 4;
-	double weight = 1;
+	float log_mult = 4;
+	float weight = 1;
 	for (unsigned int i = 0; i < inpoints.size(); i++)
 	{
 		tprob = 0;
@@ -40,11 +40,11 @@ double DircProbabilitySpread::get_log_likelihood(std::vector<dirc_point> inpoint
 	
 	return rval;
 }
-double DircProbabilitySpread::get_single_log_likelihood(dirc_point inpoint)
+float DircProbabilitySpread::get_single_log_likelihood(dirc_point inpoint)
 {
-	double tprob = 0;
-	double log_mult = 4;
-	double weight = 1;
+	float tprob = 0;
+	float log_mult = 4;
+	float weight = 1;
 	weight = get_weight(inpoint);
 	for (unsigned int j = 0; j < support_points.size(); j++)
 	{
@@ -61,7 +61,7 @@ double DircProbabilitySpread::get_single_log_likelihood(dirc_point inpoint)
 	return tprob;
 }
 	
-double DircProbabilitySpread::get_weight(dirc_point inpoint)
+float DircProbabilitySpread::get_weight(dirc_point inpoint)
 {
 	return 1;
 // 	return 1 + sqrt(sqrt(fabs(inpoint.x)));

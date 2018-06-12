@@ -2,15 +2,15 @@
 #include <vector>
 #include "../include/dirc_point.h"
 
-DircSideMirrorReflector::DircSideMirrorReflector(double ixl, double ixr)
+DircSideMirrorReflector::DircSideMirrorReflector(float ixl, float ixr)
 {
   xl = ixl;
   xr = ixr;
 }
 DircSideMirrorReflector::reflect_points(std::vector<dirc_point> &points)
 {
-  double tmpx = 0;
-  double dx;
+  float tmpx = 0;
+  float dx;
   for (unsigned int i = 0; i < points.size(); i++)
   {
     tmpx = points[i].x;

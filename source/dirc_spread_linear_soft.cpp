@@ -4,9 +4,9 @@
 #include <math.h>
 
 DircSpreadLinearSoft::DircSpreadLinearSoft(\
-	double ilin_slope, \
-	double ir_trans, \
-	double isigma, \
+	float ilin_slope, \
+	float ir_trans, \
+	float isigma, \
 	std::vector<dirc_point> isupport,\
 	bool itest_time_dir /*=true*/)\
 	: DircSpreadRadius(isupport,itest_time_dir)
@@ -17,7 +17,7 @@ DircSpreadLinearSoft::DircSpreadLinearSoft(\
 	max_val = r_trans*lin_slope + 1;
 }
 	
-double DircSpreadLinearSoft::radius_spread_function(double r)
+float DircSpreadLinearSoft::radius_spread_function(float r)
 {
 	if (r < r_trans)
 	{
@@ -25,7 +25,7 @@ double DircSpreadLinearSoft::radius_spread_function(double r)
 	}
 	else
 	{
-		double dev2 = r - r_trans;
+		float dev2 = r - r_trans;
 		dev2 *= dev2;
 		
 		return exp(-dev2/sigma2);

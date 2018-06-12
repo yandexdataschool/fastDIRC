@@ -6,16 +6,16 @@
 class DircSpreadLinearSoft : public DircSpreadRadius
 {
 private:
-	double lin_slope, r_trans, sigma2, max_val;
+	float lin_slope, r_trans, sigma2, max_val;
 public:
 	//by reference - later for speed
 	DircSpreadLinearSoft(\
-		double ilin_slope, \
-		double ir_trans, \
-		double isigma, \
+		float ilin_slope, \
+		float ir_trans, \
+		float isigma, \
 		std::vector<dirc_point> isupport,\
 		bool itest_time_dir = true);
 	
-	double radius_spread_function(double r);
+	float radius_spread_function(float r);
 };
 #endif

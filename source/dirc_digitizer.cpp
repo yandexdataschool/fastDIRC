@@ -2,14 +2,14 @@
 #include "../include/dirc_digitizer.h"
 #include <vector>
 DircDigitizer::DircDigitizer(\
-		double iminx,\
-		double imaxx,\
-		double iresx,\
-		double iminy,\
-		double imaxy,\
-		double iresy,\
-		double it_unc,\
-		double it_bin_size)
+		float iminx,\
+		float imaxx,\
+		float iresx,\
+		float iminy,\
+		float imaxy,\
+		float iresy,\
+		float it_unc,\
+		float it_bin_size)
 {
 	minx = iminx;
 	maxx = imaxx;
@@ -25,13 +25,13 @@ DircDigitizer::DircDigitizer(\
 void DircDigitizer::digitize_point(dirc_point &pt)
 {
 		//overflow/underflow?
-	double x = pt.x;
-	double y = pt.y;
+	float x = pt.x;
+	float y = pt.y;
 	int xdig = 1.0000001*round((x - minx)/resx);
 	int ydig = 1.0000001*round((y - miny)/resy);
 	
-	double xout = resx*xdig + minx;
-	double yout = resy*ydig + miny;
+	float xout = resx*xdig + minx;
+	float yout = resy*ydig + miny;
 	
 	if (x < minx)
 	{

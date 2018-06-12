@@ -19,8 +19,8 @@ public:
   
   
 	//make virtual for polymorphism later
-	virtual double spread_function(double neg, double pos);
-	double get_log_likelihood_spread_diff(std::vector<dirc_point> inpoints);
+	virtual float spread_function(float neg, float pos);
+	float get_log_likelihood_spread_diff(std::vector<dirc_point> inpoints);
 };
 
 #endif

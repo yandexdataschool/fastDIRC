@@ -39,16 +39,16 @@
 
 DircBaseSim* global_calib_model;
 DircDigitizer* global_digitizer;
-double global_particle_theta;
-double global_particle_phi;
-double global_particle_x;
-double global_particle_y;
-double global_particle_t;
-double global_particle_energy;
-double global_particle_flight_distance;
-double global_refrac_index;
-double global_ckov_unc;
-double global_tracking_unc;
+float global_particle_theta;
+float global_particle_phi;
+float global_particle_x;
+float global_particle_y;
+float global_particle_t;
+float global_particle_energy;
+float global_particle_flight_distance;
+float global_refrac_index;
+float global_ckov_unc;
+float global_tracking_unc;
 int global_n_sim_phots;
 
 std::vector<dirc_point> global_pion_line;
@@ -61,8 +61,8 @@ void init_global_data()
 	int num_line_points = 5000;
 	int num_particle_hits = 20000;
 
-	double kmass = .4937;
-	double pimass = .1396;
+	float kmass = .4937;
+	float pimass = .1396;
 
 	global_pion_line.clear();
 	global_kaon_line.clear();
@@ -72,41 +72,41 @@ void init_global_data()
 	DircBaseSim* dirc_model = global_calib_model;
 	DircDigitizer* digitizer = global_digitizer;
 
-	double particle_theta = global_particle_theta;
-	double particle_phi = global_particle_phi;
-	double particle_x = global_particle_x;
-	double particle_y = global_particle_y;
-	double energy = global_particle_energy;
-	double particle_flight_distance = global_particle_flight_distance;
-//	double particle_t = global_particle_t;
+	float particle_theta = global_particle_theta;
+	float particle_phi = global_particle_phi;
+	float particle_x = global_particle_x;
+	float particle_y = global_particle_y;
+	float energy = global_particle_energy;
+	float particle_flight_distance = global_particle_flight_distance;
+//	float particle_t = global_particle_t;
 	int n_sim_phots = global_n_sim_phots;
 
-	double tracking_unc = global_tracking_unc;
-	double ckov_unc = global_ckov_unc;
+	float tracking_unc = global_tracking_unc;
+	float ckov_unc = global_ckov_unc;
 
-	double pion_old_angle = -1;
-	double kaon_old_angle = -1;
+	float pion_old_angle = -1;
+	float kaon_old_angle = -1;
 
 //`	printf("%12.04f %12.04f %12.04f %12.04f %12.04f %12.04f %12.04f\n",particle_theta,particle_phi,particle_x,particle_y,energy,particle_flight_distance,ckov_unc);
 
-	double refrac_index = global_refrac_index;
+	float refrac_index = global_refrac_index;
 //	printf("%12.04f\n",refrac_index);
 	
-	double refrac_split = -.000;
-	double pion_refrac_mod = 1.000;
-	double kaon_refrac_mod = 1.000;
+	float refrac_split = -.000;
+	float pion_refrac_mod = 1.000;
+	float kaon_refrac_mod = 1.000;
 
 	pion_refrac_mod += refrac_split;
 	kaon_refrac_mod -= refrac_split;
 
-	double pion_beta = dirc_model->get_beta(energy,pimass);
-	double kaon_beta = dirc_model->get_beta(energy,kmass);
+	float pion_beta = dirc_model->get_beta(energy,pimass);
+	float kaon_beta = dirc_model->get_beta(energy,kmass);
 	//ns
-	double pion_time = particle_flight_distance/(pion_beta*.3);
-	double kaon_time = particle_flight_distance/(kaon_beta*.3);
+	float pion_time = particle_flight_distance/(pion_beta*.3);
+	float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
-	double pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
-	double kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
+	float pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
+	float kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
 
 //	printf("angles: %12.04f %12.04f   Beta: %12.04f %12.04f\n",pion_emit_angle,kaon_emit_angle,pion_beta,kaon_beta);
 
@@ -199,7 +199,7 @@ void init_global_data()
 }
 
 
-void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
+void dirc_calib_line(int &npar, float *gin, float &f, float *par, int iflag)
 {
 	//do not compute gradient, so flag is irrelevant
 	//pars: pion_x_adj, pion_y_adj, kaon_x_adj, kaon_y_adj
@@ -207,27 +207,27 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 	TH1F *ll_diff_pion = new TH1F("ll_diff_pion_tmp","Difference of log likelihood real = pion",60000,-600,600);
 	TH1F *ll_diff_kaon = new TH1F("ll_diff_kaon_tmp","Difference of log likelihood real = kaon",60000,-600,600);
 
-	double time_spread = 1000;
-	//double dist_spread = 40;
-	double dist_spread = 50;
-	double max_dev_sq = 5;
+	float time_spread = 1000;
+	//float dist_spread = 40;
+	float dist_spread = 50;
+	float max_dev_sq = 5;
 
 	max_dev_sq *= max_dev_sq;
 	
-	double llc = 0;
-	double llf = 0;
+	float llc = 0;
+	float llf = 0;
 
-	double mult_params = 1;
+	float mult_params = 1;
 
-	double x_shift = par[0];
+	float x_shift = par[0];
 	x_shift = -.6;
-	double y_shift = par[0];
-	double y_split = par[1];
+	float y_shift = par[0];
+	float y_split = par[1];
 
-	double pion_x_adj = x_shift;
-	double kaon_x_adj = x_shift;
-	double pion_y_adj = mult_params*(y_shift+y_split);
-	double kaon_y_adj = mult_params*(y_shift-y_split);
+	float pion_x_adj = x_shift;
+	float kaon_x_adj = x_shift;
+	float pion_y_adj = mult_params*(y_shift+y_split);
+	float kaon_y_adj = mult_params*(y_shift-y_split);
 
 
 	std::vector<dirc_point> pion_line;
@@ -263,8 +263,8 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 		
 		for (unsigned int i = 0; i < sim_points.size(); i++)
 		{
-			double min_dist_sq = 10000;
-			double cur_dist_sq = -1;
+			float min_dist_sq = 10000;
+			float cur_dist_sq = -1;
 			for (unsigned int j = 0; j < pion_line.size(); j++)
 			{
 				cur_dist_sq = (sim_points[i].x - pion_line[j].x)*(sim_points[i].x - pion_line[j].x);		
@@ -280,8 +280,8 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 		}
 		for (unsigned int i = 0; i < sim_points.size(); i++)
 		{
-			double min_dist_sq = 10000;
-			double cur_dist_sq = -1;
+			float min_dist_sq = 10000;
+			float cur_dist_sq = -1;
 			for (unsigned int j = 0; j < kaon_line.size(); j++)
 			{
 				cur_dist_sq = (sim_points[i].x - kaon_line[j].x)*(sim_points[i].x - kaon_line[j].x);		
@@ -302,8 +302,8 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 		sim_points = global_kaon_hits[k];
 		for (unsigned int i = 0; i < sim_points.size(); i++)
 		{
-			double min_dist_sq = 10000;
-			double cur_dist_sq = -1;
+			float min_dist_sq = 10000;
+			float cur_dist_sq = -1;
 			for (unsigned int j = 0; j < pion_line.size(); j++)
 			{
 				cur_dist_sq = (sim_points[i].x - pion_line[j].x)*(sim_points[i].x - pion_line[j].x);		
@@ -317,8 +317,8 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 
 		for (unsigned int i = 0; i < sim_points.size(); i++)
 		{
-			double min_dist_sq = 10000;
-			double cur_dist_sq = -1;
+			float min_dist_sq = 10000;
+			float cur_dist_sq = -1;
 			for (unsigned int j = 0; j < kaon_line.size(); j++)
 			{
 				cur_dist_sq = (sim_points[i].x - kaon_line[j].x)*(sim_points[i].x - kaon_line[j].x);		
@@ -339,12 +339,12 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 	//ll_diff_pion->Rebin(20);
 	//ll_diff_kaon->Rebin(20);
 
-        std::vector<double> xr;
-        std::vector<double> yr;
-        double ival = 0;
-	double pion_integral = 0;
-	double kaon_reverse_integral = 1;
-	double integral_scale = global_pion_hits.size();
+        std::vector<float> xr;
+        std::vector<float> yr;
+        float ival = 0;
+	float pion_integral = 0;
+	float kaon_reverse_integral = 1;
+	float integral_scale = global_pion_hits.size();
 
         for (int i = 0; i < ll_diff_pion->GetNbinsX(); i++)
         {
@@ -362,8 +362,8 @@ void dirc_calib_line(int &npar, double *gin, double &f, double *par, int iflag)
 		}
 	 }
 
-        double last_x = xr[0];
-        double last_y = yr[0];
+        float last_x = xr[0];
+        float last_y = yr[0];
 
         for (int i = 0; i < ll_diff_pion->GetNbinsX()-1; i++)
         {
@@ -402,38 +402,38 @@ int main(int nargs, char* argv[])
 	bool out_csv = false;
 	bool slac_run = false;
 	int output_box_angles_n = -1;
-	double time_window=-1;//time window for confounded pmt hits, in ns	
+	float time_window=-1;//time window for confounded pmt hits, in ns	
 
-	double energy = 5.0;
-	double energy_mean = energy;
-	double energy_spread = 0;
-	double kmass = .4937;
-	double pimass = .1396;
-	double mumass = .1057;
+	float energy = 5.0;
+	float energy_mean = energy;
+	float energy_spread = 0;
+	float kmass = .4937;
+	float pimass = .1396;
+	float mumass = .1057;
 
-	double particle_x = 0;
-	double particle_y = 0;
-	double particle_x_mean = particle_x;
-	double particle_y_mean = particle_y;
-	double particle_x_spread = 0;
-	double particle_y_spread = 0;
-	double particle_theta = 4;
-	double particle_theta_mean = particle_theta;
-	double particle_theta_spread = 0;
-	double particle_phi = 40;
-	double particle_phi_mean = particle_phi;
-	double const_track_off = 0;
+	float particle_x = 0;
+	float particle_y = 0;
+	float particle_x_mean = particle_x;
+	float particle_y_mean = particle_y;
+	float particle_x_spread = 0;
+	float particle_y_spread = 0;
+	float particle_theta = 4;
+	float particle_theta_mean = particle_theta;
+	float particle_theta_spread = 0;
+	float particle_phi = 40;
+	float particle_phi_mean = particle_phi;
+	float const_track_off = 0;
 
-	double particle_flight_distance = 0;
+	float particle_flight_distance = 0;
 
 	int box_check_n = -1;
-	double box_check_theta = 0;
-	double box_check_phi = 0;
-	double box_check_theta_unc = 0;
-	double box_check_phi_unc = 0;
-	double box_check_overall_theta = -15;
+	float box_check_theta = 0;
+	float box_check_phi = 0;
+	float box_check_theta_unc = 0;
+	float box_check_phi_unc = 0;
+	float box_check_overall_theta = -15;
 	int phot_check_n = -1;
-	double phot_check_max_theta = 4;
+	float phot_check_max_theta = 4;
 
 
 	bool force_kinematics = false;
@@ -462,41 +462,41 @@ int main(int nargs, char* argv[])
 	int sim_time_test_n = -1;
 	int bounces_phot_n = -1;
 
-	double gaus_ll_spread = 2;
+	float gaus_ll_spread = 2;
 
-	double mean_n_phot = 40;
-	double spread_n_phot = 0;
+	float mean_n_phot = 40;
+	float spread_n_phot = 0;
 
-	double wedge_uncertainty = 0/57.3;
-	double refrac_index=1.47;
-	double mirror_angle_change = 0;
-	double mirror_angle_change_unc = 0;
-	double mirror_angle_change_yunc = 0;
-	double box_rot = 0;
-	double box_rot_unc = 0;
-	double bar_box_box_angle = 0/57.3;
-	double mirror_r_difference = 400;//1200 - 400 = 800.  Changed 05/09/2016.  Does not affect threeseg mirror reconstruction as far as I can tell - this was known.
-	//	double mirror_r_difference = 0;
-	double wedge_non_uniformity = 0;
-	double pmt_offset = 0;
-	double main_mirror_nonuniformity = 0;
-	double foc_mirror_size = 288;
+	float wedge_uncertainty = 0/57.3;
+	float refrac_index=1.47;
+	float mirror_angle_change = 0;
+	float mirror_angle_change_unc = 0;
+	float mirror_angle_change_yunc = 0;
+	float box_rot = 0;
+	float box_rot_unc = 0;
+	float bar_box_box_angle = 0/57.3;
+	float mirror_r_difference = 400;//1200 - 400 = 800.  Changed 05/09/2016.  Does not affect threeseg mirror reconstruction as far as I can tell - this was known.
+	//	float mirror_r_difference = 0;
+	float wedge_non_uniformity = 0;
+	float pmt_offset = 0;
+	float main_mirror_nonuniformity = 0;
+	float foc_mirror_size = 288;
 
 
-	double main_mirror_angle_off = 0;
-	double main_mirror_yangle_off = 0;
-	double main_mirror_zangle_off = 0;
-	double main_mirror_yoff = 0;
-	double main_mirror_zoff = 0;
+	float main_mirror_angle_off = 0;
+	float main_mirror_yangle_off = 0;
+	float main_mirror_zangle_off = 0;
+	float main_mirror_yoff = 0;
+	float main_mirror_zoff = 0;
 
-	double bar_box_xoff = 0;
-	double bar_box_yoff = 0;
-	double bar_box_zoff = 0;
+	float bar_box_xoff = 0;
+	float bar_box_yoff = 0;
+	float bar_box_zoff = 0;
 
-	double pmt_min_z = -1000;
-	double pmt_max_z = 1000;
-	double large_mirror_min_z = -1000;
-	double large_mirror_max_z = 1000;
+	float pmt_min_z = -1000;
+	float pmt_max_z = 1000;
+	float large_mirror_min_z = -1000;
+	float large_mirror_max_z = 1000;
 
 	pmt_min_z = -559;
 	pmt_max_z = -329;
@@ -504,33 +504,33 @@ int main(int nargs, char* argv[])
 	large_mirror_min_z = -559;
 	large_mirror_max_z = -130;
 
-	double upper_wedge_yang_spread = 0;
+	float upper_wedge_yang_spread = 0;
 	int rseed = 1337;
 
 	int broaden_events = 0;
 
-	double tracking_unc = .0000*57.3; //mrad
-	// 	double ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
-	double ckov_unc = .003*57.3; //transport = 3mrad
+	float tracking_unc = .0000*57.3; //mrad
+	// 	float ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
+	float ckov_unc = .003*57.3; //transport = 3mrad
 
-	double resx = 6;
-	double resy = 6;
-	double rest = 1;
-	//	double minx = -8000;
-	//	double maxx = -minx;
-	//	double miny = -800;
-	//	double maxy = -miny;
-	double minx = -1500;
-	double maxx = 1500;
-	double miny = -500;
-	double maxy = 500;
-	double mint = 0;
-	double maxt = 1000;
-	double t_unc = .27;
-	double t_bin_size = 1;
+	float resx = 6;
+	float resy = 6;
+	float rest = 1;
+	//	float minx = -8000;
+	//	float maxx = -minx;
+	//	float miny = -800;
+	//	float maxy = -miny;
+	float minx = -1500;
+	float maxx = 1500;
+	float miny = -500;
+	float maxy = 500;
+	float mint = 0;
+	float maxt = 1000;
+	float t_unc = .27;
+	float t_bin_size = 1;
 
-	double digit_miny = -50;
-	double digit_maxy = 300;
+	float digit_miny = -50;
+	float digit_maxy = 300;
 
 	digit_miny = miny;
 	digit_maxy = maxy;
@@ -538,15 +538,15 @@ int main(int nargs, char* argv[])
 
 
 	//Sets the side boundarys of the distributions
-	double sm_xl = -10000000;
-	double sm_xr = -sm_xl;
+	float sm_xl = -10000000;
+	float sm_xr = -sm_xl;
 
-	//double s_func_x = 6;
-	double s_func_x = 6;
-	double s_func_y = s_func_x;
-	//double s_func_t = 2;
-	double s_func_t = 1.0;
-	double sfunc_sig = 1;
+	//float s_func_x = 6;
+	float s_func_x = 6;
+	float s_func_y = s_func_x;
+	//float s_func_t = 2;
+	float s_func_t = 1.0;
+	float sfunc_sig = 1;
 
 #ifdef USE_BABAR_BOX
 	s_func_x = 29;
@@ -555,15 +555,15 @@ int main(int nargs, char* argv[])
 
 	int n_sim_phots = 40;
 
-//	double pion_x_adj = -.43;
-//	double pion_y_adj = -3.6;
-//	double kaon_x_adj = -.48;
-//	double kaon_y_adj = 2.87;
+//	float pion_x_adj = -.43;
+//	float pion_y_adj = -3.6;
+//	float kaon_x_adj = -.48;
+//	float kaon_y_adj = 2.87;
 
-	double pion_x_adj = 0;
-	double pion_y_adj = 0;
-	double kaon_x_adj = 0;
-	double kaon_y_adj = 0;
+	float pion_x_adj = 0;
+	float pion_y_adj = 0;
+	float kaon_x_adj = 0;
+	float kaon_y_adj = 0;
 
 	//int n_phi_phots = 900000;
 	int n_phi_phots = 150000;
@@ -578,23 +578,23 @@ int main(int nargs, char* argv[])
 //	sm_xl = 0;
 //	sm_xr = sm_xl + 1100;
 
-//	double overlap_x = -1;
+//	float overlap_x = -1;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
 	bool fill_distributions	= false;
 	bool fill_kinematics_yields = false;
-	double kinematics_yields_min_theta = 0;
-	double kinematics_yields_max_theta = 12;
-	double kinematics_yields_step_theta = .25;
-	double kinematics_yields_min_phi = 0;
-	double kinematics_yields_max_phi = 45;
-	double kinematics_yields_step_phi = 1;
+	float kinematics_yields_min_theta = 0;
+	float kinematics_yields_max_theta = 12;
+	float kinematics_yields_step_theta = .25;
+	float kinematics_yields_min_phi = 0;
+	float kinematics_yields_max_phi = 45;
+	float kinematics_yields_step_phi = 1;
 	int  kinematics_n_phots = 100000;
 
 
-	double liquid_absorbtion = 0*-log(.7)/1000;
-	double liquid_index = 1.33;
+	float liquid_absorbtion = 0*-log(.7)/1000;
+	float liquid_index = 1.33;
 
 	bool coverage_plot = false;
 	int num_cov = 100000;
@@ -1112,24 +1112,24 @@ int main(int nargs, char* argv[])
 	}
 
 
-	double main_mirror_angle = 74.11+mirror_angle_change;
+	float main_mirror_angle = 74.11+mirror_angle_change;
 
 	//main_mirror_angle += .23;
 
-	double rad_to_deg = 57.2958;
+	float rad_to_deg = 57.2958;
 
-	//double res_enhance = 1/6.;
-	double res_enhance = 1;
+	//float res_enhance = 1/6.;
+	float res_enhance = 1;
 
-//	double prog_thresh = 500;
+//	float prog_thresh = 500;
 
 	if (flatten_time == true)
 	{
 		s_func_t = 100000000;
 	}	
 
-	double outcsv_x,outcsv_y;
-	//double outcsv_t;
+	float outcsv_x,outcsv_y;
+	//float outcsv_t;
 	outcsv_x = 0*35;//bars are 35mm wide
 	outcsv_y = 0;//mm
 	//outcsv_t = 0;//ns
@@ -1139,7 +1139,7 @@ int main(int nargs, char* argv[])
 		n_phi_phots = 4000;
 		n_z_phots = 8;
 		particle_y += outcsv_y;}
-	double pdf_unc_red_fac = 1;
+	float pdf_unc_red_fac = 1;
 
 
 	TRandom3 spread_ang(rseed+3);
@@ -1162,9 +1162,9 @@ int main(int nargs, char* argv[])
 	maxx = -minx;
 	miny = 0;
 	maxy = dirc_model->get_sens_r()*dirc_model->get_sens_subtend_angle()/57.3;
-	double babar_t_unc = 1;
-	double babar_t_bin = 1;
-	double babar_pmt_r = 29./2;
+	float babar_t_unc = 1;
+	float babar_t_bin = 1;
+	float babar_pmt_r = 29./2;
 #else
 	DircThreeSegBoxSim *dirc_model = new DircThreeSegBoxSim(\
 			rseed,\
@@ -1185,9 +1185,9 @@ int main(int nargs, char* argv[])
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);
 
 
-	double muon_beta, pion_beta, kaon_beta/*, electron_beta:=1*/;
+	float muon_beta, pion_beta, kaon_beta/*, electron_beta:=1*/;
 	muon_beta=pion_beta=kaon_beta=-1;
-	double muon_angle, pion_angle, kaon_angle;
+	float muon_angle, pion_angle, kaon_angle;
 	muon_angle=pion_angle=kaon_angle = -1;
 
 
@@ -1230,8 +1230,8 @@ int main(int nargs, char* argv[])
 	TH1F *kaon_dist_t = new TH1F("kaon_dist_t","t val of intercepted points - kaon",(maxt-mint)/(res_enhance*rest),mint,maxt);
 
 	int d_bins = 2000;
-	double d_bin_min = -200;
-	double d_bin_max = -d_bin_min;
+	float d_bin_min = -200;
+	float d_bin_max = -d_bin_min;
 
 	TH1F *pion_midline_dx = new TH1F("pion_midline_dx","dx from midline for pions",d_bins,d_bin_min,d_bin_max);
 	TH1F *pion_midline_dy = new TH1F("pion_midline_dy","dy from midline for pions",d_bins,d_bin_min,d_bin_max);
@@ -1337,7 +1337,7 @@ int main(int nargs, char* argv[])
 #endif
 	//  	
 	printf("Beginning Run\n");
-	double llc, llf, ll_diff;
+	float llc, llf, ll_diff;
 	llc=llf=ll_diff=0;
 	int pion_kaon_diff = 0;
 	std::vector<dirc_point> sim_points;
@@ -1391,15 +1391,15 @@ int main(int nargs, char* argv[])
 
 		int iPID, iBAR;
 		//int ievent_index;
-		double ix,iy,it,itheta,iphi,iE;
+		float ix,iy,it,itheta,iphi,iE;
 		std::vector<int> PID,BAR;
 		std::vector<int> event_index;
-		std::vector<double> x,y,t,theta,phi,E;
+		std::vector<float> x,y,t,theta,phi,E;
 
-		double min_t = 1000;
-		double avg_x = 0;
-		double avg_y = 0;
-		double avg_t = 0;
+		float min_t = 1000;
+		float avg_x = 0;
+		float avg_y = 0;
+		float avg_t = 0;
 		int tot_nhit = 0;
 		for (int i = 0; i < nentries; i++) {
 
@@ -1417,7 +1417,7 @@ int main(int nargs, char* argv[])
 			iy = particle_y[0]*10 + 700;//Figure out that geometry
 			it = gen_t[0] + 2*r;//2ns spacing of events at least.
 			iE = gen_E[0];
-			double p_trans = sqrt(py[0]*py[0]+px[0]*px[0]);
+			float p_trans = sqrt(py[0]*py[0]+px[0]*px[0]);
 			itheta = atan(p_trans/pz[0])*180/3.14159;
 			iphi = atan2(py[0],px[0])*180/3.14159;
 
@@ -1493,13 +1493,13 @@ int main(int nargs, char* argv[])
 
 			r++;
 		}
-		double high_avg = 0;
-		double low_avg = 0;
-		double high_min = 10000000;
-		double low_min = 10000000;
+		float high_avg = 0;
+		float low_avg = 0;
+		float high_min = 10000000;
+		float low_min = 10000000;
 		int high_count = 0;
 		int low_count = 0;
-		double tmp_t = -1;
+		float tmp_t = -1;
 		for (unsigned int j = 0; j < root_hits_array.size(); j++)
 		{
 			for (unsigned int k = 0; k < root_hits_array[j].size(); k++)
@@ -1537,11 +1537,11 @@ int main(int nargs, char* argv[])
 		//units: mm, ns, deg, GeV 
 
 		//declare for beta and angle based on PID, and constructors for hitpoints and pdfs
-		double pion_mc_beta,kaon_mc_beta,pion_mc_angle,kaon_mc_angle;
+		float pion_mc_beta,kaon_mc_beta,pion_mc_angle,kaon_mc_angle;
 		std::vector<dirc_point> hits_trk_is_pion;
 		std::vector<dirc_point> hits_trk_is_kaon;
 
-		double min_pval = 1e-2;
+		float min_pval = 1e-2;
 		DircSpreadGaussian * pdf_as_pion = new DircSpreadGaussian(\
 				sfunc_sig,\
 				hits_trk_is_pion,\
@@ -1585,7 +1585,7 @@ int main(int nargs, char* argv[])
 
 				//
 				//and replace acos......
-				//cdd replace 1.47 with double refrac_index=1.47;
+				//cdd replace 1.47 with float refrac_index=1.47;
 				pion_mc_beta = dirc_model->get_beta(E[n],pimass);
 				kaon_mc_beta = dirc_model->get_beta(E[n],kmass);
 				pion_mc_angle = rad_to_deg*acos(1/(1.47*pion_mc_beta));
@@ -1710,9 +1710,9 @@ int main(int nargs, char* argv[])
 						ckov_unc/pdf_unc_red_fac,\
 						kaon_mc_beta);
 				//TODO: Check timing
-				double avg_x = 0;	
-				double avg_y = 0;	
-				double avg_t = 0;	
+				float avg_x = 0;	
+				float avg_y = 0;	
+				float avg_t = 0;	
 				for (unsigned int k = 0; k < hits_trk_is_pion.size(); k++)
 				{
 					hits_trk_is_pion[k].t += t[n];
@@ -1722,15 +1722,15 @@ int main(int nargs, char* argv[])
 					avg_t += hits_trk_is_pion[k].t - 2*n;
 				}
 
-				double high_avg = 0;
-				double low_avg = 0;
-				double high_min = 10000000;
-				double low_min = 10000000;
+				float high_avg = 0;
+				float low_avg = 0;
+				float high_min = 10000000;
+				float low_min = 10000000;
 				int high_count = 0;
 				int low_count = 0;
-				double tmp_t = -1;
-				double tmp_x = -1;
-				double tmp_y = -1;
+				float tmp_t = -1;
+				float tmp_x = -1;
+				float tmp_y = -1;
 				for (unsigned int k = 0; k < hits_trk_is_pion.size(); k++)
 				{
 					tmp_t = hits_trk_is_pion[k].t - 2*n;
@@ -1840,8 +1840,8 @@ int main(int nargs, char* argv[])
 			}
 		}
 		printf("\n");//ensure we're on a new line at the end
-		printf("Kaon missID: %12.04f%% \n",(double) 100.0*zero_kaon_id->GetBinContent(1)/(zero_kaon_id->GetBinContent(1)+zero_kaon_id->GetBinContent(2)));
-		printf("Pion missID: %12.04f%% \n",(double) 100.0*zero_pion_id->GetBinContent(1)/(zero_pion_id->GetBinContent(1)+zero_pion_id->GetBinContent(2)));
+		printf("Kaon missID: %12.04f%% \n",(float) 100.0*zero_kaon_id->GetBinContent(1)/(zero_kaon_id->GetBinContent(1)+zero_kaon_id->GetBinContent(2)));
+		printf("Pion missID: %12.04f%% \n",(float) 100.0*zero_pion_id->GetBinContent(1)/(zero_pion_id->GetBinContent(1)+zero_pion_id->GetBinContent(2)));
 	}
 	else if(inputfile){
 
@@ -1861,16 +1861,16 @@ int main(int nargs, char* argv[])
 		//declare memory addresses for inputs
 		//units: mm, ns, deg, GeV 
 		int iPID, iBAR,ievent_index;
-		double ix,iy,it,itheta,iphi,iE;
+		float ix,iy,it,itheta,iphi,iE;
 		std::vector<int> PID,BAR,event_index;
-		std::vector<double> x,y,t,theta,phi,E;
+		std::vector<float> x,y,t,theta,phi,E;
 
 		//declare for beta and angle based on PID, and constructors for hitpoints and pdfs
-		double pion_mc_beta,kaon_mc_beta,pion_mc_angle,kaon_mc_angle;
+		float pion_mc_beta,kaon_mc_beta,pion_mc_angle,kaon_mc_angle;
 		std::vector<dirc_point> hits_trk_is_pion;
 		std::vector<dirc_point> hits_trk_is_kaon;
 
-		double min_pval = 1e-2;
+		float min_pval = 1e-2;
 		DircSpreadGaussian * pdf_as_pion = new DircSpreadGaussian(\
 				sfunc_sig,\
 				hits_trk_is_pion,\
@@ -1918,7 +1918,7 @@ int main(int nargs, char* argv[])
 
 				//
 				//and replace acos......
-				//cdd replace 1.47 with double refrac_index=1.47;
+				//cdd replace 1.47 with float refrac_index=1.47;
 				pion_mc_beta = dirc_model->get_beta(E[n],pimass);
 				kaon_mc_beta = dirc_model->get_beta(E[n],kmass);
 				pion_mc_angle = rad_to_deg*acos(1/(1.47*pion_mc_beta));
@@ -2208,8 +2208,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 		dirc_model->sim_reg_n_photons(\
 				hit_points_pion,\
@@ -2276,8 +2276,8 @@ int main(int nargs, char* argv[])
 			//Sim new photons
 			
 			//ns
-			double pion_time = particle_flight_distance/(pion_beta*.3);
-			double kaon_time = particle_flight_distance/(kaon_beta*.3);
+			float pion_time = particle_flight_distance/(pion_beta*.3);
+			float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 			dirc_model->sim_reg_n_photons(\
 					hit_points_pion,\
@@ -2436,7 +2436,7 @@ int main(int nargs, char* argv[])
 		}
 
 		//	printf("Found %d pion points on the target\n", (int) hit_points_pion.size());
-		double x,y,t_ns;
+		float x,y,t_ns;
 		for (unsigned int i = 0; i < hit_points_pion.size(); i++)
 		{
 			x = hit_points_pion[i].x;
@@ -2472,8 +2472,8 @@ int main(int nargs, char* argv[])
 		}
 
 		int num_provisional_points = 25000;
-		double points_dist_sq = 100;
-		double rethrown_phi_width = .1;
+		float points_dist_sq = 100;
+		float rethrown_phi_width = .1;
 		int num_rethrown_phots = 1200000 * rethrown_phi_width/(3.14159);
 
 		pion_beta = dirc_model->get_beta(energy,pimass);
@@ -2493,8 +2493,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 
 		DircSpreadGaussian* pdf_pion = new DircSpreadGaussian(\
@@ -2559,14 +2559,14 @@ int main(int nargs, char* argv[])
 			llc = 0;
 			llf = 0;
 			
-			std::vector<double> start_phi;
+			std::vector<float> start_phi;
 			std::vector<dirc_point> provisional_points;
 
 
 			for (int i = 0; i < num_provisional_points; i++)
 			{
 				dirc_point tmp_pro_point;
-				double cur_phi = i*2*3.14159/num_provisional_points;
+				float cur_phi = i*2*3.14159/num_provisional_points;
 				bool hit_pmt;
 				hit_pmt = dirc_model->track_single_photon_beta(\
 				        tmp_pro_point,\
@@ -2591,12 +2591,12 @@ int main(int nargs, char* argv[])
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double cur_mean_phi = 0;
-				double cur_mean_x = 0;
-				double cur_mean_y = 0;
+				float cur_mean_phi = 0;
+				float cur_mean_x = 0;
+				float cur_mean_y = 0;
 				
 				int total_prov_points = 0;
-				double cur_dist_sq = 0;
+				float cur_dist_sq = 0;
 				for (unsigned int j = 0; j < provisional_points.size(); j++)
 				{
 					cur_dist_sq = 0;
@@ -2618,10 +2618,10 @@ int main(int nargs, char* argv[])
 				hit_points_pion.clear();
 				for (int j = 0; j < num_rethrown_phots; j++)
 				{
-					double cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
-					double cur_z = spread_ang.Uniform(-17,0);
+					float cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
+					float cur_z = spread_ang.Uniform(-17,0);
 					dirc_point tmp_point;
-					double hit_pmt = dirc_model->track_single_photon_beta(\
+					float hit_pmt = dirc_model->track_single_photon_beta(\
 					        tmp_point,\
 					        pion_beta,\
        	 					cur_phi,\
@@ -2642,7 +2642,7 @@ int main(int nargs, char* argv[])
 				{
 					std::vector<dirc_point> single_point;
 					single_point.push_back(sim_points[i]);
-					double add_ll = pdf_pion->get_log_likelihood_new_support(single_point,hit_points_pion);
+					float add_ll = pdf_pion->get_log_likelihood_new_support(single_point,hit_points_pion);
 //					printf("pion/pion: %d/%d: %12.04f\n",i,sim_points.size(),add_ll);
 					llc += add_ll;
 					//printf("pion llc: %12.04f\n",llc);
@@ -2661,7 +2661,7 @@ int main(int nargs, char* argv[])
 			for (int i = 0; i < num_provisional_points; i++)
 			{
 				dirc_point tmp_pro_point;
-				double cur_phi = i*2*3.14159/num_provisional_points;
+				float cur_phi = i*2*3.14159/num_provisional_points;
 				bool hit_pmt = false;
 				hit_pmt = dirc_model->track_single_photon_beta(\
 				        tmp_pro_point,\
@@ -2686,11 +2686,11 @@ int main(int nargs, char* argv[])
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double cur_mean_phi = 0;
-				double cur_mean_x = 0;
-				double cur_mean_y = 0;
+				float cur_mean_phi = 0;
+				float cur_mean_x = 0;
+				float cur_mean_y = 0;
 				int total_prov_points = 0;
-				double cur_dist_sq = 0;
+				float cur_dist_sq = 0;
 				for (unsigned int j = 0; j < provisional_points.size(); j++)
 				{
 					cur_dist_sq = 0;
@@ -2712,10 +2712,10 @@ int main(int nargs, char* argv[])
 				hit_points_kaon.clear();
 				for (int j = 0; j < num_rethrown_phots; j++)
 				{
-					double cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
-					double cur_z = spread_ang.Uniform(-17,0);
+					float cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
+					float cur_z = spread_ang.Uniform(-17,0);
 					dirc_point tmp_point;
-					double hit_pmt = dirc_model->track_single_photon_beta(\
+					float hit_pmt = dirc_model->track_single_photon_beta(\
 					        tmp_point,\
 					        kaon_beta,\
        	 					cur_phi,\
@@ -2736,7 +2736,7 @@ int main(int nargs, char* argv[])
 				{
 					std::vector<dirc_point> single_point;
 					single_point.push_back(sim_points[i]);
-					double add_ll = pdf_kaon->get_log_likelihood_new_support(single_point,hit_points_kaon);
+					float add_ll = pdf_kaon->get_log_likelihood_new_support(single_point,hit_points_kaon);
 //					printf("pion/kaon: %d/%d: %12.04f\n",i,sim_points.size(),add_ll);
 					llf += add_ll;
 					//printf("kaon llf: %12.04f\n",llf);
@@ -2783,7 +2783,7 @@ int main(int nargs, char* argv[])
 			for (int i = 0; i < num_provisional_points; i++)
 			{
 				dirc_point tmp_pro_point;
-				double cur_phi = i*2*3.14159/num_provisional_points;
+				float cur_phi = i*2*3.14159/num_provisional_points;
 				bool hit_pmt;
 				hit_pmt = dirc_model->track_single_photon_beta(\
 				        tmp_pro_point,\
@@ -2808,11 +2808,11 @@ int main(int nargs, char* argv[])
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double cur_mean_phi = 0;
-				double cur_mean_x = 0;
-				double cur_mean_y = 0;
+				float cur_mean_phi = 0;
+				float cur_mean_x = 0;
+				float cur_mean_y = 0;
 				int total_prov_points = 0;
-				double cur_dist_sq = 0;
+				float cur_dist_sq = 0;
 				for (unsigned int j = 0; j < provisional_points.size(); j++)
 				{
 					cur_dist_sq = 0;
@@ -2833,10 +2833,10 @@ int main(int nargs, char* argv[])
 				hit_points_pion.clear();
 				for (int j = 0; j < num_rethrown_phots; j++)
 				{
-					double cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
-					double cur_z = spread_ang.Uniform(-17,0);
+					float cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
+					float cur_z = spread_ang.Uniform(-17,0);
 					dirc_point tmp_point;
-					double hit_pmt = dirc_model->track_single_photon_beta(\
+					float hit_pmt = dirc_model->track_single_photon_beta(\
 					        tmp_point,\
 					        pion_beta,\
        	 					cur_phi,\
@@ -2857,7 +2857,7 @@ int main(int nargs, char* argv[])
 				{
 					std::vector<dirc_point> single_point;
 					single_point.push_back(sim_points[i]);
-					double add_ll = pdf_pion->get_log_likelihood_new_support(single_point,hit_points_pion);
+					float add_ll = pdf_pion->get_log_likelihood_new_support(single_point,hit_points_pion);
 				//	printf("pion/kaon: %12.04f\n",add_ll);
 					llc += add_ll;
 				}
@@ -2868,7 +2868,7 @@ int main(int nargs, char* argv[])
 			for (int i = 0; i < num_provisional_points; i++)
 			{
 				dirc_point tmp_pro_point;
-				double cur_phi = i*2*3.14159/num_provisional_points;
+				float cur_phi = i*2*3.14159/num_provisional_points;
 				bool hit_pmt;
 				hit_pmt = dirc_model->track_single_photon_beta(\
 				        tmp_pro_point,\
@@ -2893,11 +2893,11 @@ int main(int nargs, char* argv[])
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double cur_mean_phi = 0;
-				double cur_mean_x = 0;
-				double cur_mean_y = 0;
+				float cur_mean_phi = 0;
+				float cur_mean_x = 0;
+				float cur_mean_y = 0;
 				int total_prov_points = 0;
-				double cur_dist_sq = 0;
+				float cur_dist_sq = 0;
 				for (unsigned int j = 0; j < provisional_points.size(); j++)
 				{
 					cur_dist_sq = 0;
@@ -2918,10 +2918,10 @@ int main(int nargs, char* argv[])
 				hit_points_kaon.clear();
 				for (int j = 0; j < num_rethrown_phots; j++)
 				{
-					double cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
-					double cur_z = spread_ang.Uniform(-17,0);
+					float cur_phi = spread_ang.Uniform(cur_mean_phi-rethrown_phi_width,cur_mean_phi+rethrown_phi_width);
+					float cur_z = spread_ang.Uniform(-17,0);
 					dirc_point tmp_point;
-					double hit_pmt = dirc_model->track_single_photon_beta(\
+					float hit_pmt = dirc_model->track_single_photon_beta(\
 					        tmp_point,\
 					        kaon_beta,\
        	 					cur_phi,\
@@ -2942,7 +2942,7 @@ int main(int nargs, char* argv[])
 				{
 					std::vector<dirc_point> single_point;
 					single_point.push_back(sim_points[i]);
-					double add_ll = pdf_kaon->get_log_likelihood(single_point);
+					float add_ll = pdf_kaon->get_log_likelihood(single_point);
 				//	printf("kaon/kaon: %12.04f\n",add_ll);
 					llf += add_ll;
 				}
@@ -2989,11 +2989,11 @@ int main(int nargs, char* argv[])
 		init_global_data();
 
 		int n_minuit_pars = 2;	
-		double *minuit_pars = new double[n_minuit_pars];
+		float *minuit_pars = new float[n_minuit_pars];
 /*
-		double *minuit_grad;//not_computed
-		double minuit_val;
-		double minuit_flag = 0;
+		float *minuit_grad;//not_computed
+		float minuit_val;
+		float minuit_flag = 0;
 */
 		minuit_pars[0] = pion_x_adj;
 		minuit_pars[1] = pion_y_adj;
@@ -3006,11 +3006,11 @@ int main(int nargs, char* argv[])
 		TMinuit minuit(n_minuit_pars);
 		minuit.SetFCN(dirc_calib_line);
 		// Vector of step, initial min and max value
-		double arglist[10];
-		double vstrt[n_minuit_pars];
-		double stp[n_minuit_pars];
- 		double bmin[n_minuit_pars];
- 		double bmax[n_minuit_pars];
+		float arglist[10];
+		float vstrt[n_minuit_pars];
+		float stp[n_minuit_pars];
+ 		float bmin[n_minuit_pars];
+ 		float bmax[n_minuit_pars];
 
 		vstrt[0] = 0; 
 		vstrt[1] = 0;
@@ -3047,10 +3047,10 @@ int main(int nargs, char* argv[])
 		minuit.mnexcm("SIM", arglist ,1,ierflg);
 //		minuit.mnexcm("IMP", arglist ,1,ierflg);
 		
-		double x_shift = -.6;
-		double y_shift, y_split;
-		double cur_err;
-		double mult_params = 1;
+		float x_shift = -.6;
+		float y_shift, y_split;
+		float cur_err;
+		float mult_params = 1;
 
 		minuit.GetParameter(0,y_shift,cur_err);
 		minuit.GetParameter(1,y_split,cur_err);
@@ -3075,12 +3075,12 @@ int main(int nargs, char* argv[])
 		}
 
 		int num_line_points = 5000;
-//		double points_dist_sq = 6000;
-		double time_spread = 2;
-		//double time_spread = 1000;
-		//double dist_spread = 40;
-		double dist_spread = 50;
-		double max_dev_sq = 5;
+//		float points_dist_sq = 6000;
+		float time_spread = 2;
+		//float time_spread = 1000;
+		//float dist_spread = 40;
+		float dist_spread = 50;
+		float max_dev_sq = 5;
 
 
 		max_dev_sq *= max_dev_sq;
@@ -3102,11 +3102,11 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
-		double unused_photons = 0;
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float unused_photons = 0;
 
-		double pion_t_adj = .34;
+		float pion_t_adj = .34;
 		pion_t_adj = 0;
 
 		for (int i = 0; i < line_recon_n; i++)
@@ -3153,14 +3153,14 @@ int main(int nargs, char* argv[])
 			llc = 0;
 			llf = 0;
 			
-			std::vector<double> phi_last_wall_neg;
-			std::vector<double> phi_last_wall_pos;
+			std::vector<float> phi_last_wall_neg;
+			std::vector<float> phi_last_wall_pos;
 			std::vector<dirc_point> provisional_points_lwn;
 			std::vector<dirc_point> provisional_points_lwp;
 
-			double refrac_split = -.000;
-			double pion_refrac_mod = 1.000;
-			double kaon_refrac_mod = 1.000;
+			float refrac_split = -.000;
+			float pion_refrac_mod = 1.000;
+			float kaon_refrac_mod = 1.000;
 
 			pion_refrac_mod += refrac_split;
 			kaon_refrac_mod -= refrac_split;
@@ -3169,8 +3169,8 @@ int main(int nargs, char* argv[])
 		//	kaon_refrac_mod = 1;
 
 
-			double pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
-			double kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
+			float pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
+			float kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
 
 			dirc_model->track_all_line_photons(\
 			        provisional_points_lwn,\
@@ -3203,8 +3203,8 @@ int main(int nargs, char* argv[])
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -3263,8 +3263,8 @@ int main(int nargs, char* argv[])
 			}
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -3345,8 +3345,8 @@ int main(int nargs, char* argv[])
 			}
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -3398,8 +3398,8 @@ int main(int nargs, char* argv[])
 			}
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -3475,8 +3475,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 		dirc_model->sim_reg_n_photons(\
 				hit_points_pion,\
@@ -3821,11 +3821,11 @@ int main(int nargs, char* argv[])
 			int itheta_bin = 0;
 			int iphi_bin = 0;
 			printf("starting kinematics yields ouput\n");
-			for (double itheta = kinematics_yields_min_theta + kinematics_yields_step_theta/2; itheta < kinematics_yields_max_theta; itheta += kinematics_yields_step_theta)
+			for (float itheta = kinematics_yields_min_theta + kinematics_yields_step_theta/2; itheta < kinematics_yields_max_theta; itheta += kinematics_yields_step_theta)
 			{
 				itheta_bin++;//I know there's a better way to do this, but I'm lazy
 				iphi_bin = 0;
-				for (double iphi = kinematics_yields_min_phi + kinematics_yields_step_phi/2; iphi < kinematics_yields_max_phi; iphi += kinematics_yields_step_phi)
+				for (float iphi = kinematics_yields_min_phi + kinematics_yields_step_phi/2; iphi < kinematics_yields_max_phi; iphi += kinematics_yields_step_phi)
 				{
 					iphi_bin++;
 					printf("\r                                                                             ");
@@ -3865,7 +3865,7 @@ int main(int nargs, char* argv[])
 			ckov_unc = 0;
 		}
 		//	printf("Found %d pion points on the target\n", (int) hit_points_pion.size());
-		double x,y,t_ns;
+		float x,y,t_ns;
 		for (unsigned int i = 0; i < hit_points_pion.size(); i++)
 		{
 			x = hit_points_pion[i].x;
@@ -3901,7 +3901,7 @@ int main(int nargs, char* argv[])
 			kaon_dist_t->Fill(t_ns);
 		}
 	}
-	double dist_mean = 0;
+	float dist_mean = 0;
 	if (box_check_n > 0)
 	{	
 		printf("Box Checking Histograms...\n");
@@ -3942,8 +3942,8 @@ int main(int nargs, char* argv[])
 		std::vector<dirc_point> phot_check_points;
 
 		int num_phot_points = 100;
-		double phot_check_theta = 0;
-		double phot_check_phi = 0;
+		float phot_check_theta = 0;
+		float phot_check_phi = 0;
 		dist_mean = 0;	
 
 		for (int i = 0; i < phot_check_n; i++)
@@ -3990,17 +3990,17 @@ int main(int nargs, char* argv[])
 		pion_beta = dirc_model->get_beta(energy,pimass);
 		kaon_beta = dirc_model->get_beta(energy,kmass);
 	
-		double quartz_index = 1.473;
-		double pion_cerenkov = acos(1/(quartz_index*pion_beta));
-		double kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
-		double gaus_mean_a = 0;
-		double gaus_mean_b = 1000*(pion_cerenkov-kaon_cerenkov);
+		float quartz_index = 1.473;
+		float pion_cerenkov = acos(1/(quartz_index*pion_beta));
+		float kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
+		float gaus_mean_a = 0;
+		float gaus_mean_b = 1000*(pion_cerenkov-kaon_cerenkov);
 
 		printf("Filling Histos with %d points\n",gaus_ll_n);
 		printf("Mean separation:  %12.04f \"mrad\"\n",gaus_mean_b);
 		printf("Gaussian Sigma:   %12.04f \"mrad\"\n",gaus_ll_spread);
 
-		double filla,fillb;
+		float filla,fillb;
 		for (int i = 0; i < gaus_ll_n; i++)
 		{
 			filla = spread_ang.Gaus(gaus_mean_a,gaus_ll_spread);
@@ -4029,23 +4029,23 @@ int main(int nargs, char* argv[])
 		pion_beta = dirc_model->get_beta(energy,pimass);
 		kaon_beta = dirc_model->get_beta(energy,kmass);
 	
-		double quartz_index = 1.473;
-		double pion_cerenkov = acos(1/(quartz_index*pion_beta));
-		double kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
+		float quartz_index = 1.473;
+		float pion_cerenkov = acos(1/(quartz_index*pion_beta));
+		float kaon_cerenkov = acos(1/(quartz_index*kaon_beta));
 
 		std::vector<dirc_point> hit_points_pion;
 		std::vector<dirc_point> hit_points_kaon;
-		std::vector<double> pion_ckov;
-		std::vector<double> kaon_ckov;
-		std::vector<double> pion_dts;
-		std::vector<double> kaon_dts;
+		std::vector<float> pion_ckov;
+		std::vector<float> kaon_ckov;
+		std::vector<float> pion_dts;
+		std::vector<float> kaon_dts;
 
-		std::vector<double> pion_angle_means;
-		std::vector<double> kaon_angle_means;
+		std::vector<float> pion_angle_means;
+		std::vector<float> kaon_angle_means;
 
 		std::vector<dirc_point> lut_points;
-		std::vector<double> lut_phis;
-		std::vector<double> lut_thetas;
+		std::vector<float> lut_phis;
+		std::vector<float> lut_thetas;
 		dirc_model->sim_lut_points(\
 	                lut_points,\
        	        	lut_phis,\
@@ -4058,35 +4058,35 @@ int main(int nargs, char* argv[])
 			dirc_lut->add_table_pt(lut_points[i],lut_phis[i],lut_thetas[i]);
 		}
 		printf("LUT Table filled with %d points\n", (int) lut_points.size());
-		double fmin = 57.3*(pion_cerenkov+kaon_cerenkov)/2 - 1;
-		double fmax = 57.3*(pion_cerenkov+kaon_cerenkov)/2 + 1;
+		float fmin = 57.3*(pion_cerenkov+kaon_cerenkov)/2 - 1;
+		float fmax = 57.3*(pion_cerenkov+kaon_cerenkov)/2 + 1;
 
-		double oval_cut_angle_center = (pion_cerenkov+kaon_cerenkov)/2;
-		double oval_cut_angle_spread_sq = .018;//radians
-		//double oval_cut_angle_spread_sq = .1;//radians
+		float oval_cut_angle_center = (pion_cerenkov+kaon_cerenkov)/2;
+		float oval_cut_angle_spread_sq = .018;//radians
+		//float oval_cut_angle_spread_sq = .1;//radians
 		oval_cut_angle_spread_sq *= oval_cut_angle_spread_sq;
-		double oval_cut_time_spread_sq = .5;//ns/m - scaled by pathlength
-		//double oval_cut_time_spread_sq = 4;//ns/m - scaled by pathlength
+		float oval_cut_time_spread_sq = .5;//ns/m - scaled by pathlength
+		//float oval_cut_time_spread_sq = 4;//ns/m - scaled by pathlength
 		oval_cut_time_spread_sq *= oval_cut_time_spread_sq;//ns
-		//double oval_cut_val = -1;
+		//float oval_cut_val = -1;
 
-		double ll_mean_adjust = 47.1;
-		double ll_mean_enhance = 17.45;
+		float ll_mean_adjust = 47.1;
+		float ll_mean_enhance = 17.45;
 
 		//all in radians
-		double iter_ang_spread_sq = oval_cut_angle_spread_sq/2;
-		double iter_time_spread_sq = oval_cut_time_spread_sq/2;
+		float iter_ang_spread_sq = oval_cut_angle_spread_sq/2;
+		float iter_time_spread_sq = oval_cut_time_spread_sq/2;
 		int max_lut_iter = 20;
-		double iter_mean_change_stop = .00002;
-		double iter_last_mean = -10;
-		double iter_mean = oval_cut_angle_center;
+		float iter_mean_change_stop = .00002;
+		float iter_last_mean = -10;
+		float iter_mean = oval_cut_angle_center;
 
 
 		//estimate chromatic correction, use a pion at our kinematics and repost vals
-		double m_cc_direct = 0;
-		double b_cc_direct = 0;
-		double m_cc_indirect = 0;
-		double b_cc_indirect = 0;
+		float m_cc_direct = 0;
+		float b_cc_direct = 0;
+		float m_cc_indirect = 0;
+		float b_cc_indirect = 0;
 		int n_cc_particles = 10000;
 
 		if (perform_chromatic_correction == true)
@@ -4132,10 +4132,10 @@ int main(int nargs, char* argv[])
 			if (lut_slac == true)
 			{
 				//SLAC acceptance
-				double x_bound = tan(17/57.3);
-				double y_bound = tan(27/57.3);
-				double tmp_x = spread_ang.Uniform(-x_bound,x_bound);
-				double tmp_y = spread_ang.Uniform(-y_bound,y_bound);
+				float x_bound = tan(17/57.3);
+				float y_bound = tan(27/57.3);
+				float tmp_x = spread_ang.Uniform(-x_bound,x_bound);
+				float tmp_y = spread_ang.Uniform(-y_bound,y_bound);
 
 				particle_theta = 57.3*atan(sqrt(tmp_x*tmp_x+tmp_y*tmp_y));
 				particle_phi = 57.3*atan2(tmp_x,tmp_y); //This is the correct otdering - I want 0 to be along the bar.
@@ -4173,10 +4173,10 @@ int main(int nargs, char* argv[])
 			//pass by reference?  Probably pretty small and doesn't matter
 			dirc_lut->get_ckov_theta_all(pion_ckov,pion_dts,hit_points_pion, particle_phi, particle_theta, particle_y);
 			dirc_lut->get_ckov_theta_all(kaon_ckov,kaon_dts,hit_points_kaon, particle_phi, particle_theta, particle_y);
-			double pion_lut_mean = 0;
-			double pion_lut_count = 0;
-			double kaon_lut_mean = 0;
-			double kaon_lut_count = 0;
+			float pion_lut_mean = 0;
+			float pion_lut_count = 0;
+			float kaon_lut_mean = 0;
+			float kaon_lut_count = 0;
 
 			iter_last_mean = -10;
 			iter_mean = oval_cut_angle_center;
@@ -4339,10 +4339,10 @@ int main(int nargs, char* argv[])
 		TH1F* tmp_pion_lut = new TH1F(*pion_lut_vals);
 		TH1F* tmp_kaon_lut = new TH1F(*kaon_lut_vals);
 		
-		double pion_mean = 0;//Degrees
-		double pion_sigma = 0;//mrad
-		double kaon_mean = 0;//Degrees
-		double kaon_sigma = 0;//mrad
+		float pion_mean = 0;//Degrees
+		float pion_sigma = 0;//mrad
+		float kaon_mean = 0;//Degrees
+		float kaon_sigma = 0;//mrad
 
 		
 		tmp_pion_lut->Fit("gaus","RQL","",fmin,fmax);
@@ -4402,12 +4402,12 @@ int main(int nargs, char* argv[])
 		}
 
 		int num_line_points = 5000;
-		//double time_spread = 4;
-		double time_spread = 4;
-		double dist_spread = 40;
-		double max_dev_sq = 5;
+		//float time_spread = 4;
+		float time_spread = 4;
+		float dist_spread = 40;
+		float max_dev_sq = 5;
 
-		double callibration_y_shift = 0;
+		float callibration_y_shift = 0;
 
 		max_dev_sq *= max_dev_sq;
 
@@ -4428,8 +4428,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 		for (int i = 0; i < fill_d_midline_n; i++)
 		{
@@ -4456,15 +4456,15 @@ int main(int nargs, char* argv[])
 					pion_beta);
 			//		digitizer.digitize_points(sim_points);
 
-			std::vector<double> phi_last_wall_neg;
-			std::vector<double> phi_last_wall_pos;
+			std::vector<float> phi_last_wall_neg;
+			std::vector<float> phi_last_wall_pos;
 			std::vector<dirc_point> provisional_points_lwn;
 			std::vector<dirc_point> provisional_points_lwp;
-			double pion_refrac_mod = 1.000;
-			double kaon_refrac_mod = 1.000;
+			float pion_refrac_mod = 1.000;
+			float kaon_refrac_mod = 1.000;
 
-			double pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
-			double kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
+			float pion_emit_angle = 57.3*acos(1/(pion_beta*pion_refrac_mod*refrac_index));
+			float kaon_emit_angle = 57.3*acos(1/(kaon_beta*kaon_refrac_mod*refrac_index));
 
 			dirc_model->track_all_line_photons(\
 					provisional_points_lwn,\
@@ -4479,14 +4479,14 @@ int main(int nargs, char* argv[])
 					pion_time,\
 					1);
 
-			double t_dx = -1;
-			double t_dy = -1;
-			double t_dt = -1;
+			float t_dx = -1;
+			float t_dy = -1;
+			float t_dt = -1;
 
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -4564,8 +4564,8 @@ int main(int nargs, char* argv[])
 					1);
 			for (unsigned int i = 0; i < sim_points.size(); i++)
 			{
-				double min_dist_sq = 10000;
-				double cur_dist_sq = -1;
+				float min_dist_sq = 10000;
+				float cur_dist_sq = -1;
 				for (unsigned int j = 0; j < provisional_points_lwn.size(); j++)
 				{
 					cur_dist_sq = (sim_points[i].x - provisional_points_lwn[j].x)*(sim_points[i].x - provisional_points_lwn[j].x);		
@@ -4608,14 +4608,14 @@ int main(int nargs, char* argv[])
 		printf("Line Output for %d Phi steps\n",sparse_sim_n);
 		dirc_point out_val;
 		//assume speed of light particle and "thin" cone.
-		double emit_angle;
-		double pion_beta = dirc_model->get_beta(energy,pimass);
-		double wavelength = 0;
+		float emit_angle;
+		float pion_beta = dirc_model->get_beta(energy,pimass);
+		float wavelength = 0;
 		std::vector<dirc_point> left_points;
 		std::vector<dirc_point> right_points;
 		emit_angle = 57.3*acos(pion_beta/(.996*refrac_index)) + spread_ang.Gaus(0,particle_theta_spread);
 		emit_angle = dirc_model->get_cerenkov_angle_rand(pion_beta,0,wavelength);
-		double particle_time = particle_flight_distance/(pion_beta*.3);
+		float particle_time = particle_flight_distance/(pion_beta*.3);
 
 		//emit_z = -17.25/2;
 
@@ -4632,9 +4632,9 @@ int main(int nargs, char* argv[])
 				particle_time,\
 				1);
 		//last 3 are z, t, and bar;
-		double x,y,t,phi;
-		double last_x,last_y,last_t,last_phi;
-		double x_lim,y_lim,t_lim,phi_lim;
+		float x,y,t,phi;
+		float last_x,last_y,last_t,last_phi;
+		float x_lim,y_lim,t_lim,phi_lim;
 
 		x = 0;
 		y = 0;
@@ -4772,9 +4772,9 @@ int main(int nargs, char* argv[])
 					pion_beta);
 		}
 		tmp_clock = clock() - tmp_clock ;
-		double time_taken = ((float)tmp_clock)/(CLOCKS_PER_SEC);
-		double per_particle_time = time_taken/sim_time_test_n;
-		double sim_rate = 1/per_particle_time;
+		float time_taken = ((float)tmp_clock)/(CLOCKS_PER_SEC);
+		float per_particle_time = time_taken/sim_time_test_n;
+		float sim_rate = 1/per_particle_time;
 
 		printf("Total Time Taken: %12.02es\n",time_taken);
 		printf("Time per event:   %12.02ems\n",per_particle_time * 1000);
@@ -4821,10 +4821,10 @@ int main(int nargs, char* argv[])
 	if (output_box_angles_n > 0)
 	{
 		std::vector<dirc_point> store_points;
-		std::vector<double> upper_wedge_angle;
-		std::vector<double> focus_angle;
-		std::vector<double> large_flat_angle;
-		std::vector<double> side_angle;
+		std::vector<float> upper_wedge_angle;
+		std::vector<float> focus_angle;
+		std::vector<float> large_flat_angle;
+		std::vector<float> side_angle;
 
 		dirc_model->set_upper_wedge_angle_store(true);
 		dirc_model->set_store_optical_angles(true);
@@ -4882,16 +4882,16 @@ int main(int nargs, char* argv[])
 			
 	if (refraction_sim_n > 0)
 	{
-		std::vector<std::pair<double, double> > pion_theta_cphi;
-		std::vector<std::pair<double, double> > kaon_theta_cphi;
+		std::vector<std::pair<float, float> > pion_theta_cphi;
+		std::vector<std::pair<float, float> > kaon_theta_cphi;
 
 		particle_theta=particle_theta_mean;	
 		particle_phi=particle_phi_mean;	
 
 		printf("Creating Refraction histograms...\n");
-		std::vector<double> before_fill;
-		std::vector<double> after_fill;
-		std::vector<double> pmt_incidence;
+		std::vector<float> before_fill;
+		std::vector<float> after_fill;
+		std::vector<float> pmt_incidence;
 
 		pion_theta_cphi = dirc_model->get_refraction_rand_phi(\
 				before_fill,\
@@ -4960,11 +4960,11 @@ int main(int nargs, char* argv[])
 	}
 
 
-	double t_lambda = 0;
+	float t_lambda = 0;
 	for (int i = 0; i < 1000000; i++)
 	{
-		double pion_beta = dirc_model->get_beta(energy,pimass);
-		double kaon_beta = dirc_model->get_beta(energy,kmass);
+		float pion_beta = dirc_model->get_beta(energy,pimass);
+		float kaon_beta = dirc_model->get_beta(energy,kmass);
 		
 		//printf("%12.04f\n",dirc_model->get_cerenkov_angle_rand(pion_beta,0,t_lambda));
 

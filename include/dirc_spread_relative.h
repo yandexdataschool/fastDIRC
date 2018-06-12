@@ -11,8 +11,8 @@ public:
 		std::vector<dirc_point> isupport,\
 		bool itest_time_dir = true);
 	
-	double support_spread_function(dirc_point support, dirc_point test);
+	float support_spread_function(dirc_point support, dirc_point test);
 	
-	virtual double relative_spread_function(dirc_point vec) = 0;
+	virtual float relative_spread_function(dirc_point vec) = 0;
 };
 #endif

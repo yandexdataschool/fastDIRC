@@ -10,45 +10,45 @@
 class DircBaBarSim : public DircBaseSim
 {
 protected:
-	double sens_r;
-	double sens_subtend_angle;
+	float sens_r;
+	float sens_subtend_angle;
 
-	double sensCylMinZ;
-	double sensCylY;
-	double sensCylZ;
+	float sensCylMinZ;
+	float sensCylY;
+	float sensCylZ;
 
-	double boxCloseZ;
+	float boxCloseZ;
 	
-	double sidemirror_xr;
-	double sidemirror_xl;
-	double sidemirror_reflectivity;
+	float sidemirror_xr;
+	float sidemirror_xl;
+	float sidemirror_reflectivity;
 	
-	double liquidIndex;
-	double quartzLiquidY;
+	float liquidIndex;
+	float quartzLiquidY;
 	
-	double liquidAbsorbtion;
-	std::vector<double> dist_traveled;
+	float liquidAbsorbtion;
+	std::vector<float> dist_traveled;
 	bool store_traveled;
 	bool kaleidoscope_plot;
 	
 	bool store_refraction;
-	std::vector<double> refraction_before;
-	std::vector<double> refraction_after;
+	std::vector<float> refraction_before;
+	std::vector<float> refraction_after;
 
 	bool storeOpticalAngles;
-	std::vector<double> focus_photon_angles;
-	std::vector<double> side_photon_angles;
-	std::vector<double> large_flat_photon_angles;
+	std::vector<float> focus_photon_angles;
+	std::vector<float> side_photon_angles;
+	std::vector<float> large_flat_photon_angles;
 	
-	double min_QE,max_QE,sep_QE;
+	float min_QE,max_QE,sep_QE;
 	int num_QE;
-	std::vector<double> vals_QE;
+	std::vector<float> vals_QE;
 
 
-	double min_transmittance,max_transmittance,sep_transmittance;
+	float min_transmittance,max_transmittance,sep_transmittance;
 	int num_transmittance;
 
-	bool absorbtion_mc(double dx, double dy);
+	bool absorbtion_mc(float dx, float dy);
 	void build_readout_box();
 	void sidemirror_reflect_points(std::vector<dirc_point> &points);
 	void spread_wedge_mirror();
@@ -56,67 +56,67 @@ protected:
 	void warp_readout_box(\
 		dirc_point &out_val,\
 		int particle_bar,\
-		double &mm_index,\
-		double &x,\
-		double &y,\
-		double &z,\
-		double &dx,\
-		double &dy,\
-		double &dz);
+		float &mm_index,\
+		float &x,\
+		float &y,\
+		float &z,\
+		float &dx,\
+		float &dy,\
+		float &dz);
 	//Technically one of the "warp" functions, but can and should be optimized somehow
 	void warp_sens_cyl(\
 		dirc_point &fill_val,\
-		double &mm_index,\
-		double &x,\
-		double &y,\
-		double &z,\
-		double dx,\
-		double dy,\
-		double dz);
-	double warp_box(\
-                double &x,\
-                double &y,\
-                double &z,\
-                double &dx,\
-                double &dy,\
-                double &dz);
+		float &mm_index,\
+		float &x,\
+		float &y,\
+		float &z,\
+		float dx,\
+		float dy,\
+		float dz);
+	float warp_box(\
+                float &x,\
+                float &y,\
+                float &z,\
+                float &dx,\
+                float &dy,\
+                float &dz);
 
 
 
 public:
-	const double get_cerenkov_angle_rand(double beta, double additional_spread, double &wavelength);
-	double get_sens_r();
-	double get_sens_subtend_angle();
+	const float get_cerenkov_angle_rand(float beta, float additional_spread, float &wavelength);
+	float get_sens_r();
+	float get_sens_subtend_angle();
 
 	//Note many of these functions are implemented for convient interfacing sith dircfit
 	//should not be required in the end
-	void set_focmirror_nonuniformity(double nonuni_deg);
-	void set_foc_mirror_r(double ifoc_r);
-	void set_sidemirror(double ixr, double ixl);
-	void set_sidemirror_reflectivity(double isr);
+	void set_focmirror_nonuniformity(float nonuni_deg);
+	void set_foc_mirror_r(float ifoc_r);
+	void set_sidemirror(float ixr, float ixl);
+	void set_sidemirror_reflectivity(float isr);
 	void sidemirror_reflect_point(dirc_point &ipt);
 	void set_three_seg_mirror(bool itsm);
-	void set_pmt_offset(double r);
-	void set_liquid_absorbtion(double iabs);
-	std::vector<double> get_dist_traveled();
+	void set_pmt_offset(float r);
+	void set_liquid_absorbtion(float iabs);
+	std::vector<float> get_dist_traveled();
 	void set_store_traveled(bool sst = true);
-	void set_focus_mirror_angle(double ang,double yang = 0, double zang = 0);
-	void set_pmt_angle(double ang);
-	void set_pmt_plane_zs(double imin, double imax);
-	void set_large_mirror_zs(double imin, double imax);
+	void set_focus_mirror_angle(float ang,float yang = 0, float zang = 0);
+	void set_pmt_angle(float ang);
+	void set_pmt_plane_zs(float imin, float imax);
+	void set_large_mirror_zs(float imin, float imax);
 	
 	void set_store_optical_angles(bool ibool);
-	std::vector<double> get_focus_photon_angles();
-	std::vector<double> get_side_photon_angles();
-	std::vector<double> get_large_flat_photon_angles();
+	std::vector<float> get_focus_photon_angles();
+	std::vector<float> get_side_photon_angles();
+	std::vector<float> get_large_flat_photon_angles();
 	DircBaBarSim(\
 		int rand_seed=4357,\
-                double isens_r=540.66, \
-                double isens_subtend_angle=52.4, \
-                double ibar_length=4900,\
-                double ibar_width=35,\
-                double ibar_depth=17.25,
-                double iupper_wedge_top=178.6); 
+                float isens_r=540.66, \
+                float isens_subtend_angle=52.4, \
+                float ibar_length=4900,\
+                float ibar_width=35,\
+                float ibar_depth=17.25,
+                float iupper_wedge_top=178.6); 
 
 };
 #endif

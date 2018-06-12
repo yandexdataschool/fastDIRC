@@ -2,12 +2,12 @@
 #include "../include/dirc_gluex_lut_enum.h"
 #include <vector>
 DircGluexLUTEnum::DircGluexLUTEnum(\
-		double iminx,\
-		double imaxx,\
-		double iresx,\
-		double iminy,\
-		double imaxy,\
-		double iresy):DircLUTEnum()
+		float iminx,\
+		float imaxx,\
+		float iresx,\
+		float iminy,\
+		float imaxy,\
+		float iresy):DircLUTEnum()
 {
 	minx = iminx;
 	maxx = imaxx;
@@ -22,8 +22,8 @@ DircGluexLUTEnum::DircGluexLUTEnum(\
 int DircGluexLUTEnum::return_enum(dirc_point &pt)
 {
 	//overflow/underflow?
-	double x = pt.x;
-	double y = pt.y;
+	float x = pt.x;
+	float y = pt.y;
 	int xdig = (x - minx)/resx;
 	int ydig = (y - miny)/resy;
 	

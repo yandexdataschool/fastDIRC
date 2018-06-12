@@ -2,14 +2,14 @@
 #include "../include/dirc_rect_digitizer.h"
 #include <vector>
 DircRectDigitizer::DircRectDigitizer(\
-		double iminx,\
-		double imaxx,\
-		double iresx,\
-		double iminy,\
-		double imaxy,\
-		double iresy,\
-		double it_unc,\
-		double it_bin_size) : DircDigitizer()
+		float iminx,\
+		float imaxx,\
+		float iresx,\
+		float iminy,\
+		float imaxy,\
+		float iresy,\
+		float it_unc,\
+		float it_bin_size) : DircDigitizer()
 {
 //Digitizes to a rectagular grid
 	minx = iminx;
@@ -24,13 +24,13 @@ DircRectDigitizer::DircRectDigitizer(\
 void DircRectDigitizer::digitize_point(dirc_point &pt)
 {
 		//overflow/underflow?
-	double x = pt.x;
-	double y = pt.y;
+	float x = pt.x;
+	float y = pt.y;
 	int xdig = (x - minx)/resx;
 	int ydig = (y - miny)/resy;
 	
-	double xout = resx*xdig + minx + resx/2;
-	double yout = resy*ydig + miny + resy/2;
+	float xout = resx*xdig + minx + resx/2;
+	float yout = resy*ydig + miny + resy/2;
 	
 	if (x < minx)
 	{

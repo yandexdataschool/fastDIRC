@@ -8,7 +8,7 @@ DircSpreadRelative::DircSpreadRelative(\
 	bool itest_time_dir /*=true*/)\
 	: DircProbabilitySpread(isupport, itest_time_dir) {}
 	
-double DircSpreadRelative::support_spread_function(dirc_point support, dirc_point test)
+float DircSpreadRelative::support_spread_function(dirc_point support, dirc_point test)
 {
 	dirc_point ovec;
 	

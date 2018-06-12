@@ -25,61 +25,58 @@
 #include "../include/dirc_lut.h"
 #include <TFile.h>
 #include <TTree.h>
-#include <TH3.h>
-#include <TH2.h>
 #include <TH1.h>
-#include <TF1.h>
 #include <TRandom3.h>
 #include <TMinuit.h>
 
 int main(int nargs, char* argv[])
 {  
-	double energy = 5.0;
-	double energy_mean = energy;
-	double energy_spread = 0;
-	double kmass = .4937;
-	double pimass = .1396;
-	//double mumass = .1057;
+	float energy = 5.0;
+	float energy_mean = energy;
+	float energy_spread = 0;
+	float kmass = .4937;
+	float pimass = .1396;
+	//float mumass = .1057;
 
-	double particle_x = 0;
-	double particle_y = 0;
-	double particle_x_mean = particle_x;
-	double particle_y_mean = particle_y;
-	double particle_x_spread = 0;
-	double particle_y_spread = 0;
-	double particle_theta = 4;
-	double particle_theta_mean = particle_theta;
-	double particle_theta_spread = 0;
-	double particle_phi = 40;
-	double const_track_off = 0;
+	float particle_x = 0;
+	float particle_y = 0;
+	float particle_x_mean = particle_x;
+	float particle_y_mean = particle_y;
+	float particle_x_spread = 0;
+	float particle_y_spread = 0;
+	float particle_theta = 4;
+	float particle_theta_mean = particle_theta;
+	float particle_theta_spread = 0;
+	float particle_phi = 40;
+	float const_track_off = 0;
 
-	double particle_flight_distance = 0;
+	float particle_flight_distance = 0;
 
 	bool use_moliere_scattering = false;
 	int num_runs = 1000;
-	double mean_n_phot = 40;
-	double spread_n_phot = 0;
+	float mean_n_phot = 40;
+	float spread_n_phot = 0;
 
-	double wedge_uncertainty = 0/57.3;
-	double mirror_angle_change = 0;
-	double mirror_angle_change_unc = 0;
-	double mirror_angle_change_yunc = 0;
-	double box_rot = 0;
-	double box_rot_unc = 0;
-	double bar_box_box_angle = 0/57.3;
+	float wedge_uncertainty = 0/57.3;
+	float mirror_angle_change = 0;
+	float mirror_angle_change_unc = 0;
+	float mirror_angle_change_yunc = 0;
+	float box_rot = 0;
+	float box_rot_unc = 0;
+	float bar_box_box_angle = 0/57.3;
 	/* 1200 - 400 = 800.  Changed 05/09/2016.  Does not affect
 	   threeseg mirror reconstruction as far as I can tell - this
 	   was known. */
-	double mirror_r_difference = 400;
-	double wedge_non_uniformity = 0;
-	double pmt_offset = 0;
-	double main_mirror_nonuniformity = 0;
-	double foc_mirror_size = 288;
+	float mirror_r_difference = 400;
+	float wedge_non_uniformity = 0;
+	float pmt_offset = 0;
+	float main_mirror_nonuniformity = 0;
+	float foc_mirror_size = 288;
 
-	double pmt_min_z = -1000;
-	double pmt_max_z = 1000;
-	double large_mirror_min_z = -1000;
-	double large_mirror_max_z = 1000;
+	float pmt_min_z = -1000;
+	float pmt_max_z = 1000;
+	float large_mirror_min_z = -1000;
+	float large_mirror_max_z = 1000;
 
 	// Set boundaries for photons to optical plane in large box
 	pmt_min_z = -559;
@@ -87,36 +84,36 @@ int main(int nargs, char* argv[])
 	large_mirror_min_z = -559;
 	large_mirror_max_z = -130;
 
-	double upper_wedge_yang_spread = 0;
+	float upper_wedge_yang_spread = 0;
 	int rseed = 1337;
 
-	double tracking_unc = .0000*57.3; //mrad
-	// double ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
-	double ckov_unc = .003*57.3; //transport = 3mrad
+	float tracking_unc = .0000*57.3; //mrad
+	// float ckov_unc = .0077*57.3; //chromatic + optical aberation = 7.7mrad
+	float ckov_unc = .003*57.3; //transport = 3mrad
 
-	double resx = 6;
-	double resy = 6;
-	double minx = -1500;
-	double maxx = 1500;
-	double miny = -500;
-	double maxy = 500;
-	double t_unc = .27;
-	double t_bin_size = 1;
+	float resx = 6;
+	float resy = 6;
+	float minx = -1500;
+	float maxx = 1500;
+	float miny = -500;
+	float maxy = 500;
+	float t_unc = .27;
+	float t_bin_size = 1;
 
-	double digit_miny = -50;
-	double digit_maxy = 300;
+	float digit_miny = -50;
+	float digit_maxy = 300;
 
 	digit_miny = miny;
 	digit_maxy = maxy;
 
 	// Sets the side boundaries of the distributions
-	double sm_xl = -10000000;
-	double sm_xr = -sm_xl;
+	float sm_xl = -10000000;
+	float sm_xr = -sm_xl;
 
-	double s_func_x = 6;
-	double s_func_y = s_func_x;
-	double s_func_t = 1.0;
-	double sfunc_sig = 1;
+	float s_func_x = 6;
+	float s_func_y = s_func_x;
+	float s_func_t = 1.0;
+	float sfunc_sig = 1;
 
 	int n_sim_phots = 40;
 
@@ -126,8 +123,8 @@ int main(int nargs, char* argv[])
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
 
-	double liquid_absorbtion = 0*-log(.7)/1000;
-	double liquid_index = 1.33;
+	float liquid_absorbtion = 0*-log(.7)/1000;
+	float liquid_index = 1.33;
 
 	const unsigned MAX_FILE_NAME_LENGTH = 256;
 	char rootfilename[MAX_FILE_NAME_LENGTH];
@@ -380,8 +377,8 @@ int main(int nargs, char* argv[])
 	}
 
 
-	double main_mirror_angle = 74.11+mirror_angle_change;
-	double pdf_unc_red_fac = 1;
+	float main_mirror_angle = 74.11+mirror_angle_change;
+	float pdf_unc_red_fac = 1;
 	TRandom3 spread_ang(rseed+3);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(
 			rseed,\
@@ -399,9 +396,9 @@ int main(int nargs, char* argv[])
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);
 
 
-	double pion_beta, kaon_beta/*, electron_beta:=1*/;
+	float pion_beta, kaon_beta/*, electron_beta:=1*/;
 	pion_beta=kaon_beta=-1;
-	double pion_angle, kaon_angle;
+	float pion_angle, kaon_angle;
 	pion_angle=kaon_angle = -1;
 
 	// ROOT memory management
@@ -428,7 +425,7 @@ int main(int nargs, char* argv[])
 			t_bin_size);
 
 	printf("Beginning Run\n");
-	double llc, llf, ll_diff;
+	float llc, llf, ll_diff;
 	llc=llf=ll_diff=0;
 	std::vector<dirc_point> sim_points;
 	std::vector<dirc_point> confound_points;
@@ -455,8 +452,8 @@ int main(int nargs, char* argv[])
 		dirc_model->set_bar_box_angle(bar_box_box_angle);
 
 		//ns
-		double pion_time = particle_flight_distance/(pion_beta*.3);
-		double kaon_time = particle_flight_distance/(kaon_beta*.3);
+		float pion_time = particle_flight_distance/(pion_beta*.3);
+		float kaon_time = particle_flight_distance/(kaon_beta*.3);
 
 		dirc_model->sim_reg_n_photons(\
 				hit_points_pion,\

@@ -50,11 +50,11 @@ public:
 	{
 		return Io::Rgb(0,.8,.8);
 	}
-	double get_internal_transmittance(double wavelength,double thickness) const
+	float get_internal_transmittance(float wavelength,float thickness) const
 	{
 		return 1;//perfect for now
 	}
-	double get_refractive_index(double wavelength) const
+	float get_refractive_index(float wavelength) const
 	{
 		return 1.47;
 	}
@@ -74,11 +74,11 @@ public:
 	{
 		return Io::Rgb(.8,.8,0);
 	}
-	double get_internal_transmittance(double wavelength,double thickness) const
+	float get_internal_transmittance(float wavelength,float thickness) const
 	{
 		return 1;//perfect for now
 	}
-	double get_refractive_index(double wavelength) const
+	float get_refractive_index(float wavelength) const
 	{
 		return 1.54427;
 // 		return 1.473;
@@ -98,9 +98,9 @@ public:
 class offSphere : public Curve::Base
 {
 private:
-	double r,x0,y0;
+	float r,x0,y0;
 public:
-	offSphere(double ir, double ix0, double iy0)
+	offSphere(float ir, float ix0, float iy0)
 	{
 		r = ir;
 		x0 = ix0;
@@ -130,7 +130,7 @@ public:
 		Math::Vector<3>  offset3(x0,y0,0);
 		onSphere.normal(normal,point-offset3);
 	} 
-	double sagitta(const Math::Vector2 &xy) const
+	float sagitta(const Math::Vector2 &xy) const
 	{
 		Curve::Sphere onSphere(r);
 		Math::Vector<2> offset(x0,y0);
@@ -140,20 +140,20 @@ public:
 class cylinderY : public Curve::Base
 {//Slow implementation - faster with symbolic detrivatives and such
 private:
-	double r,r2;
-	double s;
+	float r,r2;
+	float s;
 public:
-	cylinderY(double ir)
+	cylinderY(float ir)
 	{
 		r = ir;
 		r2 = r*r;
 		s=1;
 		if (r < 0) s = -1;
 	}
-	double sagitta(const Math::Vector2 &xy) const
+	float sagitta(const Math::Vector2 &xy) const
 	{
-		double y = xy.y();
-		double y2 = y*y;
+		float y = xy.y();
+		float y2 = y*y;
 		if (y2>r2){
 			return 0;
 		}

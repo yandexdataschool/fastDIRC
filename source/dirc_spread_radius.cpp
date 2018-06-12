@@ -9,7 +9,7 @@ DircSpreadRadius::DircSpreadRadius(\
 	bool itest_time_dir /*=true*/)\
 	: DircSpreadRelative(isupport,itest_time_dir) {}
 	
-double DircSpreadRadius::relative_spread_function(dirc_point vec)
+float DircSpreadRadius::relative_spread_function(dirc_point vec)
 {
 	return radius_spread_function(sqrt(vec.x*vec.x + vec.y*vec.y));
 // 	return radius_spread_function(fabs(vec.x) + fabs(vec.y));
