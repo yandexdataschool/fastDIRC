@@ -155,11 +155,11 @@ const double DircThreeSegBoxSim::get_cerenkov_angle_rand(
 	const double beta, const double additional_spread, double &wavelength) {
         //May be slow enough to consider approximating in distribution generation
         double out_ang = 0;
-        float tmp_lam = 0;
-        float tmp_QE_val;
-        float above_ind;
+        double tmp_lam = 0;
+        double tmp_QE_val;
+        double above_ind;
         int ind_QE;
-        float n_lam;
+        double n_lam;
 
         while (true) {
                 tmp_lam = rand_gen->Uniform(min_QE, max_QE);
@@ -169,7 +169,7 @@ const double DircThreeSegBoxSim::get_cerenkov_angle_rand(
                 // neccessary, but I doubt it matters.
                 ind_QE = (tmp_lam - min_QE)/sep_QE;
                 above_ind = tmp_lam - (min_QE + sep_QE*ind_QE);
-                //S imple linear interp between values.  5th order
+                //Simple linear interp between values.  5th order
                 //poly fit looked like it worked too
                 tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE +\
                              vals_QE[ind_QE+1]*above_ind/sep_QE;
