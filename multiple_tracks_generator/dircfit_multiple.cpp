@@ -24,10 +24,8 @@
 #include "../include/dirc_lut_enum.h"
 #include "../include/dirc_lut.h"
 #include <TFile.h>
-#include <TTree.h>
 #include <TH1.h>
 #include <TRandom3.h>
-#include <TMinuit.h>
 
 // TODO(kazeevn) make this block a proper class
 // the code below relies on the particle types
