@@ -5,9 +5,23 @@
 #include "dirc_point.h"
 
 #ifndef DIRC_BASE_SIM
-#define DIRC_BASE_SIM 
-struct dirc_base_sim_tracking_step
-{
+#define DIRC_BASE_SIM
+
+const unsigned int num_transmittance = 36;
+const float min_transmittance = 300.;
+const float max_transmittance = 660.;
+const float sep_transmittance = (max_transmittance - min_transmittance)/(num_transmittance - 1.);
+const std::array<float, num_transmittance> quartz_transmittance({
+	0.999572036, 0.999544661, 0.999515062, 0.999483019, 0.999448285,
+        0.999410586,0.999369611,0.999325013,0.999276402,0.999223336,
+	0.999165317,0.999101778,0.999032079,0.998955488,0.998871172,
+	0.998778177,0.99867541 ,0.998561611,0.998435332,0.998294892,
+        0.998138345,0.997963425,0.997767484,0.997547418,0.99729958,
+        0.99701966 ,0.99670255 ,0.996342167,0.995931242,0.995461041,
+        0.994921022,0.994298396,0.993577567,0.992739402,0.991760297,
+	0.990610945});
+
+struct dirc_base_sim_tracking_step {
 	//position at start of step
 	float x;
 	float y;
@@ -19,22 +33,22 @@ struct dirc_base_sim_tracking_step
 	float sin_phi;
 	float cos_phi;
 };
-class DircBaseSim
-{
+
+class DircBaseSim {
 protected:
 	float barLength;
 	float barWidth;
 	float barDepth;
-	float windowThickness;
+	const float windowThickness = 9.6;
 
 	float wedgeTop;
 	float wedgeWidthOff;
-	float wedgeDepthOff;
-	float wedgeFarAngle;
-	float wedgeCloseAngle;
+	const float wedgeDepthOff = 9.75;
+	const float wedgeFarAngle = .006*57.3;
+	const float wedgeCloseAngle = 30;
 	float wedgeWidth;
 	float wedgeDepthHigh;
-	float wedgeHeight;
+	float wedgeHeight; 
 	float upperWedgeDepthHigh;
 	float upperWedgeTop;
 	float upperWedgeHeight;
@@ -99,12 +113,8 @@ protected:
 	std::vector<int> z_direct_bounces;
 	std::vector<int> x_indirect_bounces;
 	std::vector<int> z_indirect_bounces;
-
 	
-	float min_transmittance,max_transmittance,sep_transmittance;
-	int num_transmittance;
-	std::vector<float> quartz_transmittance;
-	TRandom3 *rand_gen;
+	std::unique_ptr<TRandom3> rand_gen;
 
 	bool midLineMode;
 	int midLineWedgeWallFlip;

@@ -1,17 +1,14 @@
-#include "dirc_point.h"
 #include "../include/dirc_rect_digitizer.h"
-#include <vector>
-DircRectDigitizer::DircRectDigitizer(\
-		float iminx,\
-		float imaxx,\
-		float iresx,\
-		float iminy,\
-		float imaxy,\
-		float iresy,\
-		float it_unc,\
-		float it_bin_size) : DircDigitizer()
-{
-//Digitizes to a rectagular grid
+
+DircRectDigitizer::DircRectDigitizer(
+		float iminx,
+		float imaxx,
+		float iresx,
+		float iminy,
+		float imaxy,
+		float iresy,
+		float it_unc,
+		float it_bin_size) {
 	minx = iminx;
 	maxx = imaxx;
 	resx = iresx;
@@ -20,10 +17,11 @@ DircRectDigitizer::DircRectDigitizer(\
 	resy = iresy;
 	t_unc = it_unc;
 	t_bin_size = it_bin_size;
+	dig_rand = std::make_unique<TRandom3>();
 }
-void DircRectDigitizer::digitize_point(dirc_point &pt)
-{
-		//overflow/underflow?
+
+void DircRectDigitizer::digitize_point(dirc_point &pt) {
+        //  overflow/underflow?
 	float x = pt.x;
 	float y = pt.y;
 	int xdig = (x - minx)/resx;
@@ -52,7 +50,7 @@ void DircRectDigitizer::digitize_point(dirc_point &pt)
 	
 	pt.x = xout;
 	pt.y = yout;
-	pt.t += dig_rand.Gaus(0,t_unc);
+	pt.t += dig_rand->Gaus(0,t_unc);
 	if (fabs(t_bin_size) > t_unc/100)
 	{
 		//Don't bother with binning if it's small

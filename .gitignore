@@ -1,0 +1,3 @@
+dircfit_multiple
+*.root
+callgrind.*

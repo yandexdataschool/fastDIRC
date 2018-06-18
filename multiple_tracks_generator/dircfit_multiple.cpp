@@ -388,9 +388,9 @@ int main(int nargs, char* argv[]) {
 		}
 	}
 
-	float main_mirror_angle = 74.11+mirror_angle_change;
+	float main_mirror_angle = 74.11 + mirror_angle_change;
 	float pdf_unc_red_fac = 1;
-	TRandom3 spread_ang(rseed+3);
+	std::unique_ptr<TRandom3> spread_ang = std::make_unique<TRandom3>(rseed + 3);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(
 			rseed,
 			-1200 + mirror_r_difference,
@@ -405,8 +405,10 @@ int main(int nargs, char* argv[]) {
 	dirc_model->set_pmt_plane_zs(pmt_min_z, pmt_max_z);
 	dirc_model->set_large_mirror_zs(large_mirror_min_z, large_mirror_max_z);
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);
+	
 
 	// news are handled by the ROOT memory management
+	// trying to unique_ptr them breaks things
 	TFile* tfile = new TFile(rootfilename, "RECREATE");
 	TH1I* particle_one_type_th1i = new TH1I("particle_one_type",
 					   "Type of the signal particle which is being measured", 
@@ -438,7 +440,6 @@ int main(int nargs, char* argv[]) {
 			t_unc,
 			t_bin_size);
 
-	printf("Beginning Run\n");
 	dirc_model->set_focmirror_nonuniformity(main_mirror_nonuniformity);
 	dirc_model->set_use_moliere(use_moliere_scattering);
 	// assume momentum is the same for both for now - high energy;
@@ -452,6 +453,7 @@ int main(int nargs, char* argv[]) {
 	dirc_model->set_pmt_offset(pmt_offset);
 	dirc_model->set_upper_wedge_angle_diff(wedge_uncertainty);
 	dirc_model->set_bar_box_angle(bar_box_box_angle);
+	dirc_model->set_bar_box_offsets(0., 0., 0.);
 
 	// conmpute and intialize the pdfs
 	for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
@@ -476,26 +478,27 @@ int main(int nargs, char* argv[]) {
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
 	}
+	printf("Beginning Run\n");
 	for (int i = 0; i < num_runs; i++) {
 	    printf("\r                                                    ");
 	    printf("\rrunning iter %8d/%d  ", i+1, num_runs);
 	    fflush(stdout);
 	    dirc_model->set_focus_mirror_angle(
-	        spread_ang.Gaus(main_mirror_angle, mirror_angle_change_unc),
-		spread_ang.Gaus(0, mirror_angle_change_yunc));
-	    dirc_model->set_upper_wedge_angle_diff(spread_ang.Gaus(0,wedge_uncertainty),
-						   spread_ang.Gaus(0,upper_wedge_yang_spread));
-	    dirc_model->set_bar_box_angle(spread_ang.Gaus(0,box_rot_unc));
+	        spread_ang->Gaus(main_mirror_angle, mirror_angle_change_unc),
+		spread_ang->Gaus(0, mirror_angle_change_yunc));
+	    dirc_model->set_upper_wedge_angle_diff(spread_ang->Gaus(0,wedge_uncertainty),
+						   spread_ang->Gaus(0,upper_wedge_yang_spread));
+	    dirc_model->set_bar_box_angle(spread_ang->Gaus(0,box_rot_unc));
 
 	    if (particle_theta_mean < .01) {
-		particle_phi = spread_ang.Uniform(0, 360);
+		particle_phi = spread_ang->Uniform(0, 360);
 	    }
-	    particle_theta = spread_ang.Gaus(particle_theta_mean, particle_theta_spread);
-	    energy = spread_ang.Gaus(energy_mean,energy_spread);
-	    n_sim_phots = spread_ang.Gaus(mean_n_phot,spread_n_phot);
-	    // We want more or less the same number of 
+	    particle_theta = spread_ang->Gaus(particle_theta_mean, particle_theta_spread);
+	    energy = spread_ang->Gaus(energy_mean, energy_spread);
+	    n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
+	    // We want more or less the same number of
 	    // signal particles of each type
-	    const unsigned int particle_one_type = spread_ang.Integer(PARTICLE_NUMBER);
+	    const unsigned int particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 	    particle_one_type_th1i->Fill(particle_one_type);
 	    // assume its a middle bar
 	    // The first particle is always (0, 0) - we have tracking!
@@ -513,15 +516,15 @@ int main(int nargs, char* argv[]) {
 					   ckov_unc,
 					   betas[particle_one_type]);
 	    std::vector<dirc_point> hits_second;
-	    particle_theta = spread_ang.Gaus(particle_theta_mean, particle_theta_spread);
-	    const float particle_two_x = spread_ang.Gaus(particle_x_mean, particle_x_spread);
-	    const float particle_two_y = spread_ang.Gaus(particle_y_mean, particle_y_spread);
+	    particle_theta = spread_ang->Gaus(particle_theta_mean, particle_theta_spread);
+	    const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
+	    const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
 	    // TODO(kazeevn) square?
 	    distance->Fill(sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y));
-	    energy = spread_ang.Gaus(energy_mean, energy_spread);
-	    n_sim_phots = spread_ang.Gaus(mean_n_phot, spread_n_phot);
+	    energy = spread_ang->Gaus(energy_mean, energy_spread);
+	    n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 	    // For the noise particle, we want an LHCb-like distribution
-	    // also, since TRandom3 doesn't provide weights, we use the
+	    // Since TRandom3 doesn't provide weights, we use the
 	    // standard library
 	    const unsigned int particle_two_type = particle_type_generator(random_generator);
 	    particle_two_type_th1i->Fill(particle_two_type);
@@ -531,12 +534,12 @@ int main(int nargs, char* argv[]) {
 					   1,
 					   particle_two_x,
 					   particle_two_y,
-					   times[ParticleTypes::Kaon],
+					   times[particle_two_type],
 					   particle_theta + const_track_off,
 					   particle_phi,
 					   tracking_unc,
 					   ckov_unc,
-					   betas[ParticleTypes::Kaon]);
+					   betas[particle_two_type]);
 	    // TODO(kazeevn) switch from copying memory
 	    sim_points.insert(sim_points.end(), hits_second.begin(), hits_second.end());
 	    digitizer.digitize_points(sim_points);

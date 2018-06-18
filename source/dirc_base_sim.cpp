@@ -6,13 +6,9 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-//
 #include <stdlib.h>
 #include <math.h>
-
 #include <TRandom3.h>
-
-
 
 DircBaseSim::DircBaseSim(
 		int rand_seed /*=4357*/,\
@@ -24,35 +20,20 @@ DircBaseSim::DircBaseSim(
 	barLength=ibarLength;
 	barWidth=ibarWidth;
 	barDepth=ibarDepth;
-
-	wedgeWidthOff = 1.75;
-	wedgeDepthOff = 10;
-	wedgeDepthOff = 9.75;
-	wedgeFarAngle = .006*57.3;
-	wedgeCloseAngle = 30;
-	wedgeWidth=barWidth - wedgeWidthOff;
-	wedgeDepthHigh = 79;
-	//wedgeDepthHigh = 79.53;
-	wedgeHeight = 91;
-
-	upperWedgeAngleStore = false;
-
-	wedgeDepthHigh = wedgeDepthOff+barDepth+wedgeHeight*sin(wedgeCloseAngle/57.296);
-
-	windowThickness = 9.6;
-
-	upperWedgeGap = 20;
-
 	upperWedgeTop = iupperWedgeTop;
+	wedgeWidthOff = 1.75;
+	wedgeHeight = 91;
+	wedgeDepthHigh = 79;
+	upperWedgeAngleStore = false;
+	upperWedgeGap = 20;
+	
+	wedgeWidth=barWidth - wedgeWidthOff;
+	wedgeDepthHigh = wedgeDepthOff+barDepth+wedgeHeight*sin(wedgeCloseAngle/57.296);
 	upperWedgeBottom = wedgeHeight + windowThickness + upperWedgeGap;
 	upperWedgeHeight = upperWedgeTop - upperWedgeBottom + upperWedgeGap;
 	upperWedgeDepthHigh = wedgeDepthHigh + (upperWedgeTop-wedgeHeight)*sin(wedgeCloseAngle/57.296);
-
-
-	lowerWedgeExtensionZ = -wedgeDepthHigh - tan(wedgeCloseAngle/57.296)*(upperWedgeBottom - wedgeHeight);
-
-
-	//wedgeCloseAngle -= .5;
+	lowerWedgeExtensionZ = -wedgeDepthHigh - \
+	    tan(wedgeCloseAngle/57.296)*(upperWedgeBottom - wedgeHeight);
 
 	//Variables used for plane intersection
 	wedgeClosePlaneNx = 0; //Shouldn't be needed
@@ -99,31 +80,10 @@ DircBaseSim::DircBaseSim(
 
 	upperWedgeFarZ = 0;//Change based on geometry
 
-	rand_gen = new TRandom3(rand_seed);
+	rand_gen = std::make_unique<TRandom3>(rand_seed);
 
 	box_angle_off_cval = 1;
 	box_angle_off_sval = 0;
-
-
-	num_transmittance = 36;
-	min_transmittance = 300;
-	max_transmittance = 660;
-	sep_transmittance = (max_transmittance - min_transmittance)/(num_transmittance - 1);
-
-	//Numbers from Baptise
-	float tmp_quartz_transmittance[36] = {\
-		0.999572036,0.999544661,0.999515062,0.999483019,0.999448285,\
-			0.999410586,0.999369611,0.999325013,0.999276402,0.999223336,\
-			0.999165317,0.999101778,0.999032079,0.998955488,0.998871172,\
-			0.998778177,0.99867541 ,0.998561611,0.998435332,0.998294892,\
-			0.998138345,0.997963425,0.997767484,0.997547418,0.99729958 ,\
-			0.99701966 ,0.99670255 ,0.996342167,0.995931242,0.995461041,\
-			0.994921022,0.994298396,0.993577567,0.992739402,0.991760297,\
-			0.990610945\
-	};
-	for (int i = 0; i < num_transmittance; i++) {
-		quartz_transmittance.push_back(tmp_quartz_transmittance[i]);
-	}
 
 	midLineMode = false;
 	midLineWedgeWallFlip = 1;
@@ -437,12 +397,12 @@ void DircBaseSim::test_from_wedge_top(\
 		ovals.push_back(out_val);
 	}
 }
-void DircBaseSim::bar_box_interface(\
-		float &x,\
-		float &y,\
-		float &z,\
-		float &dx,\
-		float &dy,\
+void DircBaseSim::bar_box_interface(
+		float &x,
+		float &y,
+		float &z,
+		float &dx,
+		float &dy,
 		float &dz)
 {
 	x += bar_box_xoff;
@@ -995,7 +955,6 @@ void DircBaseSim::fill_reg_phi(
 					dy,
 					dz);
 			//account (quickly) for the bar box having a different angle than the readout
-			//rotate_2d(dy,dz,box_angle_off_cval,box_angle_off_sval);
 			bar_box_interface(x,y,z,dx,dy,dz);
 
 			if (z > 0)
@@ -1938,6 +1897,7 @@ float DircBaseSim::warp_ray(\
 
 	return sqrt(rval)*quartzIndex;
 }
+
 float DircBaseSim::warp_wedge(
 		float &x,
 		float &y,
@@ -1945,10 +1905,10 @@ float DircBaseSim::warp_wedge(
 		float &dx,
 		float &dy,
 		float &dz) {
-	//No Critical angle checking - shouldn't need it
-	//I am abusing the x angle being the same in the bar and wedge here
-	//may have to rotate after to the mirror
-	//Starts y at 0
+	// No Critical angle checking - shouldn't need it
+	// I am abusing the x angle being the same in the bar and wedge here
+	// may have to rotate after to the mirror
+	// Starts y at 0
 
 	wedge_bounces = 0;
 
@@ -1957,7 +1917,6 @@ float DircBaseSim::warp_wedge(
 	float starty = y;
 	float mm_index = 0;
 	bool passed_interface = false;
-	// 	float x0 = x;
 	float dt = 0; //dummy variable representing parametric line
 	float n_dot_v = 0; //dummy variable to save dot product
 	float n_dot_v0 = 0;
@@ -1969,7 +1928,6 @@ float DircBaseSim::warp_wedge(
 	//float wedgeCloseIncidentAngle = acos(-dx*wedgeClosePlaneNx - dy*wedgeClosePlaneNy + fabs(dz)*wedgeClosePlaneNz);
 	//printf("%12.04f\n",57.3*wedgeCloseIncidentAngle);
 
-
 	//Check for reflection from far wedge plane - max 1 bounce
 	if (dz > 0) {
 		n_dot_v = -(dy*wedgeFarPlaneNy + dz*wedgeFarPlaneNz);
@@ -1980,7 +1938,6 @@ float DircBaseSim::warp_wedge(
 		if (dt*dy < wedgeHeight) {
 			//reflect it off bottom wedge
 			//Does not pass through optical interface
-
 			//Will always be true - just use for propagation (short circuit var?)
 
 			mm_index += dt*quartzIndex;
@@ -2207,15 +2164,15 @@ float DircBaseSim::warp_wedge(
 			//printf("  %12.04f %12.04f\n",dz,dy);
 			//z = -z;
 			//account for change in angle
+
+
 			z = z*dz/sdz;
 			y = y - (y-wally)*(sdy-dy)/sdy;
 		}
-
 	}
-
 	return mm_index;
-
 }
+
 //Possibly inline these or something for speed, but right now, leave them for sanity
 bool DircBaseSim::optical_interface_z(\
 		float n1,\

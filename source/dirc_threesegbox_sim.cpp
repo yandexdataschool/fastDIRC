@@ -16,20 +16,20 @@
 
 
 DircThreeSegBoxSim::DircThreeSegBoxSim(
-		int rand_seed /*=4357*/,\
-		float ifoc_r/*=540.66*/, \
-		float ifoc_mirror_size/*=288*/, \
-		float ifoc_rot/*=-74.11*/, \
-		float isens_size/*=600*/, \
-		float isens_rot/*=90*/,\
-		float ibar_length/*=4900*/,\
-		float ibar_width/*=35*/,\
+		int rand_seed /*=4357*/,
+		float ifoc_r/*=540.66*/,
+		float ifoc_mirror_size/*=288*/,
+		float ifoc_rot/*=-74.11*/,
+		float isens_size/*=600*/,
+		float isens_rot/*=90*/,
+		float ibar_length/*=4900*/,
+		float ibar_width/*=35*/,
 		float ibar_depth/*=17.25*/,
 		float iupper_wedge_top/*=178.6*/) : 
 			DircBaseSim(
-				rand_seed,\
-				ibar_length,\
-				ibar_width,\
+				rand_seed,
+				ibar_length,
+				ibar_width,
 				ibar_depth) {
 
 	printf("BarLWD: %12.04f %12.04f %12.04f\n",barLength,barWidth,barDepth);
@@ -42,11 +42,9 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	sens_size = isens_size;
 	sens_rot = isens_rot;
 
-//	printf("%12.04f\n",sens_rot);
-
 	storeOpticalAngles = false;
 
-	//only used for checking collision
+	// only used for checking collision
 	largePlanarMirrorNx = 0; //Shouldn't be needed
 	largePlanarMirrorNy = 1;
 	largePlanarMirrorNz = 0;
@@ -56,7 +54,6 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 
 	pmtPlaneMinZ = -559;
 	pmtPlaneMaxZ = -329;
-	//pmtPlaneMaxZ = -346;
 
 	focMirrorBottom = 139 + upperWedgeTop + barLength/2;
 
@@ -77,8 +74,6 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	liquidIndex = 1.47;
 	quartzLiquidY = upperWedgeBottom;
 
-	
-
 	//boxCloseZ = -614;
 	boxCloseZ = -559;
 
@@ -89,71 +84,16 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	baseReflOff = 0;
 #endif
 	reflOff = baseReflOff;
-
 	three_seg_mirror = false;
-
-	num_QE = 31;
-	min_QE = 300;
-	max_QE = 600;
-	sep_QE = (max_QE - min_QE)/(num_QE - 1);
-
-	float t_QE[31] = {\
-		0.016415, 0.074064, 0.141658, 0.184219, 0.20634,  0.217191, 0.223244,
-	       0.222296, 0.215232, 0.206302, 0.195574, 0.183007, 0.169403, 0.155447,
-	       0.140014, 0.127696, 0.115716, 0.104086, 0.092256, 0.084083, 0.075418,
-	       0.067311, 0.060243, 0.053588, 0.047765, 0.04344,  0.037999, 0.034177,
-	       0.030869, 0.027848, 0.024141
-	};
-
-
-/*
-	//h12700 from geant
-	num_QE = 36;
-	min_QE = 300;
-	max_QE = 650;
-	sep_QE = (max_QE - min_QE)/(num_QE - 1);
-	float QuantumEfficiencyPMT12700[36]=\
-		{0.001,0.001,0.00118865,0.00511371,0.0104755,0.0174337,0.0259711,
-		0.0358296,0.046982,0.0593714,0.0729143,0.0875043,0.103016,0.119306,
-		0.13622,0.153591,0.171246,0.188889,0.206372,0.223528,0.239941,0.255526,
-		0.269913,0.283034,0.294369,0.303953,0.31158,0.317117,0.320523,0.321858,
-		0.321271,0.31895,0.315347,0.310875,0.306056,0.301365};
-*/
-	// Transmittance of quartz per 1m
-
-
-	for (int i = 0; i < num_QE; i++) {
-		vals_QE.push_back(t_QE[i]);
-		//vals_QE.push_back(QuantumEfficiencyPMT12700[i]);
-		//vals_QE.push_back(marias_QE[i]/100.0);
-	}
-
-	num_transmittance = 36;
-	min_transmittance = 300;
-	max_transmittance = 660;
-	sep_transmittance = (max_transmittance - min_transmittance)/(num_transmittance - 1);
-
-	float tmp_quartz_transmittance[36] = {\
-		0.999572036,0.999544661,0.999515062,0.999483019,0.999448285,\
-			0.999410586,0.999369611,0.999325013,0.999276402,0.999223336,\
-			0.999165317,0.999101778,0.999032079,0.998955488,0.998871172,\
-			0.998778177,0.99867541 ,0.998561611,0.998435332,0.998294892,\
-			0.998138345,0.997963425,0.997767484,0.997547418,0.99729958 ,\
-			0.99701966 ,0.99670255 ,0.996342167,0.995931242,0.995461041,\
-			0.994921022,0.994298396,0.993577567,0.992739402,0.991760297,\
-			0.990610945\
-	};
-	for (int i = 0; i < num_transmittance; i++) {
-		quartz_transmittance.push_back(tmp_quartz_transmittance[i]);
-	}
 	focYoff = 0;
 	focZoff = 0;
 	set_focmirror_nonuniformity(0);
 	build_readout_box();
 }
+
 const float DircThreeSegBoxSim::get_cerenkov_angle_rand(
 	const float beta, const float additional_spread, float &wavelength) {
-        //May be slow enough to consider approximating in distribution generation
+        // May be slow enough to consider approximating in distribution generation
         float out_ang = 0;
         float tmp_lam = 0;
         float tmp_QE_val;
@@ -174,7 +114,7 @@ const float DircThreeSegBoxSim::get_cerenkov_angle_rand(
                 tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE +\
                              vals_QE[ind_QE+1]*above_ind/sep_QE;
                 // Max QE val is ~.23, this saves lot of loops
-                if (rand_gen->Uniform(0,.25) > tmp_QE_val) continue;
+                if (rand_gen->Uniform(0, .25) > tmp_QE_val) continue;
                 // Test emission distribution, second b/c it's a less stringent cut
                 if (rand_gen->Uniform(0,1/(min_QE*min_QE)) > 1/(tmp_lam*tmp_lam)) continue;
 		// OH NO	
@@ -830,13 +770,13 @@ float DircThreeSegBoxSim::cylindrical_reflect(\
 	return rval*liquidIndex;
 }
 
-float DircThreeSegBoxSim::warp_sens_plane(\
-		dirc_point &fill_val,\
-		float &x,\
-		float &y,\
-		float &z,\
-		float &dx,\
-		float &dy,\
+float DircThreeSegBoxSim::warp_sens_plane(
+		dirc_point &fill_val,
+		float &x,
+		float &y,
+		float &z,
+		float &dx,
+		float &dy,
 		float &dz) {
 	//don't strictly need to modify the z, could be sped up
 	//First check to see if it goes through the large planar mirror - it probably doesn't

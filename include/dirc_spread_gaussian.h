@@ -1,19 +1,16 @@
-#include "dirc_point.h"
-#include "dirc_spread_radius.h"
-#include <vector>
-//#include <math.h>
-#include <TRandom3.h>
 #ifndef DIRC_SPREAD_GAUSSIAN
 #define DIRC_SPREAD_GAUSSIAN
-// class DircSpreadGaussian : public DircSpreadRadius
-// class DircSpreadGaussian : public DircProbabilitySpread
-class DircSpreadGaussian
-{
+#include <vector>
+#include <TRandom3.h>
+#include "dirc_point.h"
+#include "dirc_spread_radius.h"
+
+class DircSpreadGaussian {
 private:
 	float x_sig2inv,y_sig2inv,t_sig2inv;
 	float spread_func_norm, spread_func_norm_inv;
 	float lin_slope, r_trans, sigma2, sigma2inv,max_val;
-	TRandom3 rand_gen;
+	std::unique_ptr<TRandom3> rand_gen;
 	std::vector<dirc_point> support_points;
 	float get_weight(dirc_point inpoint);
 	float min_probability;

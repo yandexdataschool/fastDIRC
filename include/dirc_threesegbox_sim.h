@@ -1,12 +1,23 @@
 #include <vector>
 #include <utility>
-#include <TRandom3.h>
-
 #include "dirc_base_sim.h"
 #include "dirc_point.h"
 
 #ifndef DIRC_THREESEGBOX_SIM
 #define DIRC_THREESEGBOX_SIM 
+
+const unsigned int num_QE = 31;
+const float min_QE = 300.;
+const float max_QE = 600.;
+const float sep_QE = (max_QE - min_QE)/(num_QE - 1);
+
+const std::array<float, num_QE> vals_QE({
+	0.016415, 0.074064, 0.141658, 0.184219, 0.20634,  0.217191, 0.223244,
+        0.222296, 0.215232, 0.206302, 0.195574, 0.183007, 0.169403, 0.155447,
+        0.140014, 0.127696, 0.115716, 0.104086, 0.092256, 0.084083, 0.075418,
+        0.067311, 0.060243, 0.053588, 0.047765, 0.04344,  0.037999, 0.034177,
+	0.030869, 0.027848, 0.024141});
+
 class DircThreeSegBoxSim : public DircBaseSim
 {
 protected:
@@ -106,14 +117,6 @@ protected:
 	std::vector<float> side_photon_angles;
 	std::vector<float> large_flat_photon_angles;
 	
-	float min_QE,max_QE,sep_QE;
-	int num_QE;
-	std::vector<float> vals_QE;
-
-
-	float min_transmittance,max_transmittance,sep_transmittance;
-	int num_transmittance;
-
 	bool absorbtion_mc(float dx, float dy);
 	void build_readout_box();
 	void fill_sens_plane_vecs();
@@ -186,22 +189,20 @@ public:
 	void set_large_mirror_zs(float imin, float imax);
 	void set_mirror_plane_offsets(float off_y, float off_z);
 
-
-	
 	void set_store_optical_angles(bool ibool);
 	std::vector<float> get_focus_photon_angles();
 	std::vector<float> get_side_photon_angles();
 	std::vector<float> get_large_flat_photon_angles();
-	DircThreeSegBoxSim(\
-		int rand_seed = 4357,\
-		float ifoc_r = -1200, \
-		float ifoc_mirror_size = 288, \
-		float ifoc_rot = 74.11, \
-		float isens_size = 600, \
-		float isens_rot = 47.87,\
-                float ibar_length=4900,\
-		float ibar_width=35,\
-                float ibar_depth=17.25,\
+	DircThreeSegBoxSim(
+		int rand_seed = 4357,
+		float ifoc_r = -1200,
+		float ifoc_mirror_size = 288,
+		float ifoc_rot = 74.11,
+		float isens_size = 600,
+		float isens_rot = 47.87,
+                float ibar_length=4900,
+		float ibar_width=35,
+                float ibar_depth=17.25,
                 float iupper_wedge_top = 178.6);
 };
 #endif

@@ -39,8 +39,8 @@ void DircSpreadGaussian::support_spread(float spread_sig)
 		for (int j = 0; j < mult_add; j++)
 		{
 			dirc_point new_point;
-			new_point.x = support_points[i].x + rand_gen.Gaus(0,spread_sig);
-			new_point.y = support_points[i].y + rand_gen.Gaus(0,spread_sig);
+			new_point.x = support_points[i].x + rand_gen->Gaus(0,spread_sig);
+			new_point.y = support_points[i].y + rand_gen->Gaus(0,spread_sig);
 			new_point.t = support_points[i].t;
 			support_points.push_back(new_point);
 		}
