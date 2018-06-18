@@ -415,13 +415,13 @@ int main(int nargs, char* argv[]) {
 					   "Type of the noise particle",
 					   PARTICLE_NUMBER, 0, PARTICLE_NUMBER - 1);
 	TH1F* distance = new TH1F("distance",
-				  "Distance between the signal and noise racks", 10, 0, 2000);
+				  "Distance between the signal and noise racks", 10, 0, 4000);
 	std::array<TH1F*, PARTICLE_NUMBER> dlls_th1f;
 
         dlls_th1f[ParticleTypes::Kaon] = new TH1F("dll_kaon",
 						 "LL(kaon) - LL(pion)", 10, -20, 20);
 	dlls_th1f[ParticleTypes::Proton] = new TH1F("dll_proton",
-						    "LL(proton) - LL(pion)", 10, -2000, 2000);
+						    "LL(proton) - LL(pion)", 10, -1000, 1000);
 	dlls_th1f[ParticleTypes::Muon] = new TH1F("dll_muon",
 				  "LL(muon) - LL(pion)", 10, -20, 20);
 	dlls_th1f[ParticleTypes::Electron] = new TH1F("dll_electron",
