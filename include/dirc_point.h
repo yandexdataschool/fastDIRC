@@ -1,6 +1,5 @@
-
-#ifndef DIRC_POINT
-#define DIRC_POINT
+#ifndef DIRC_POINT_H
+#define DIRC_POINT_H
 struct dirc_point
 {
 	float x;

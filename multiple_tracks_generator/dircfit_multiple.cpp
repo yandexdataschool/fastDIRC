@@ -29,21 +29,46 @@
 #include <TRandom3.h>
 #include <TMinuit.h>
 
-int main(int nargs, char* argv[])
-{  
+// TODO(kazeevn) make this block a proper class
+// the code below relies on the particle types
+// being from 0 to PARTICLE_NUMBER -1
+const unsigned PARTICLE_NUMBER = 5;
+enum ParticleTypes {
+    Muon = 0,
+    Pion = 1,
+    Kaon = 2,
+    Proton = 3,
+    Electron = 4
+};
+
+const int PARTICLE_ANGLE = -1;
+
+// GeV/c^2
+const std::array<float, PARTICLE_NUMBER> masses {
+    .1057, .1396, .4937, .9382720813, 0.5109989461e-3};
+
+const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
+    5, 75, 15, 5, 2};
+
+int main(int nargs, char* argv[]) {  
 	float energy = 5.0;
 	float energy_mean = energy;
-	float energy_spread = 0;
-	float kmass = .4937;
-	float pimass = .1396;
-	//float mumass = .1057;
-
-	float particle_x = 0;
-	float particle_y = 0;
-	float particle_x_mean = particle_x;
-	float particle_y_mean = particle_y;
-	float particle_x_spread = 0;
-	float particle_y_spread = 0;
+	float energy_spread = 0.1;
+	std::array<float, PARTICLE_NUMBER> betas;
+	std::array<float, PARTICLE_NUMBER> times;
+	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
+	std::mt19937 random_generator;
+	std::discrete_distribution<> particle_type_generator(
+            particle_frequencies.begin(), particle_frequencies.end());
+	
+	// We have tracking!
+	const float particle_x = 0;
+	const float particle_y = 0;
+	const float particle_x_mean = particle_x;
+	const float particle_y_mean = particle_y;
+	// Only for particle two
+	float particle_x_spread = 1000.;
+	float particle_y_spread = 1000.;
 	float particle_theta = 4;
 	float particle_theta_mean = particle_theta;
 	float particle_theta_spread = 0;
@@ -191,15 +216,12 @@ int main(int nargs, char* argv[])
 		}
 		else if (strcmp(argv[i], "-slac_geometry") == 0)
 		{
-			//run with SLAC fdirc prototype geometry
+			// run with SLAC fdirc prototype geometry
 			three_seg_mirror = false;
 			mirror_r_difference = 0;
-			//mean_n_phot = 31.1;
 			mean_n_phot = 32.4;
 			spread_n_phot = 6;
 			liquid_index = 1.47;
-			//	sm_xl = -300;
-			//	sm_xr = sm_xl + 1000;
 			miny = -1500;
 			maxy = 1500;
 			digit_miny = miny;
@@ -256,16 +278,6 @@ int main(int nargs, char* argv[])
 		{
 			i++;
 			particle_y_spread = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-particle_y") == 0)
-		{
-			i++;
-			particle_y = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-particle_x") == 0)
-		{
-			i++;
-			particle_x = atof(argv[i]);
 		}
 		else if (strcmp(argv[i], "-particle_theta_spread") == 0)
 		{
@@ -376,200 +388,177 @@ int main(int nargs, char* argv[])
 		}
 	}
 
-
 	float main_mirror_angle = 74.11+mirror_angle_change;
 	float pdf_unc_red_fac = 1;
 	TRandom3 spread_ang(rseed+3);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(
-			rseed,\
-			-1200 + mirror_r_difference,\
-			foc_mirror_size,\
-			main_mirror_angle,\
-			600,\
+			rseed,
+			-1200 + mirror_r_difference,
+			foc_mirror_size,
+			main_mirror_angle,
+			600,
 			47.87 + box_rot + mirror_angle_change);
-	dirc_model->set_store_traveled(false);// uses LOTS of memory if set to true.
+	dirc_model->set_store_traveled(false); // uses LOTS of memory if set to true.
 	dirc_model->set_liquid_index(liquid_index);
 	dirc_model->set_wedge_mirror_rand(wedge_non_uniformity);
 	dirc_model->set_three_seg_mirror(three_seg_mirror);
-	dirc_model->set_pmt_plane_zs(pmt_min_z,pmt_max_z);
-	dirc_model->set_large_mirror_zs(large_mirror_min_z,large_mirror_max_z);
+	dirc_model->set_pmt_plane_zs(pmt_min_z, pmt_max_z);
+	dirc_model->set_large_mirror_zs(large_mirror_min_z, large_mirror_max_z);
 	dirc_model->set_use_quartz_n_for_liquid(use_quartz_for_liquid);
 
-
-	float pion_beta, kaon_beta/*, electron_beta:=1*/;
-	pion_beta=kaon_beta=-1;
-	float pion_angle, kaon_angle;
-	pion_angle=kaon_angle = -1;
-
-	// ROOT memory management
+	// news are handled by the ROOT memory management
 	TFile* tfile = new TFile(rootfilename, "RECREATE");
-	TH1F* ll_diff_pion = new TH1F("ll_diff_pion",
-				      "Difference of log likelihood real = pion",200000,-200,200);
-	TH1F* ll_diff_kaon = new TH1F("ll_diff_kaon",
-				      "Difference of log likelihood real = kaon",200000,-200,200);
+	TH1I* particle_one_type_th1i = new TH1I("particle_one_type",
+					   "Type of the signal particle which is being measured", 
+					   PARTICLE_NUMBER, 0, PARTICLE_NUMBER - 1);
+	TH1I* particle_two_type_th1i = new TH1I("particle_two_type",
+					   "Type of the noise particle",
+					   PARTICLE_NUMBER, 0, PARTICLE_NUMBER - 1);
+	TH1F* distance = new TH1F("distance",
+				  "Distance between the signal and noise racks", 10, 0, 2000);
+	std::array<TH1F*, PARTICLE_NUMBER> dlls_th1f;
+
+        dlls_th1f[ParticleTypes::Kaon] = new TH1F("dll_kaon",
+						 "LL(kaon) - LL(pion)", 10, -20, 20);
+	dlls_th1f[ParticleTypes::Proton] = new TH1F("dll_proton",
+						    "LL(proton) - LL(pion)", 10, -2000, 2000);
+	dlls_th1f[ParticleTypes::Muon] = new TH1F("dll_muon",
+				  "LL(muon) - LL(pion)", 10, -20, 20);
+	dlls_th1f[ParticleTypes::Electron] = new TH1F("dll_electron",
+				    "LL(electron) - LL(pion)", 10, -20, 20);
+	dlls_th1f[ParticleTypes::Pion] = nullptr;
 	maxy *= 5;
-	DircRectDigitizer digitizer(\
-			minx,\
-			maxx,\
-			resx,\
-			digit_miny,\
-			digit_maxy,\
-			resy,\
-			t_unc,\
+	DircRectDigitizer digitizer(
+			minx,
+			maxx,
+			resx,
+			digit_miny,
+			digit_maxy,
+			resy,
+			t_unc,
 			t_bin_size);
 
 	printf("Beginning Run\n");
-	float llc, llf, ll_diff;
-	llc=llf=ll_diff=0;
-	std::vector<dirc_point> sim_points;
-	std::vector<dirc_point> confound_points;
 	dirc_model->set_focmirror_nonuniformity(main_mirror_nonuniformity);
-	if (num_runs > 0) {
-		pion_beta = dirc_model->get_beta(energy,pimass);
-		kaon_beta = dirc_model->get_beta(energy,kmass);
+	dirc_model->set_use_moliere(use_moliere_scattering);
+	// assume momentum is the same for both for now - high energy;
+	dirc_model->set_moliere_p(energy*1000);
 
-		std::vector<dirc_point> hit_points_pion;
-		std::vector<dirc_point> hit_points_kaon;
+	dirc_model->set_liquid_absorbtion(liquid_absorbtion);
+	dirc_model->set_liquid_index(liquid_index);
+	dirc_model->set_three_seg_mirror(three_seg_mirror);
+	dirc_model->set_sidemirror(sm_xr,sm_xl);
 
+	dirc_model->set_pmt_offset(pmt_offset);
+	dirc_model->set_upper_wedge_angle_diff(wedge_uncertainty);
+	dirc_model->set_bar_box_angle(bar_box_box_angle);
 
-		dirc_model->set_use_moliere(use_moliere_scattering);
-		//assume momentum is the same for both for now - high energy;
-		dirc_model->set_moliere_p(energy*1000);
+	// conmpute and intialize the pdfs
+	for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+	    betas[particle] = dirc_model->get_beta(energy, masses[particle]);
+	    // ns
+	    times[particle] = particle_flight_distance/(betas[particle]*.3);
+	    std::vector<dirc_point> hit_points;
 
-		dirc_model->set_liquid_absorbtion(liquid_absorbtion);
-		dirc_model->set_liquid_index(liquid_index);
-		dirc_model->set_three_seg_mirror(three_seg_mirror);
-		dirc_model->set_sidemirror(sm_xr,sm_xl);
-
-		dirc_model->set_pmt_offset(pmt_offset);
-		dirc_model->set_upper_wedge_angle_diff(wedge_uncertainty);
-		dirc_model->set_bar_box_angle(bar_box_box_angle);
-
-		//ns
-		float pion_time = particle_flight_distance/(pion_beta*.3);
-		float kaon_time = particle_flight_distance/(kaon_beta*.3);
-
-		dirc_model->sim_reg_n_photons(\
-				hit_points_pion,\
-				n_phi_phots,\
-				n_z_phots,\
-				-1,\
-				1,\
-				particle_x,\
-				particle_y,\
-				pion_time,\
-				particle_theta,\
-				particle_phi,\
-				0,\
-				ckov_unc/pdf_unc_red_fac,\
-				pion_beta);
-
-		dirc_model->sim_reg_n_photons(\
-				hit_points_kaon,\
-				n_phi_phots,\
-				n_z_phots,\
-				-1,\
-				1,\
-				particle_x,\
-				particle_y,\
-				kaon_time,\
-				particle_theta,\
-				particle_phi,\
-				0,\
-				ckov_unc/pdf_unc_red_fac,\
-				kaon_beta);
-		std::unique_ptr<DircSpreadGaussian> pdf_pion = std::make_unique<DircSpreadGaussian>(
-				sfunc_sig,\
-				hit_points_pion,\
-				s_func_x,\
-				s_func_y,\
-				s_func_t);
-		std::unique_ptr<DircSpreadGaussian> pdf_kaon = std::make_unique<DircSpreadGaussian>(
-				sfunc_sig,\
-				hit_points_kaon,\
-				s_func_x,\
-				s_func_y,\
-				s_func_t);
-
-		for (int i = 0; i < num_runs; i++)
-		{
-			dirc_model->set_focus_mirror_angle(\
-					spread_ang.Gaus(main_mirror_angle,mirror_angle_change_unc),\
-					spread_ang.Gaus(0,mirror_angle_change_yunc));
-			dirc_model->set_upper_wedge_angle_diff(\
-					spread_ang.Gaus(0,wedge_uncertainty),\
-					spread_ang.Gaus(0,upper_wedge_yang_spread));
-			dirc_model->set_bar_box_angle(spread_ang.Gaus(0,box_rot_unc));
-
-			if (particle_theta_mean < .01)
-			{
-				particle_phi = spread_ang.Uniform(0,360);
-			}
-
-			particle_theta = spread_ang.Gaus(particle_theta_mean, particle_theta_spread);
-			particle_x = spread_ang.Gaus(particle_x_mean, particle_x_spread);
-			particle_y = spread_ang.Gaus(particle_y_mean, particle_y_spread);
-			energy = spread_ang.Gaus(energy_mean,energy_spread);
-			pion_beta = dirc_model->get_beta(energy,pimass);
-			kaon_beta = dirc_model->get_beta(energy,kmass);
-
-			printf("\r                                                    ");
-			printf("\rrunning iter %8d/%d  ",i+1,num_runs);
-
-
-			fflush(stdout);
-
-			n_sim_phots = spread_ang.Gaus(mean_n_phot,spread_n_phot);
-
-			//assume its a middle bar
-			dirc_model->sim_rand_n_photons(\
-					sim_points,\
-					n_sim_phots,\
-					pion_angle,\
-					1,\
-					particle_x,\
-					particle_y,\
-					pion_time,\
-					particle_theta+const_track_off,\
-					particle_phi,\
-					tracking_unc,\
-					ckov_unc,\
-					pion_beta);
-			digitizer.digitize_points(sim_points);
-
-
-			llc = pdf_pion->get_log_likelihood(sim_points);
-			llf = pdf_kaon->get_log_likelihood(sim_points);
-
-			ll_diff_pion->Fill(1*(llc-llf));
-			dirc_model->sim_rand_n_photons(\
-					sim_points,\
-					n_sim_phots,\
-					kaon_angle,\
-					1,\
-					particle_x,\
-					particle_y,\
-					kaon_time,\
-					particle_theta+const_track_off,\
-					particle_phi,\
-					tracking_unc,\
-					ckov_unc,\
-					kaon_beta);
-
-
-			digitizer.digitize_points(sim_points);
-
-			llc = pdf_pion->get_log_likelihood(sim_points);
-			llf = pdf_kaon->get_log_likelihood(sim_points);
-
-			ll_diff_kaon->Fill(1*(llc-llf));
-		}
-
-		printf("\nRun Completed\n");
+	    dirc_model->sim_reg_n_photons(hit_points,
+					  n_phi_phots,
+					  n_z_phots,
+					  -1,
+					  1,
+					  particle_x,
+					  particle_y,
+					  times[particle],
+					  particle_theta,
+					  particle_phi,
+					  0,
+					  ckov_unc/pdf_unc_red_fac,
+					  betas[particle]);
+	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
+	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
 	}
+	for (int i = 0; i < num_runs; i++) {
+	    printf("\r                                                    ");
+	    printf("\rrunning iter %8d/%d  ", i+1, num_runs);
+	    fflush(stdout);
+	    dirc_model->set_focus_mirror_angle(
+	        spread_ang.Gaus(main_mirror_angle, mirror_angle_change_unc),
+		spread_ang.Gaus(0, mirror_angle_change_yunc));
+	    dirc_model->set_upper_wedge_angle_diff(spread_ang.Gaus(0,wedge_uncertainty),
+						   spread_ang.Gaus(0,upper_wedge_yang_spread));
+	    dirc_model->set_bar_box_angle(spread_ang.Gaus(0,box_rot_unc));
+
+	    if (particle_theta_mean < .01) {
+		particle_phi = spread_ang.Uniform(0, 360);
+	    }
+	    particle_theta = spread_ang.Gaus(particle_theta_mean, particle_theta_spread);
+	    energy = spread_ang.Gaus(energy_mean,energy_spread);
+	    n_sim_phots = spread_ang.Gaus(mean_n_phot,spread_n_phot);
+	    // We want more or less the same number of 
+	    // signal particles of each type
+	    const unsigned int particle_one_type = spread_ang.Integer(PARTICLE_NUMBER);
+	    particle_one_type_th1i->Fill(particle_one_type);
+	    // assume its a middle bar
+	    // The first particle is always (0, 0) - we have tracking!
+	    std::vector<dirc_point> sim_points;
+	    dirc_model->sim_rand_n_photons(sim_points,
+					   n_sim_phots,
+					   PARTICLE_ANGLE,
+					   1,
+					   0.,
+					   0.,
+					   times[particle_one_type],
+					   particle_theta+const_track_off,
+					   particle_phi,
+					   tracking_unc,
+					   ckov_unc,
+					   betas[particle_one_type]);
+	    std::vector<dirc_point> hits_second;
+	    particle_theta = spread_ang.Gaus(particle_theta_mean, particle_theta_spread);
+	    const float particle_two_x = spread_ang.Gaus(particle_x_mean, particle_x_spread);
+	    const float particle_two_y = spread_ang.Gaus(particle_y_mean, particle_y_spread);
+	    // TODO(kazeevn) square?
+	    distance->Fill(sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y));
+	    energy = spread_ang.Gaus(energy_mean, energy_spread);
+	    n_sim_phots = spread_ang.Gaus(mean_n_phot, spread_n_phot);
+	    // For the noise particle, we want an LHCb-like distribution
+	    // also, since TRandom3 doesn't provide weights, we use the
+	    // standard library
+	    const unsigned int particle_two_type = particle_type_generator(random_generator);
+	    particle_two_type_th1i->Fill(particle_two_type);
+	    dirc_model->sim_rand_n_photons(hits_second,
+					   n_sim_phots,
+					   PARTICLE_ANGLE,
+					   1,
+					   particle_two_x,
+					   particle_two_y,
+					   times[ParticleTypes::Kaon],
+					   particle_theta + const_track_off,
+					   particle_phi,
+					   tracking_unc,
+					   ckov_unc,
+					   betas[ParticleTypes::Kaon]);
+	    // TODO(kazeevn) switch from copying memory
+	    sim_points.insert(sim_points.end(), hits_second.begin(), hits_second.end());
+	    digitizer.digitize_points(sim_points);
+	    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+		if (particle == ParticleTypes::Pion) {
+		    continue;
+		}
+		dlls_th1f[particle]->Fill(pdfs[particle]->get_log_likelihood(sim_points) - ll_pion);
+	    }
+	}
+	printf("\nRun Completed\n");
 	tfile->cd();
-	ll_diff_pion->Write();
-	ll_diff_kaon->Write();
+	distance->Write();
+	particle_one_type_th1i->Write();
+	particle_two_type_th1i->Write();
+	for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+	    if (particle == ParticleTypes::Pion) {
+		continue;
+	    }
+	    dlls_th1f[particle]->Write();
+	}
 	tfile->Close();
 	return 0;
 }

@@ -35,16 +35,16 @@ vpath %.o ./lib/
 vpath %.cpp ./source/
 
 %.o : %.cpp
-	g++ -Wall $(CFLAGS) $(INCLUDE) -o $@ -c $<
+	g++ $(CFLAGS) $(INCLUDE) -o $@ -c $<
 	mv $@ $(LIBLOC)
 
 .PHONY : all
 all: dircfit.cpp $(OBJFILES)
-	g++ -Wall dircfit.cpp $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)
+	g++ dircfit.cpp $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)
 
 .PHONY : example
 example: $(EXAMPLE_LOC) $(OBJFILES)
-	g++ -Wall $(EXAMPLE_LOC) $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)_example
+	g++ $(EXAMPLE_LOC) $(OBJLOC) $(CFLAGS) $(INCLUDE) -o $(OUT)_example
 
 .PHONY : multiple_track
 multiple_track:  $(MULTIPLE_LOC) $(OBJFILES)
@@ -56,9 +56,10 @@ libs: $(OBJFILES)
 
 .PHONY : clean
 clean:
-	rm lib/*.o
-	rm $(OUT)
-	rm $(OUT)_example
+	rm -f lib/*.o
+	rm -f $(OUT)
+	rm -f $(OUT)_example
+	rm -f $(OUT)_multiple
 
 .PHONY : cleanall
 cleanall:
