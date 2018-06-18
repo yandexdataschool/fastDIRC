@@ -67,5 +67,3 @@ void DircRectDigitizer::digitize_points(std::vector<dirc_point> &points)
 		digitize_point(points[i]);
 	}
 }
-
-	

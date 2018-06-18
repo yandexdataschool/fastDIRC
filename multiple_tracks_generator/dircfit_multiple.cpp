@@ -480,9 +480,9 @@ int main(int nargs, char* argv[]) {
 	}
 	printf("Beginning Run\n");
 	for (int i = 0; i < num_runs; i++) {
-	    printf("\r                                                    ");
-	    printf("\rrunning iter %8d/%d  ", i+1, num_runs);
-	    fflush(stdout);
+	    //printf("\r                                                    ");
+	    //printf("\rrunning iter %8d/%d  ", i+1, num_runs);
+	    //fflush(stdout);
 	    dirc_model->set_focus_mirror_angle(
 	        spread_ang->Gaus(main_mirror_angle, mirror_angle_change_unc),
 		spread_ang->Gaus(0, mirror_angle_change_yunc));
