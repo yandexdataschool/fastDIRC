@@ -40,9 +40,9 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
-	float energy_spread = 0.5;
-	const float eta_min = -0.2;
-	const float eta_max = 0.2;
+	float energy_spread = 0.;
+	const float eta_min = -0.10001;
+	const float eta_max = -0.1;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
