@@ -94,9 +94,6 @@ protected:
 	int lastWallX;
 	int wedgeBeforeInterface;
 
-	float moliereP;
-	bool useMoliere;
-
 	float liquidIndex;
 	float liquidAbsorbtion;
 	bool use_liquid_n;
@@ -130,38 +127,6 @@ protected:
 	
 	void rotate_2d(float &x, float &y, float cval, float sval);
 
-	void fill_rand_phi(\
-		std::vector<dirc_point> &ovals,\
-		int n_photons, \
-		float ckov_theta /*= 47*/, \
-        	float particle_bar /*=0*/, \
-		float particle_x /*= 0*/, \
-		float particle_y /*= 0*/, \
-		float particle_t /*= 0*/, \
-		float particle_theta /*= 0*/, \
-		float particle_phi /*= 0*/,\
-		float phi_theta_unc /*= .0015*57.3*/,\
-		float ckov_theta_unc /* = .0055*57.3*/,\
-		float beta /* = -1*/);
-	void fill_reg_phi(\
-		std::vector<dirc_point> &fill_points,\
-		int n_photons_phi, \
-		int n_photons_z,\
-		float ckov_theta /*= 47*/, \
-	        float particle_bar /*=0*/, \
-		float particle_x /*= 0*/, \
-		float particle_y /*= 0*/, \
-		float particle_t /*= 0*/, \
-		float particle_theta /*= 0*/, \
-		float particle_phi /*= 0*/,\
-		float phi_theta_unc, /*= 0*/
-		float ckov_theta_unc /* = 0*/,\
-		float beta /* = -1*/);
-
-
-	float generate_cos_moliere_angle(\
-                float rad_length);
-
 	void bar_box_interface(\
 		float &x,\
 		float &y,\
@@ -170,18 +135,6 @@ protected:
 		float &dy,\
 		float &dz);
 
-	void fill_moliere_tracking_steps(\
-		std::vector<dirc_base_sim_tracking_step> &rsteps,\
-		float &travel_distance,\
-		float step_length,\
-		float start_theta,\
-		float start_phi,\
-		float start_x,\
-		float start_y,\
-		float start_z);
-		
-
-	
 	float get_quartz_n(float lambda);
 	float get_liquid_n(float lambda);
 	bool optical_interface_z(\
@@ -297,11 +250,9 @@ public:
 	
 	void set_use_quartz_n_for_liquid(bool iu);
 
-	void set_moliere_p(float ip);
-	void set_use_moliere(bool ium);
-	//Random seed chosen arbitrarily
-	//default parameters correspond to babar dirc bars
-	//default upper wedge top is for gluex implementation.  Set to 0 to remove upper wedge
+	// Random seed chosen arbitrarily
+	// default parameters correspond to babar dirc bars
+	// default upper wedge top is for gluex implementation. Set to 0 to remove upper wedge
 	DircBaseSim(\
 		int rand_seed = 4357,\
 		float ibarLength = 4900,\
@@ -321,33 +272,39 @@ public:
 		float phi_theta_unc = .0015*57.3,\
 		float ckov_theta_unc = .0055*57.3,\
 		float beta = -1);
-	void sim_rand_n_photons(\
-		std::vector<dirc_point> &out_points,\
-		int n_photons,\
-		float ckov_theta = 47, \
-        	float particle_bar= 0, \
-		float particle_x = 0, \
-		float particle_y = 0, \
-		float particle_t = 0, \
-		float particle_theta = 0, \
-		float particle_phi = 0,\
-		float phi_theta_unc = .08594,\
-		float ckov_theta_unc = .3151,\
-		float beta = -1);	
-	void sim_reg_n_photons(\
-		std::vector<dirc_point> &out_points,\
-		int n_photons_phi,\
-		int n_photons_z,\
-		float ckov_theta = 47, \
-        	float particle_bar= 0, \
-		float particle_x = 0, \
-		float particle_y = 0, \
-		float particle_t = 0, \
-		float particle_theta = 0, \
-		float particle_phi = 0,\
-		float phi_theta_unc = 0,\
-		float ckov_theta_unc = 0,\
-		float beta = -1);	
+	void fill_reg_phi(
+		// TODO(kazeevn) will look better with a general iterator
+                // But this way we nicely guarantee we're not going to ruin
+		// the vector beginning
+		std::back_insert_iterator<std::vector<dirc_point>> &fill_points,
+		int n_photons_phi,
+		int n_photons_z,
+		float ckov_theta /*= 47*/,
+	        float particle_bar /*=0*/,
+		float particle_x /*= 0*/,
+		float particle_y /*= 0*/,
+		float particle_t /*= 0*/,
+		float particle_theta /*= 0*/,
+		float particle_phi /*= 0*/,
+		float phi_theta_unc, /*= 0*/
+		float ckov_theta_unc /* = 0*/,
+		float beta /* = -1*/);
+	void fill_rand_phi(
+		// TODO(kazeevn) will look better with a general iterator
+                // But this way we nicely guarantee we're not going to ruin
+		// the vector beginning
+		std::back_insert_iterator<std::vector<dirc_point>> &ovals,
+		int n_photons,
+		float ckov_theta /*= 47*/,
+        	float particle_bar /*=0*/,
+		float particle_x /*= 0*/,
+		float particle_y /*= 0*/,
+		float particle_t /*= 0*/,
+		float particle_theta /*= 0*/,
+		float particle_phi /*= 0*/,
+		float phi_theta_unc /*= .0015*57.3*/,
+		float ckov_theta_unc /* = .0055*57.3*/,
+		float beta /* = -1*/);
 	bool track_single_photon(\
 	        dirc_point &out_val,\
 	        float emit_theta,\

@@ -1,4 +1,4 @@
-CFLAGS_BASE = -march=native -Wno-comment -Wl,--no-as-needed -L./lib/ `root-config --cflags` `root-config --glibs` -lMinuit -Wall -std=c++14
+CFLAGS_BASE = -march=native -Wno-comment -L./lib/ `root-config --cflags` `root-config --glibs` -Wall -Werror -std=c++14
 CFLAGS_OPT = -O2
 #CFLAGS_OPT = -g -O0
 CFLAGS_BASE += $(CFLAGS_OPT)

@@ -96,9 +96,6 @@ DircBaseSim::DircBaseSim(
 	x_indirect_bounces.clear();
 	z_indirect_bounces.clear();
 
-	useMoliere = true;
-	moliereP = 1000000;//minimal scattering 
-
 	build_system();
 }
 void DircBaseSim::set_store_bounces(bool isb)
@@ -271,76 +268,17 @@ int DircBaseSim::get_bar_from_x(float x)
 	}
 
 }
+
 void DircBaseSim::set_upper_wedge_angle_store(bool istore)
 {
 	upperWedgeAngleStore = istore;
 }
+
 std::vector<float> DircBaseSim::get_upper_wedge_incident()
 {
 	return upper_wedge_incident;
 }
-void DircBaseSim::sim_rand_n_photons(\
-		std::vector<dirc_point> &out_points,\
-		int n_photons, \
-		float ckov_theta /*= 47*/, \
-		float particle_bar /*=0*/, \
-		float particle_x /*= 0*/, \
-		float particle_y /*= 0*/, \
-		float particle_t /*=0*/,\
-		float particle_theta /*= 0*/, \
-		float particle_phi /*= 0*/,\
-		float phi_theta_unc /*= .0015*57.3*/,\
-		float ckov_theta_unc /* = .0055*57.3*/,\
-		float beta /* = -1*/) {
 
-	out_points.clear();
-	fill_rand_phi(\
-			out_points,\
-			n_photons,\
-			ckov_theta,\
-			particle_bar,\
-			particle_x,\
-			particle_y,\
-			particle_t /*=0*/,\
-			particle_theta,\
-			particle_phi,\
-			phi_theta_unc,\
-			ckov_theta_unc,\
-			beta);
-}
-void DircBaseSim::sim_reg_n_photons(\
-		std::vector<dirc_point> &out_points,\
-		int n_photons_phi, \
-		int n_photons_z,\
-		float ckov_theta /*= 47*/, \
-		float particle_bar /*=0*/, \
-		float particle_x /*= 0*/, \
-		float particle_y /*= 0*/, \
-		float particle_t /*=0*/,\
-		float particle_theta /*= 0*/, \
-		float particle_phi /*= 0*/,\
-		float phi_theta_unc /*= 0*/,\
-		float ckov_theta_unc /* = 0*/,\
-		float beta /* = -1*/) {
-	out_points.clear();
-	fill_reg_phi(\
-			out_points,\
-			n_photons_phi,\
-			n_photons_z,\
-			ckov_theta,\
-			particle_bar,\
-			particle_x,\
-			particle_y,\
-			particle_t,\
-			particle_theta,\
-			particle_phi,\
-			phi_theta_unc,\
-			ckov_theta_unc,\
-			beta);
-	//Reflection inside loops
-	//    sidemirror_reflect_points(out_points);
-	//     return out_points;
-}
 void DircBaseSim::test_from_wedge_top(\
 		std::vector<dirc_point> &ovals,\
 		int n_photons, \
@@ -498,20 +436,19 @@ void DircBaseSim::sim_lut_points(\
 	quartzIndex = saveGeneralQuartzIndex;
 	liquidIndex = saveGeneralLiquidIndex;
 }
-void DircBaseSim::fill_rand_phi(\
-		std::vector<dirc_point> &ovals,\
-		int n_photons, \
-		float ckov_theta /*= 47*/, \
-		float particle_bar /*= 0*/, \
-		float particle_x /*= 0*/, \
-		float particle_y /*= 0*/, \
-		float particle_t /*= 0*/, \
-		float particle_theta /*= 0*/, \
-		float particle_phi /*= 0*/,\
+void DircBaseSim::fill_rand_phi(
+		std::back_insert_iterator<std::vector<dirc_point>> &ovals,
+		int n_photons,
+		float ckov_theta /*= 47*/,
+		float particle_bar /*= 0*/,
+		float particle_x /*= 0*/,
+		float particle_y /*= 0*/,
+		float particle_t /*= 0*/,
+		float particle_theta /*= 0*/,
+		float particle_phi /*= 0*/,
 		float phi_theta_unc, /*= .0015*57.3*/
-		float ckov_theta_unc /* = .0055*57.3*/,\
+		float ckov_theta_unc /* = .0055*57.3*/,
 		float beta/* = -1*/) {
-
 
 	float emitAngle = ckov_theta;
 	float particleTheta = particle_theta + rand_gen->Gaus(0,phi_theta_unc);
@@ -542,50 +479,33 @@ void DircBaseSim::fill_rand_phi(\
 	//hardcode step length to 1mm for now
 	float step_length = 1;
 	//note: These are general tracking vectors - you can implement your own MC with them.  Each refers to position and direction at the start of the step
-	if (useMoliere == true)
-	{
-		fill_moliere_tracking_steps(\
-				track_steps,\
-				dist_traveled,\
-				step_length,\
-				particleTheta/57.3,\
-				particlePhi/57.3,\
-				particle_x,\
-				particle_y,\
-				-barDepth);
-	}
-	else
-	{
-		dirc_base_sim_tracking_step step1;
-		step1.x = particle_x;	
-		step1.y = particle_y;	
-		step1.z = -barDepth;
-		
-		step1.sin_theta = sin_ptheta;
-		step1.cos_theta = cos_ptheta;
-		step1.sin_phi = sin_pphi;
-		step1.cos_phi = cos_pphi;
 
-		dist_traveled = barDepth/cos_ptheta;
-		//take_1_step
-		step_length = barDepth/cos_ptheta;
+	dirc_base_sim_tracking_step step1;
+	step1.x = particle_x;	
+	step1.y = particle_y;	
+	step1.z = -barDepth;
 
-		
-		dirc_base_sim_tracking_step step2;
-		step2.x = particle_x + step_length*sin_ptheta*cos_pphi;	
-		step2.y = particle_y + step_length*sin_ptheta*sin_pphi;	
-		step2.z = -barDepth + step_length*cos_ptheta;
-		
-		step2.sin_theta = sin_ptheta;
-		step2.cos_theta = cos_ptheta;
-		step2.sin_phi = sin_pphi;
-		step2.cos_phi = cos_pphi;
+	step1.sin_theta = sin_ptheta;
+	step1.cos_theta = cos_ptheta;
+	step1.sin_phi = sin_pphi;
+	step1.cos_phi = cos_pphi;
 
-		
-		track_steps.push_back(step1);
-		track_steps.push_back(step2);	
+	dist_traveled = barDepth/cos_ptheta;
+	//take_1_step
+	step_length = barDepth/cos_ptheta;
 
-	}
+	dirc_base_sim_tracking_step step2;
+	step2.x = particle_x + step_length*sin_ptheta*cos_pphi;	
+	step2.y = particle_y + step_length*sin_ptheta*sin_pphi;	
+	step2.z = -barDepth + step_length*cos_ptheta;
+
+	step2.sin_theta = sin_ptheta;
+	step2.cos_theta = cos_ptheta;
+	step2.sin_phi = sin_pphi;
+	step2.cos_phi = cos_pphi;
+
+	track_steps.push_back(step1);
+	track_steps.push_back(step2);	
 
 	float track_loc = -1;
 
@@ -683,7 +603,8 @@ void DircBaseSim::fill_rand_phi(\
 
 		out_val.t += particle_t;
 		out_val.updown = tmp_updown;
-		ovals.push_back(out_val);
+		// ovals is a push_back_iterator
+		ovals = out_val;
 	}
 	quartzIndex = saveGeneralQuartzIndex;
 	liquidIndex = saveGeneralLiquidIndex;
@@ -841,7 +762,7 @@ std::vector<std::pair<float,float> > DircBaseSim::get_refraction_rand_phi(\
 }
 
 void DircBaseSim::fill_reg_phi(
-		std::vector<dirc_point> &ovals,
+		std::back_insert_iterator<std::vector<dirc_point>> &fill_points,
 		int n_photons_phi,
 		int n_photons_z,
 		float ckov_theta /*= 47*/,
@@ -973,13 +894,15 @@ void DircBaseSim::fill_reg_phi(
 
 			out_val.t += particle_t;
 			out_val.updown = tmp_updown;
-			ovals.push_back(out_val);
+			// Not the niciest syntax
+			// but this insterts into the output vector
+			fill_points = out_val;
 		}
 	}
 	quartzIndex = saveGeneralQuartzIndex;
 	liquidIndex = saveGeneralLiquidIndex;
-
 }
+
 bool DircBaseSim::track_single_photon(\
 		dirc_point &out_val,\
 		float emit_theta,\
@@ -2309,187 +2232,6 @@ bool DircBaseSim::x_wedge_coerce_check(\
 	//printf("%12.04f\n",z);
 
 	return true;//not out the window for the whole trip
-}
-void DircBaseSim::set_moliere_p(float ip)
-{
-	moliereP = ip;
-}
-void DircBaseSim::set_use_moliere(bool ium)
-{
-	useMoliere = ium;
-}
-float DircBaseSim::generate_cos_moliere_angle(\
-		float rad_length)
-{
-	//Algorithm from Macro by Mike Williams 07/26/16
-	//Magic numbers taken from limits of scattering
-//	TF1 g1("g1","exp(-[0]*(1-x))",-1,1);
-//	TF1 g2("g2","pow([0]-x,-2)",-1,1); 
-
-	// .17 corresponds to rad_length in this limit
-	//float theta0=(13.6/P)*sqrt(0.17)*(1+0.038*log(0.17)); 
-	rad_length = .17;
-	float theta0=(13.6/moliereP)*sqrt(rad_length)*(1+0.038*log(rad_length)); 
-	float a = pow(theta0,-2);
-	float u0 = 1-3*pow(theta0,2);
-	float b = 1-pow(theta0,2);
-//	g1.SetParameter(0,a);
-//	g2.SetParameter(0,b);
-
-	float c1 = a;
-	float c2 = 1/(1/(3*pow(theta0,2))-1/2.);
-
-	float g10 = exp(-a*(1-u0))*c1;
-	float g20 = pow(b-u0,-2)*c2;
-	float p = g20/(g10+g20);
-
-	float max_g = 0;
-
-	//binning chosen based on original ROOT histograms
-	//actually undercounts forward scattering for this formulation
-	//done this way to be able to simulate this in nonzero time
-	float u = 1-.005/100000;
-	float g1val = 0, g2val = 0;
-	if(u >= u0) g1val = c1*exp(-a*(1-u));
-	if(u <= u0) g2val = c2*pow(b-u,-2);
-	float g = p*g1val + (1-p)*g2val;
-	if(g < 0) g=0;
-	//printf("%12.04f\n",g);
-	max_g = std::max(g,max_g);
-
-
-	while (true)
-	{
-		float u = rand_gen->Uniform(.99,1);
-		float g1val = 0, g2val = 0;
-		if(u >= u0) g1val = c1*exp(-a*(1-u));
-		if(u <= u0) g2val = c2*pow(b-u,-2);
-		float g = p*g1val + (1-p)*g2val;
-		if(g < 0) g=0;
-		//printf("%12.04f\n",g);
-		if (rand_gen->Uniform(0,max_g) < g)
-		{
-			return u;
-		}
-	}
-}
-void DircBaseSim::fill_moliere_tracking_steps(\
-		std::vector<dirc_base_sim_tracking_step> &rsteps,\
-		float &travel_distance,\
-		float step_length,\
-		float start_theta,\
-		float start_phi,\
-		float start_x,\
-		float start_y,\
-		float start_z)
-{
-		rsteps.clear();
-		travel_distance = 0;
-
-		float max_travel = fabs(barDepth*2/cos(start_theta));
-		
-		float cur_x = start_x;
-		float cur_y = start_y;
-		float cur_z = start_z;
-		float cur_theta = start_theta;
-		float cur_phi = start_phi;
-
-		//printf("Enter ctheta: %12.04f\n",cur_theta);
-	
-		float cur_sintheta = sin(cur_theta);
-		float cur_costheta = cos(cur_theta);
-		float cur_sinphi = sin(cur_phi);
-		float cur_cosphi = cos(cur_phi);
-
-		float sin_scatter_theta;
-		float cos_scatter_theta;
-		float scatter_phi;
-		float sin_scatter_phi;
-		float cos_scatter_phi;
-
-		float sdx,sdy,sdz;
-
-
-		while (cur_z < 0 && travel_distance < max_travel)
-		{
-			dirc_base_sim_tracking_step add_step;
-			add_step.x = cur_x;
-			add_step.y = cur_y;
-			add_step.z = cur_z;
-			add_step.sin_theta = cur_sintheta;
-			add_step.cos_theta = cur_costheta;
-			add_step.sin_phi = cur_sinphi;
-			add_step.cos_phi = cur_cosphi;
-		
-	
-			rsteps.push_back(add_step);
-
-			cos_scatter_theta = generate_cos_moliere_angle(step_length);
-			sin_scatter_theta = sqrt(1-cos_scatter_theta*cos_scatter_theta);
-
-			scatter_phi = rand_gen->Uniform(0,2*3.14159265);
-
-			cos_scatter_phi = cos(scatter_phi);
-			//sin_scatter_phi = sqrt(1-cos_scatter_phi*cos_scatter_phi);			
-			//compute together to save time in the future - not currently the limiting factor
-			sin_scatter_phi = sin(scatter_phi);			
-
-			sdx = step_length*sin_scatter_theta*cos_scatter_phi;
-			sdy = step_length*sin_scatter_theta*sin_scatter_phi;
-			sdz = step_length*cos_scatter_theta;
-
-			sdx = 0;
-			sdy = 0;
-			sdz = 1;
-
-			rotate_2d(sdz,sdy,cur_costheta,cur_sintheta);
-			rotate_2d(sdy,sdx,cur_cosphi,cur_sinphi);
-
-			//printf("inmol: %12.04f %12.04f %12.04f step_length: %12.04f cos_theta: %12.04f sdxyz:  %12.04f %12.04f %12.04f\n",cur_x,cur_y,cur_z,step_length,cos_scatter_theta,sdx,sdy,sdz);
-			//printf("cst,cct,csp,ccp: %12.04f %12.04f %12.04f %12.04f step_length: %12.04f cos_theta: %12.04f sdxyz:  %12.04f %12.04f %12.04f\n",cur_sintheta,cur_costheta,cur_sinphi,cur_cosphi,step_length,cos_scatter_theta,sdx,sdy,sdz);
-		
-			//exits bar at this step, add it again
-			if (cur_z + sdz > 0)
-			{
-				//Adjust to ensure the step 
-				sdx = -sdx*cur_z/sdz*1.0001;
-				sdy = -sdy*cur_z/sdz*1.0001;
-				sdz = -sdz*cur_z/sdz*1.0001;
-				travel_distance += -step_length*cur_z/sdz;
-			}
-			else
-			{
-				travel_distance += step_length;
-			}
-			
-			cur_x += sdx;
-			cur_y += sdy;
-			cur_z += sdz;
-			cur_theta = acos(sdz);
-			//ordering below is correct - has to do with the rotate_2d coordinates above, which are left as they are for consistency with production
-			//still produces the same phi (0 along x axis)
-			cur_phi = atan2(sdx,sdy);
-
-			cur_sintheta = sin(cur_theta);
-			cur_costheta = cos(cur_theta);
-			cur_sinphi = sin(cur_phi);
-			cur_cosphi = cos(cur_phi);
-
-			//same as condition above, finish with last step.
-			if (cur_z > 0)
-			{
-				dirc_base_sim_tracking_step add_step;
-				add_step.x = cur_x;
-				add_step.y = cur_y;
-				add_step.z = cur_z;
-				add_step.sin_theta = cur_sintheta;
-				add_step.cos_theta = cur_costheta;
-				add_step.sin_phi = cur_sinphi;
-				add_step.cos_phi = cur_cosphi;
-				
-				rsteps.push_back(add_step);
-			}
-		}
 }
 
 void DircBaseSim::plane_reflect(\
