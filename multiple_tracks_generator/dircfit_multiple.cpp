@@ -384,7 +384,8 @@ int main(int nargs, char* argv[]) {
 	    //	 ++kde_iteration) 
 	    {
 		const float energy = energy_mean;
-		const float particle_eta = 0.5*(eta_max + eta_min);
+		//const float particle_eta = 0.5*(eta_max + eta_min);
+		const float particle_eta = eta_mean;
 		// degrees
 		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
 		const float beta = dirc_model->get_beta(energy, masses[particle]);
