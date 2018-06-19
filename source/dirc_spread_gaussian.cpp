@@ -74,13 +74,12 @@ float DircSpreadGaussian::get_single_likelihood(dirc_point inpoint)
 }
 
 const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>& inpoints) {
-        float tprob;
 	float rval = 0;
-	float log_mult = 1.;
-	float weight = 1.;
+	const float log_mult = 1.;
+	const float weight = 1.;
 	for (unsigned int i = 0; i < inpoints.size(); ++i)
 	{
-		tprob = 0;
+	        float tprob = 0;
 		for (unsigned int j = 0; j < support_points.size(); ++j)
 		{
 			tprob += support_spread_function(support_points[j], inpoints[i]);

@@ -40,10 +40,9 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
-	float energy_spread = 0.;
-	//const float eta_min = -0.10001;
-	//const float eta_max = -0.1;
-	const float eta_mean = 0.07;
+	float energy_spread = 0.5;
+	const float eta_min = -0.2;
+	const float eta_max = 0.2;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -118,9 +117,9 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 100000;
+	int n_phi_phots = 20;
 	int n_z_phots = 4;
-	//const unsigned int kde_generation_iterations = 40;
+	const unsigned int kde_generation_iterations = 4000;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -380,12 +379,10 @@ int main(int nargs, char* argv[]) {
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		std::back_inserter(hit_points);
 
-	    //	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
-	    //	 ++kde_iteration) 
-
-		const float energy = energy_mean;
-		//const float particle_eta = 0.5*(eta_max + eta_min);
-		const float particle_eta = eta_mean;
+	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
+	    	 ++kde_iteration) {
+		const float energy = spread_ang->Gaus(energy_mean, energy_spread);
+		const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
 		// degrees
 		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
 		const float beta = dirc_model->get_beta(energy, masses[particle]);
@@ -405,7 +402,7 @@ int main(int nargs, char* argv[]) {
 					 0,
 					 ckov_unc/pdf_unc_red_fac,
 					 beta);
-
+	    }
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
 	}
@@ -416,8 +413,8 @@ int main(int nargs, char* argv[]) {
 	    // We want more or less the same number of
 	    // signal particles of each type
 	    particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
-	    particle_one_energy = energy_mean; //spread_ang->Gaus(energy_mean, energy_spread);
-	    particle_one_eta = eta_mean;//spread_ang->Uniform(eta_min, eta_max);
+	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
+	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
 	    // degrees
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
 	    const float particle_one_beta = dirc_model->get_beta(
@@ -429,6 +426,7 @@ int main(int nargs, char* argv[]) {
 	    std::vector<dirc_point> sim_points;
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_sim_points = \
 		std::back_inserter(sim_points);
+	    
 	    dirc_model->fill_rand_phi(fill_sim_points,
 				      particle_one_n_sim_phots,
 				      PARTICLE_ANGLE,
@@ -440,8 +438,8 @@ int main(int nargs, char* argv[]) {
 				      particle_phi,
 				      tracking_unc,
 				      ckov_unc,
-				      particle_one_theta);
-	    const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
+				      particle_one_beta);
+	    // const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 	    const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
 	    const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
 	    // TODO(kazeevn) square?

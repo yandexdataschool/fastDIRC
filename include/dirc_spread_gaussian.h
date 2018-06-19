@@ -37,7 +37,7 @@ public:
 	};
 
 	const inline float support_spread_function(const dirc_point& support,
-						    const dirc_point& test) {
+						   const dirc_point& test) {
 		float dx2, dy2, dt2;
 		dx2 = support.x - test.x;
 		dx2 *= dx2;
