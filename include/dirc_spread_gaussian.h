@@ -38,7 +38,7 @@ public:
 
 	const inline float support_spread_function(const dirc_point& support,
 						    const dirc_point& test) {
-		float dx2,dy2,dt2;
+		float dx2, dy2, dt2;
 		dx2 = support.x - test.x;
 		dx2 *= dx2;
 		dy2 = support.y - test.y;
@@ -52,9 +52,9 @@ public:
 	const float get_log_likelihood(const std::vector<dirc_point>& inpoints);
 	float get_log_likelihood_new_support(
                 std::vector<dirc_point> &inpoints, std::vector<dirc_point> &t_support);
-	void fill_likelihood_new_support(\
-		std::vector<float> &likelihood_vals,\
-		std::vector<dirc_point> new_support,\
+	void fill_likelihood_new_support(
+		std::vector<float> &likelihood_vals,
+		std::vector<dirc_point> new_support,
 		std::vector<dirc_point> inpoints);
 };
 #endif

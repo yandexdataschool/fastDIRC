@@ -11,9 +11,6 @@
 
 #include <TRandom3.h>
 
-//#define EXACT_GEANT_ADJUST
-
-
 DircThreeSegBoxSim::DircThreeSegBoxSim(
 		int rand_seed /*=4357*/,
 		float ifoc_r/*=540.66*/,
@@ -73,15 +70,9 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 	liquidIndex = 1.47;
 	quartzLiquidY = upperWedgeBottom;
 
-	//boxCloseZ = -614;
 	boxCloseZ = -559;
-
-	//reflOff = 9;
 	baseReflOff = .75;
-#ifdef EXACT_GEANT_ADJUST
-	printf("Warning: adjusting to match the superB prototype of geant exactly.  Hard coded numbers in the optical box\n");
-	baseReflOff = 0;
-#endif
+
 	reflOff = baseReflOff;
 	three_seg_mirror = false;
 	focYoff = 0;
