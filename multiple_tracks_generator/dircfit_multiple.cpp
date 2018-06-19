@@ -43,7 +43,7 @@ int main(int nargs, char* argv[]) {
 	float energy_spread = 0.;
 	//const float eta_min = -0.10001;
 	//const float eta_max = -0.1;
-	const float eta_mean = -0.07;
+	const float eta_mean = 0.07;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -382,7 +382,7 @@ int main(int nargs, char* argv[]) {
 
 	    //	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
 	    //	 ++kde_iteration) 
-	    {
+
 		const float energy = energy_mean;
 		//const float particle_eta = 0.5*(eta_max + eta_min);
 		const float particle_eta = eta_mean;
@@ -405,7 +405,7 @@ int main(int nargs, char* argv[]) {
 					 0,
 					 ckov_unc/pdf_unc_red_fac,
 					 beta);
-	    }
+
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
 	}
