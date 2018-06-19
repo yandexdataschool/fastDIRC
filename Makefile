@@ -24,8 +24,6 @@ OBJFILES += dirc_spread_relative.o
 OBJFILES += dirc_spread_radius.o
 OBJFILES += dirc_spread_linear_soft.o
 OBJFILES += dirc_spread_gaussian.o
-OBJFILES += dirc_probability_separation.o
-OBJFILES += dirc_progressive_separation.o
 
 OBJLOC = $(patsubst %,$(LIBLOC)/%,$(OBJFILES))
 LIBFILES = $(LIBLOC)

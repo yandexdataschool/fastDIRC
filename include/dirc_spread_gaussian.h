@@ -1,27 +1,66 @@
-#ifndef DIRC_SPREAD_GAUSSIAN
-#define DIRC_SPREAD_GAUSSIAN
+#ifndef DIRC_SPREAD_GAUSSIAN_H
+#define DIRC_SPREAD_GAUSSIAN_H
 #include <vector>
 #include <TRandom3.h>
+#include <nanoflann.hpp>
 #include "dirc_point.h"
 #include "dirc_spread_radius.h"
 
+// nanoflann
+struct PointCloud {
+    struct Point
+    {
+	float x,y,z;
+    };
+    std::vector<Point> pts;
+
+    // Must return the number of data points
+    inline size_t kdtree_get_point_count() const { return pts.size(); }
+
+    // Returns the dim'th component of the idx'th point in the class:
+    // Since this is inlined and the "dim" argument is typically an immediate value, the
+    //  "if/else's" are actually solved at compile time.
+    inline float kdtree_get_pt(const size_t idx, int dim) const
+    {
+	if (dim == 0) return pts[idx].x;
+	else if (dim == 1) return pts[idx].y;
+	else return pts[idx].z;
+    }
+
+    // Optional bounding-box computation: return false to default to a
+    //   standard bbox computation loop.  Return true if the BBOX was
+    //   already computed by the class and returned in "bb" so it can
+    //   be avoided to redo it again.  Look at bb.size() to find out
+    //   the expected dimensionality (e.g. 2 or 3 for point clouds)
+    template <class BBOX>
+    bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
+};
+
+typedef nanoflann::KDTreeSingleIndexAdaptor<
+     nanoflann::L2_Simple_Adaptor<float, PointCloud>,
+     PointCloud,
+     3 /* dim */
+     > kd_tree;
+
 class DircSpreadGaussian {
 private:
-	float x_sig2inv,y_sig2inv,t_sig2inv;
+	float x_unc, y_unc, t_unc;
 	float spread_func_norm, spread_func_norm_inv;
 	float lin_slope, r_trans, sigma2, sigma2inv,max_val;
 	std::unique_ptr<TRandom3> rand_gen;
-	std::vector<dirc_point> support_points;
 	float get_weight(dirc_point inpoint);
 	float min_probability;
+	const unsigned int kd_max_leaf = 1000;
+	float support_cutoff_radius2;
+	PointCloud support_points;
+	std::unique_ptr<kd_tree> support_index;
 public:
-	//by reference - later for speed
-	DircSpreadGaussian(\
-		float isigma, \
-		std::vector<dirc_point> isupport,\
-		float x_unc,\
-		float y_unc,\
-		float t_unc,\
+	DircSpreadGaussian(
+		float isigma,
+		const std::vector<dirc_point>& isupport,
+		float x_unc,
+		float y_unc,
+		float t_unc,
 		float imin_prob = 1e-6);
 	void support_spread(float spread_sig);
 	void support_x_weight();
@@ -29,23 +68,7 @@ public:
 	void set_gaus_sigma(float isigma);
 
 	const inline float radius_spread_function(const float r2) {
-	    if (r2 < 5*sigma2) {
-		return exp(-r2*sigma2inv);
-	    } else {
-		return 0.;
-	    }
-	};
-
-	const inline float support_spread_function(const dirc_point& support,
-						   const dirc_point& test) {
-		float dx2, dy2, dt2;
-		dx2 = support.x - test.x;
-		dx2 *= dx2;
-		dy2 = support.y - test.y;
-		dy2 *= dy2;
-		dt2 = support.t - test.t;
-		dt2 *= dt2;
-		return radius_spread_function(dx2*x_sig2inv+dy2*y_sig2inv+dt2*t_sig2inv);
+	    return exp(-r2*sigma2inv);
 	};
 
 	float get_single_likelihood(dirc_point inpoint);
