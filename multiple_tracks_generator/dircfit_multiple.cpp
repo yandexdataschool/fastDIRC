@@ -41,8 +41,9 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
 	float energy_spread = 0.;
-	const float eta_min = -0.10001;
-	const float eta_max = -0.1;
+	//const float eta_min = -0.10001;
+	//const float eta_max = -0.1;
+	const float eta_mean = -0.07;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -414,8 +415,8 @@ int main(int nargs, char* argv[]) {
 	    // We want more or less the same number of
 	    // signal particles of each type
 	    particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
-	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
-	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
+	    particle_one_energy = energy_mean; //spread_ang->Gaus(energy_mean, energy_spread);
+	    particle_one_eta = eta_mean;//spread_ang->Uniform(eta_min, eta_max);
 	    // degrees
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
 	    const float particle_one_beta = dirc_model->get_beta(
