@@ -54,8 +54,8 @@ int main(int nargs, char* argv[]) {
 	const float particle_x_mean = particle_x;
 	const float particle_y_mean = particle_y;
 	// Only for particle two
-	float particle_x_spread = 10000.;
-	float particle_y_spread = 10000.;
+	float particle_x_spread = 50000.;
+	float particle_y_spread = 50000.;
 	float particle_phi = 40;
 	float const_track_off = 0;
 	
@@ -117,9 +117,9 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 10000;
+	int n_phi_phots = 100000;
 	int n_z_phots = 4;
-	const unsigned int kde_generation_iterations = 40;
+	//const unsigned int kde_generation_iterations = 40;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -379,10 +379,10 @@ int main(int nargs, char* argv[]) {
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		std::back_inserter(hit_points);
 
-	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
-		 ++kde_iteration) {
-		const float energy = spread_ang->Gaus(energy_mean, energy_spread);
-		const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
+	    //	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
+	    //	 ++kde_iteration) 
+	    {
+		const float particle_eta = 0.5*(eta_max + eta_min);
 		// degrees
 		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
 		const float beta = dirc_model->get_beta(energy, masses[particle]);
@@ -454,18 +454,18 @@ int main(int nargs, char* argv[]) {
 	        particle_two_energy, masses[particle_two_type]);
 	    // ns
 	    const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
-	    dirc_model->fill_rand_phi(fill_sim_points,
-				      particle_two_n_sim_phots,
-				      PARTICLE_ANGLE,
-				      1,
-				      particle_two_x,
-				      particle_two_y,
-				      particle_two_time,
-				      particle_two_theta + const_track_off,
-				      particle_phi,
-				      tracking_unc,
-				      ckov_unc,
-				      particle_two_beta);
+	    // dirc_model->fill_rand_phi(fill_sim_points,
+	    // 			      particle_two_n_sim_phots,
+	    // 			      PARTICLE_ANGLE,
+	    // 			      1,
+	    // 			      particle_two_x,
+	    // 			      particle_two_y,
+	    // 			      particle_two_time,
+	    // 			      particle_two_theta + const_track_off,
+	    // 			      particle_phi,
+	    // 			      tracking_unc,
+	    // 			      ckov_unc,
+	    // 			      particle_two_beta);
 	    digitizer.digitize_points(sim_points);
 	    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
