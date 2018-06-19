@@ -54,8 +54,8 @@ int main(int nargs, char* argv[]) {
 	const float particle_x_mean = particle_x;
 	const float particle_y_mean = particle_y;
 	// Only for particle two
-	float particle_x_spread = 1000.;
-	float particle_y_spread = 1000.;
+	float particle_x_spread = 10000.;
+	float particle_y_spread = 10000.;
 	float particle_phi = 40;
 	float const_track_off = 0;
 	
@@ -117,7 +117,7 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 15000;
+	int n_phi_phots = 10000;
 	int n_z_phots = 4;
 	const unsigned int kde_generation_iterations = 40;
 
