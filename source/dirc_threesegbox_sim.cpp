@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <TRandom3.h>
-
 DircThreeSegBoxSim::DircThreeSegBoxSim(
 		int rand_seed /*=4357*/,
 		float ifoc_r/*=540.66*/,

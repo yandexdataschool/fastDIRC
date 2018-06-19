@@ -8,6 +8,7 @@
 #include <math.h>
 
 #include <TFile.h>
+#include <TH2F.h>
 #include <TMath.h>
 #include <TTree.h>
 #include <TRandom3.h>
@@ -19,7 +20,7 @@
 // TODO(kazeevn) make this block a proper class
 // the code in main relies on the particle types
 // being from 0 to PARTICLE_NUMBER -1
-const unsigned PARTICLE_NUMBER = 5;
+const unsigned int PARTICLE_NUMBER = 5;
 enum ParticleTypes {
     Muon = 0,
     Pion = 1,
@@ -36,13 +37,13 @@ const std::array<float, PARTICLE_NUMBER> masses {
 
 // LHCb-esque
 const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
-    5, 75, 15, 5, 2};
+     5, 75, 15, 5, 2};
 
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
-	float energy_spread = 0.5;
-	const float eta_min = -0.2;
-	const float eta_max = 0.2;
+	float energy_spread = 0.;
+	const float eta_min = -0.07000;
+	const float eta_max = -0.07001;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -54,8 +55,8 @@ int main(int nargs, char* argv[]) {
 	const float particle_x_mean = particle_x;
 	const float particle_y_mean = particle_y;
 	// Only for particle two
-	float particle_x_spread = 50000.;
-	float particle_y_spread = 50000.;
+	float particle_x_spread = 20000.;
+	float particle_y_spread = 700.;
 	float particle_phi = 40;
 	float const_track_off = 0;
 	
@@ -117,9 +118,9 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 20;
+	int n_phi_phots = 10000;
 	int n_z_phots = 4;
-	const unsigned int kde_generation_iterations = 4000;
+	const unsigned int kde_generation_iterations = 100;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -329,7 +330,6 @@ int main(int nargs, char* argv[]) {
 	// trying to unique_ptr them breaks things
 	TFile* tfile = new TFile(rootfilename, "RECREATE");
 	TTree* tree = new TTree("fastDIRC", "PID simulation via fastDIRC");
-	// TODO(kazeevn) make UCHar
 	UChar_t particle_one_type, particle_two_type;
 	tree->Branch("particle_one_type", &particle_one_type, 
 		     "Type of the signal particle which is being measured/b");
@@ -348,6 +348,10 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
 	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
+	TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
+				       -1400, 1700, 400, -70, 300);
+	TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
+				       -1400, 1700, 400, -70, 300);
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -406,10 +410,20 @@ int main(int nargs, char* argv[]) {
 	    }
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
+	    for (auto& hit: hit_points) {
+		if (particle == ParticleTypes::Kaon) {
+		    hit_map_kaons->Fill(hit.x, hit.y);
+		} else if (particle == ParticleTypes::Pion) {
+		    hit_map_pions->Fill(hit.x, hit.y);
+		}
+	    }
 	}
 	
 	printf("Beginning Run\n");
 	for (unsigned int i = 0; i < num_runs; ++i) {
+	    if (i % 100 == 0) {
+		std::cout << "Iteration: " << i << std::endl;
+	    }
 	    const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 	    // We want more or less the same number of
 	    // signal particles of each type
@@ -481,6 +495,8 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
+	hit_map_kaons->Write();
+	hit_map_pions->Write();
 	tfile->Close();
 	return 0;
 }
