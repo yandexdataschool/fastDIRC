@@ -382,6 +382,7 @@ int main(int nargs, char* argv[]) {
 	    //	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
 	    //	 ++kde_iteration) 
 	    {
+		const float energy = energy_mean;
 		const float particle_eta = 0.5*(eta_max + eta_min);
 		// degrees
 		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
@@ -443,17 +444,17 @@ int main(int nargs, char* argv[]) {
 	    const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
 	    // TODO(kazeevn) square?
 	    tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
-	    const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
+	    // const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
 	    // For the noise particle, we want an LHCb-like distribution
 	    // Since TRandom3 doesn't provide weights, we use the
 	    // standard library
 	    particle_two_type = particle_type_generator(random_generator);
-	    const float particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
-	    const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
-	    const float particle_two_beta = dirc_model->get_beta(
-	        particle_two_energy, masses[particle_two_type]);
-	    // ns
-	    const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
+	    // const float particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
+	    // const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
+	    // const float particle_two_beta = dirc_model->get_beta(
+	    //     particle_two_energy, masses[particle_two_type]);
+	    // // ns
+	    // const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
 	    // dirc_model->fill_rand_phi(fill_sim_points,
 	    // 			      particle_two_n_sim_phots,
 	    // 			      PARTICLE_ANGLE,
