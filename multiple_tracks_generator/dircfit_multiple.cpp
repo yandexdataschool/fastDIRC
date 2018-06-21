@@ -119,9 +119,8 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 100;
+	int n_phi_phots = 150000;
 	int n_z_phots = 4;
-	const unsigned int kde_generation_iterations = 1000;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -385,8 +384,7 @@ int main(int nargs, char* argv[]) {
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		std::back_inserter(hit_points);
 
-	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
-	    	 ++kde_iteration) {
+
 		const float energy = spread_ang->Gaus(energy_mean, energy_spread);
 		const float particle_eta = eta_mean;
 		//const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
@@ -409,7 +407,7 @@ int main(int nargs, char* argv[]) {
 					 0,
 					 ckov_unc/pdf_unc_red_fac,
 					 beta);
-	    }
+
 	    std::cout << "Photons for KDE generated" << std::endl;
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
