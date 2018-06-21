@@ -410,6 +410,7 @@ int main(int nargs, char* argv[]) {
 					 ckov_unc/pdf_unc_red_fac,
 					 beta);
 	    }
+	    std::cout << "Photons generates" << std::cerr;
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
 	    for (auto& hit: hit_points) {
