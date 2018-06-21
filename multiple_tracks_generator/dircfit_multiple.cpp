@@ -205,11 +205,6 @@ int main(int nargs, char* argv[]) {
 			i++;
 			mean_n_phot = atof(argv[i]);
 		}
-		else if (strcmp(argv[i], "-s_func_t") == 0)
-		{
-			i++;
-			s_func_t = atof(argv[i]);
-		}
 		else if (strcmp(argv[i], "-t_unc") == 0)
 		{
 			i++;
