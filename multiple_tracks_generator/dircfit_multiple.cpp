@@ -42,8 +42,8 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
 	float energy_spread = 0.;
-	const float eta_min = -0.07000;
-	const float eta_max = -0.07001;
+	const float eta_min = -0.070001;
+	const float eta_max = -0.070000;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -55,7 +55,7 @@ int main(int nargs, char* argv[]) {
 	const float particle_x_mean = particle_x;
 	const float particle_y_mean = particle_y;
 	// Only for particle two
-	float particle_x_spread = 20000.;
+	float particle_x_spread = 2000.;
 	float particle_y_spread = 700.;
 	float particle_phi = 40;
 	float const_track_off = 0;
@@ -118,9 +118,9 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 10000;
+	int n_phi_phots = 100000;
 	int n_z_phots = 4;
-	const unsigned int kde_generation_iterations = 100;
+	const unsigned int kde_generation_iterations = 1000;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -378,7 +378,7 @@ int main(int nargs, char* argv[]) {
 	dirc_model->set_upper_wedge_angle_diff(0., 0.);
  	dirc_model->set_bar_box_angle(0.);
 
-	// conmpute and intialize the pdfs
+	// compute and intialize the pdfs
 	for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
 	    std::vector<dirc_point> hit_points;
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \

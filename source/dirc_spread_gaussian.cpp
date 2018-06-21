@@ -1,7 +1,4 @@
-#include "../include/dirc_point.h"
 #include "../include/dirc_spread_gaussian.h"
-#include <vector>
-#include <math.h>
 
 DircSpreadGaussian::DircSpreadGaussian(
 	float isigma,
