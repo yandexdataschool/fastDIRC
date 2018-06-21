@@ -42,7 +42,7 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
 	float energy_spread = 0.;
-	const float eta_mean = -0.07;
+	const float eta_mean = 0;
 	//const float eta_min = -0.070001;
 	//const float eta_max = -0.070000;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
@@ -114,10 +114,10 @@ int main(int nargs, char* argv[]) {
 	float sm_xl = -10000000;
 	float sm_xr = -sm_xl;
 
-	float s_func_x = 6;
-	float s_func_y = s_func_x;
-	float s_func_t = 1.0;
-	float sfunc_sig = 1;
+	const float s_func_x = 6;
+	const float s_func_y = s_func_x;
+	const float s_func_t = 1.0;
+	const float sfunc_sig = 1;
 
 	int n_phi_phots = 300000;
 	int n_z_phots = 4;
