@@ -119,7 +119,7 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 150000;
+	int n_phi_phots = 300000;
 	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
@@ -384,29 +384,28 @@ int main(int nargs, char* argv[]) {
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		std::back_inserter(hit_points);
 
+	    const float energy = spread_ang->Gaus(energy_mean, energy_spread);
+	    const float particle_eta = eta_mean;
+	    //const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
+	    // degrees
+	    const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
+	    const float beta = dirc_model->get_beta(energy, masses[particle]);
+	    // ns
+	    const float time = particle_flight_distance/(beta*.3);
 
-		const float energy = spread_ang->Gaus(energy_mean, energy_spread);
-		const float particle_eta = eta_mean;
-		//const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
-		// degrees
-		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
-		const float beta = dirc_model->get_beta(energy, masses[particle]);
-		// ns
-		const float time = particle_flight_distance/(beta*.3);
-
-		dirc_model->fill_reg_phi(fill_hit_points,
-					 n_phi_phots,
-					 n_z_phots,
-					 -1,
-					 1,
-					 particle_x,
-					 particle_y,
-					 time,
-					 particle_theta,
-					 particle_phi,
-					 0,
-					 ckov_unc/pdf_unc_red_fac,
-					 beta);
+	    dirc_model->fill_reg_phi(fill_hit_points,
+				     n_phi_phots,
+				     n_z_phots,
+				     -1,
+				     1,
+				     particle_x,
+				     particle_y,
+				     time,
+				     particle_theta,
+				     particle_phi,
+				     0,
+				     ckov_unc/pdf_unc_red_fac,
+				     beta);
 
 	    std::cout << "Photons for KDE generated" << std::endl;
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
