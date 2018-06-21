@@ -118,7 +118,7 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 100000;
+	int n_phi_phots = 1000;
 	int n_z_phots = 4;
 	const unsigned int kde_generation_iterations = 1000;
 
