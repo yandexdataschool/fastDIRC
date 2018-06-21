@@ -42,8 +42,9 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
 	float energy_spread = 0.;
-	const float eta_min = -0.070001;
-	const float eta_max = -0.070000;
+	const float eta_mean = -0.07;
+	//const float eta_min = -0.070001;
+	//const float eta_max = -0.070000;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -118,7 +119,7 @@ int main(int nargs, char* argv[]) {
 	float s_func_t = 1.0;
 	float sfunc_sig = 1;
 
-	int n_phi_phots = 10000;
+	int n_phi_phots = 1000;
 	int n_z_phots = 4;
 	const unsigned int kde_generation_iterations = 1000;
 
@@ -387,7 +388,8 @@ int main(int nargs, char* argv[]) {
 	    for (size_t kde_iteration = 0; kde_iteration < kde_generation_iterations;
 	    	 ++kde_iteration) {
 		const float energy = spread_ang->Gaus(energy_mean, energy_spread);
-		const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
+		const float particle_eta = eta_mean;
+		//const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
 		// degrees
 		const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
 		const float beta = dirc_model->get_beta(energy, masses[particle]);
@@ -429,7 +431,8 @@ int main(int nargs, char* argv[]) {
 	    // signal particles of each type
 	    particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
-	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
+	    particle_one_eta = eta_mean;
+	    // particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
 	    // degrees
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
 	    const float particle_one_beta = dirc_model->get_beta(
