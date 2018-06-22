@@ -64,7 +64,7 @@ int main(int nargs, char* argv[]) {
 	float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
-	const unsigned int num_runs_with_params = 100;
+	const unsigned int num_runs_with_params = 50;
 	float mean_n_phot = 40;
 	float spread_n_phot = 0;
 
@@ -121,7 +121,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_x = 6;
 	const float s_func_y = s_func_x;
 	const float s_func_t = 1.0;
-	const float sfunc_sig = 3;
+	const float sfunc_sig = 0.5;
 
 	int n_phi_phots = 300000;
 	int n_z_phots = 4;
