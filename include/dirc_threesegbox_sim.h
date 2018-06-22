@@ -7,8 +7,8 @@
 #define DIRC_THREESEGBOX_SIM 
 
 const unsigned int num_QE = 31;
-const float min_QE = 300.;
-const float max_QE = 600.;
+const float min_QE = 400.;
+const float max_QE = 500.;
 const float sep_QE = (max_QE - min_QE)/(num_QE - 1);
 
 const std::array<float, num_QE> vals_QE({
