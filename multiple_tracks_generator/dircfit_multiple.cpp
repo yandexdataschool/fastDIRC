@@ -39,8 +39,12 @@
 const int PARTICLE_ANGLE = -1;
 
 // GeV/c^2
+//const std::array<float, PARTICLE_NUMBER> masses {
+//    .1057, .1396, .4937, .9382720813, 0.5109989461e-3};
+
 const std::array<float, PARTICLE_NUMBER> masses {
-    .1057, .1396, .4937, .9382720813, 0.5109989461e-3};
+     .1396, .4937};
+
 
 // LHCb-esque
 //const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
@@ -349,9 +353,9 @@ int main(int nargs, char* argv[]) {
 		     "Pseudorapidity of particle one/F");
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
-	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
-	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
-	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
+	//tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
+	//tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
+	//tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
 				       -1400, 1700, 400, -70, 300);
 	TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
