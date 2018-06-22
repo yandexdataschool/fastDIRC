@@ -503,9 +503,9 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	for (auto map: hit_maps) {
-	    map->Write();
-	}
+	//	for (auto map: hit_maps) {
+	//map->Write();
+	//}
 	tfile->Close();
 	return 0;
 }
