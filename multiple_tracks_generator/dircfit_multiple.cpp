@@ -40,11 +40,10 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 
 
 int main(int nargs, char* argv[]) {  
-	float energy_mean = 5.0;
-	float energy_spread = 1;
-	// const float eta_mean = -0.07;
-	const float eta_min = -0.2;
-	const float eta_max = 0.2;
+	float energy_mean = 8.0;
+	float energy_spread = 1.5;
+	const float eta_min = -0.5;
+	const float eta_max = 0.5;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -120,7 +119,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_t = 1.0;
 	const float sfunc_sig = 1;
 
-	int n_phi_phots = 300000;
+	int n_phi_phots = 400000;
 	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
@@ -343,6 +342,9 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
+	Float_t dirc_bt;
+	const unsigned n_hits_threshold = 5;
+	tree->Branch("bt", &dirc_bt, "Below threshold/F");
 	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
 	// 			       -1400, 1700, 400, -70, 300);
 	// TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
@@ -378,15 +380,12 @@ int main(int nargs, char* argv[]) {
 	    if (i % 100 == 0) {
 		std::cout << "Iteration: " << i << std::endl;
 	    }
-	    const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 	    // We want more or less the same number of
 	    // signal particles of each type
 	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
 	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
 	    // degrees
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
-	    // assume its a middle bar
-	    // The first particle is always (0, 0) - we have tracking!
 	    
 	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
@@ -397,7 +396,6 @@ int main(int nargs, char* argv[]) {
 		const float beta = dirc_model->get_beta(particle_one_energy, masses[particle]);
 		// ns
 		const float time = particle_flight_distance/(beta*.3);
-
 		dirc_model->fill_reg_phi(fill_hit_points,
 					 n_phi_phots,
 					 n_z_phots,
@@ -413,7 +411,7 @@ int main(int nargs, char* argv[]) {
 					 beta);
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
-		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
+		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t, 1e-6);
 	    // for (auto& hit: hit_points) {
 	    // 	if (particle == ParticleTypes::Kaon) {
 	    // 	    hit_map_kaons->Fill(hit.x, hit.y);
@@ -432,6 +430,7 @@ int main(int nargs, char* argv[]) {
 		    particle_one_energy, masses[particle_one_type]);
 		// ns
 		const float particle_one_time = particle_flight_distance/(particle_one_beta*.3);
+		const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		dirc_model->fill_rand_phi(fill_sim_points,
 					  particle_one_n_sim_phots,
 					  PARTICLE_ANGLE,
@@ -473,12 +472,20 @@ int main(int nargs, char* argv[]) {
 		// 			      ckov_unc,
 		// 			      particle_two_beta);
 		digitizer.digitize_points(sim_points);
-		const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
-		for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-		    if (particle == ParticleTypes::Pion) {
-			continue;
+		if (sim_points.size() >= n_hits_threshold) {
+		    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+			if (particle == ParticleTypes::Pion) {
+			    continue;
+			}
+			dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
 		    }
-		    dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		    dirc_bt = 0;
+		} else {
+		    dirc_bt = 1;
+		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+			dlls[particle] = 0;
+		    }
 		}
 		tree->Fill();
 	    }

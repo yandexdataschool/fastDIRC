@@ -29,7 +29,20 @@ DircSpreadGaussian::DircSpreadGaussian(
 const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>& inpoints) {
     float rval = 0;
     const float log_mult = 1.;
-    const float weight = 1.;
+    // The idea here is that we have hits while we shouldn't have
+    // hits. That means this is not that particle.  The logic behind
+    // the return value is as following:
+
+    // 1. Imagine an infinite detector. Thus it has some "support"
+    // 2. Now the signal in the region is cut
+    // 3. So the normalized value for tprob would be 0
+
+    // The opposite case (we have support hits, but don't have the hits)
+    // is handled by the below_threshold
+    
+    if (support_index->m_size == 0) {
+	return -log(inpoints.size()) + log_mult*log(min_probability);
+    }
     for (auto& point: inpoints) {
 	float tprob = 0;
 	const std::array<float, 3> scaled_coords({
@@ -49,10 +62,9 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	tprob *= spread_func_norm_inv;
 		
 	// TODO deal with normalization....
-	rval += weight*log_mult*log(tprob+min_probability);
+	rval += log_mult*log(tprob + min_probability);
     }
     rval -= log(inpoints.size());
-
     return rval;
 }
 

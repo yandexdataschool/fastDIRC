@@ -61,7 +61,7 @@ public:
 		float x_unc,
 		float y_unc,
 		float t_unc,
-		float imin_prob = 1e-6);
+		float imin_prob);
 	void support_spread(float spread_sig);
 	void support_x_weight();
 	void set_support(std::vector<dirc_point> isupport);
