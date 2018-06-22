@@ -20,7 +20,7 @@
 // TODO(kazeevn) make this block a proper class
 // the code in main relies on the particle types
 // being from 0 to PARTICLE_NUMBER -1
-const unsigned int PARTICLE_NUMBER = 4;
+const unsigned int PARTICLE_NUMBER = 5;
 enum ParticleTypes {
     Electron = 0,
     Muon = 1,
