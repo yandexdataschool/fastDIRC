@@ -194,12 +194,12 @@ public:
 	std::vector<float> get_side_photon_angles();
 	std::vector<float> get_large_flat_photon_angles();
 	DircThreeSegBoxSim(
-		int rand_seed = 4357,
-		float ifoc_r = -1200,
-		float ifoc_mirror_size = 288,
-		float ifoc_rot = 74.11,
-		float isens_size = 600,
-		float isens_rot = 47.87,
+		int rand_seed,
+		float ifoc_r,
+		float ifoc_mirror_size,
+		float ifoc_rot,
+		float isens_size,
+		float isens_rot,
                 float ibar_length=4900,
 		float ibar_width=35,
                 float ibar_depth=17.25,

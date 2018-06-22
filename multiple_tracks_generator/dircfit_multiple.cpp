@@ -64,7 +64,7 @@ int main(int nargs, char* argv[]) {
 	float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
-	const unsigned int num_runs_with_params = 0;
+	const unsigned int num_runs_with_params = 100;
 	float mean_n_phot = 40;
 	float spread_n_phot = 0;
 
@@ -315,7 +315,7 @@ int main(int nargs, char* argv[]) {
 			-1200 + mirror_r_difference,
 			foc_mirror_size,
 			main_mirror_angle,
-			10, //600,
+			600,
 			47.87 + box_rot + mirror_angle_change);
 	dirc_model->set_store_traveled(false); // uses LOTS of memory if set to true.
 	dirc_model->set_liquid_index(liquid_index);
@@ -348,10 +348,10 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
-	TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
-				       -1400, 1700, 400, -70, 300);
-	TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
-				       -1400, 1700, 400, -70, 300);
+	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
+	// 			       -1400, 1700, 400, -70, 300);
+	// TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
+	// 			       -1400, 1700, 400, -70, 300);
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -418,13 +418,13 @@ int main(int nargs, char* argv[]) {
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
-	    for (auto& hit: hit_points) {
-	    	if (particle == ParticleTypes::Kaon) {
-	    	    hit_map_kaons->Fill(hit.x, hit.y);
-	    	} else if (particle == ParticleTypes::Pion) {
-	    	    hit_map_pions->Fill(hit.x, hit.y);
-	    	}
-	    }
+	    // for (auto& hit: hit_points) {
+	    // 	if (particle == ParticleTypes::Kaon) {
+	    // 	    hit_map_kaons->Fill(hit.x, hit.y);
+	    // 	} else if (particle == ParticleTypes::Pion) {
+	    // 	    hit_map_pions->Fill(hit.x, hit.y);
+	    // 	}
+	    // }
 	    }
 	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
 		std::vector<dirc_point> sim_points;
@@ -509,8 +509,8 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	hit_map_kaons->Write();
-	hit_map_pions->Write();
+	// hit_map_kaons->Write();
+	// hit_map_pions->Write();
 	tfile->Close();
 	return 0;
 }
