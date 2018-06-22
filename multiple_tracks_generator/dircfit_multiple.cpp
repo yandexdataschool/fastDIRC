@@ -119,7 +119,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_t = 1.0;
 	const float sfunc_sig = 1;
 
-	int n_phi_phots = 1000000;
+	int n_phi_phots = 150000;
 	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
