@@ -1,10 +1,9 @@
 #ifndef DIRC_SPREAD_GAUSSIAN_H
 #define DIRC_SPREAD_GAUSSIAN_H
 #include <vector>
-#include <TRandom3.h>
 #include <nanoflann.hpp>
+#include <memory>
 #include "dirc_point.h"
-#include "dirc_spread_radius.h"
 
 // nanoflann
 struct PointCloud {
@@ -47,37 +46,25 @@ private:
 	float x_unc, y_unc, t_unc;
 	float spread_func_norm, spread_func_norm_inv;
 	float lin_slope, r_trans, sigma2, sigma2inv,max_val;
-	std::unique_ptr<TRandom3> rand_gen;
 	float get_weight(dirc_point inpoint);
-	float min_probability;
+	const float min_probability = 1e-5;
 	const unsigned int kd_max_leaf = 1000;
 	float support_cutoff_radius2;
 	PointCloud support_points;
 	std::unique_ptr<kd_tree> support_index;
+	float const_ll_component;
 public:
 	DircSpreadGaussian(
 		float isigma,
 		const std::vector<dirc_point>& isupport,
 		float x_unc,
 		float y_unc,
-		float t_unc,
-		float imin_prob);
-	void support_spread(float spread_sig);
-	void support_x_weight();
-	void set_support(std::vector<dirc_point> isupport);
-	void set_gaus_sigma(float isigma);
+		float t_unc);
 
-	const inline float radius_spread_function(const float r2) {
+	// Zero-cutoff is the caller's responsibility
+	const inline float radius_spread_function(const float r2) const {
 	    return exp(-r2*sigma2inv);
 	};
-
-	float get_single_likelihood(dirc_point inpoint);
-	const float get_log_likelihood(const std::vector<dirc_point>& inpoints);
-	float get_log_likelihood_new_support(
-                std::vector<dirc_point> &inpoints, std::vector<dirc_point> &t_support);
-	void fill_likelihood_new_support(
-		std::vector<float> &likelihood_vals,
-		std::vector<dirc_point> new_support,
-		std::vector<dirc_point> inpoints);
+	const float get_log_likelihood(const std::vector<dirc_point>& inpoints) const;
 };
 #endif

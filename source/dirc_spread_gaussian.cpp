@@ -5,14 +5,12 @@ DircSpreadGaussian::DircSpreadGaussian(
 	const std::vector<dirc_point>& isupport,
 	float ix_unc,
 	float iy_unc,
-	float it_unc,
-	float imin_prob): x_unc(ix_unc), y_unc(iy_unc), t_unc(it_unc) {
+	float it_unc): x_unc(ix_unc), y_unc(iy_unc), t_unc(it_unc) {
 	sigma2 = isigma*isigma;
 	sigma2inv = 1/sigma2;
 	spread_func_norm = 1;
 	spread_func_norm_inv=1/spread_func_norm;
 	support_cutoff_radius2 = 5*sigma2;
-	min_probability = imin_prob;
 	support_points.pts.reserve(isupport.size());
 	for (auto& point: isupport) {
 	    support_points.pts.push_back({
@@ -26,23 +24,21 @@ DircSpreadGaussian::DircSpreadGaussian(
 	support_index->buildIndex();
 }
 
-const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>& inpoints) {
+const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>& inpoints) const {
     float rval = 0;
-    const float log_mult = 1.;
-    // The idea here is that we have hits while we shouldn't have
-    // hits. That means this is not that particle.  The logic behind
-    // the return value is as following:
+    // TODO(kazeevn) math for the below threshold cases is fishy
 
-    // 1. Imagine an infinite detector. Thus it has some "support"
-    // 2. Now the signal in the region is cut
-    // 3. So the normalized value for tprob would be 0
-
-    // The opposite case (we have support hits, but don't have the hits)
-    // is handled by the below_threshold
-    
-    if (support_index->m_size == 0) {
-	return -log(inpoints.size()) + log_mult*log(min_probability);
+    // We expected to see no hits, and saw none. Fine!
+    if ((inpoints.size() == 0) && (support_index->m_size == 0)) {
+	return log(1.);
     }
+
+    // We expected hits, but got none
+    // The honest value = -inf
+    if (inpoints.size() == 0) {
+	return log(min_probability);
+    }
+
     for (auto& point: inpoints) {
 	float tprob = 0;
 	const std::array<float, 3> scaled_coords({
@@ -58,11 +54,8 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	for (auto& support_point: ret_matches) {
 	    tprob += radius_spread_function(std::get<1>(support_point));
 	}
-	tprob /= support_index->m_size;
-	tprob *= spread_func_norm_inv;
-		
 	// TODO deal with normalization....
-	rval += log_mult*log(tprob + min_probability);
+	rval += log(tprob * spread_func_norm_inv / support_index->m_size + min_probability);
     }
     rval -= log(inpoints.size());
     return rval;
