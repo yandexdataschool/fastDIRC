@@ -20,44 +20,31 @@
 // TODO(kazeevn) make this block a proper class
 // the code in main relies on the particle types
 // being from 0 to PARTICLE_NUMBER -1
-// const unsigned int PARTICLE_NUMBER = 5;
-// enum ParticleTypes {
-//     Muon = 0,
-//     Pion = 1,
-//     Kaon = 2,
-//     Proton = 3,
-//     Electron = 4
-// };
-
-
- const unsigned int PARTICLE_NUMBER = 2;
- enum ParticleTypes {
-     Pion = 0,
-     Kaon = 1
+const unsigned int PARTICLE_NUMBER = 4;
+enum ParticleTypes {
+    Muon = 0,
+    Pion = 1,
+    Kaon = 2,
+    Proton = 3,
 };
 
 const int PARTICLE_ANGLE = -1;
 
 // GeV/c^2
-//const std::array<float, PARTICLE_NUMBER> masses {
-//    .1057, .1396, .4937, .9382720813, 0.5109989461e-3};
-
 const std::array<float, PARTICLE_NUMBER> masses {
-     .1396, .4937};
-
+    .1057, .1396, .4937, .9382720813};
 
 // LHCb-esque
-//const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
-//     5, 75, 15, 5, 2};
+const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
+     5, 75, 15, 5};
 
-const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {50,50};
 
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
-	float energy_spread = 0.;
-	const float eta_mean = -0.07;
-	//const float eta_min = -0.070001;
-	//const float eta_max = -0.070000;
+	float energy_spread = 1;
+	// const float eta_mean = -0.07;
+	const float eta_min = -0.2;
+	const float eta_max = 0.2;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
@@ -78,6 +65,7 @@ int main(int nargs, char* argv[]) {
 	float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
+	const unsigned int num_runs_with_params = 100;
 	float mean_n_phot = 40;
 	float spread_n_phot = 0;
 
@@ -132,7 +120,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_t = 1.0;
 	const float sfunc_sig = 1;
 
-	int n_phi_phots = 3000000;
+	int n_phi_phots = 300000;
 	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
@@ -353,13 +341,13 @@ int main(int nargs, char* argv[]) {
 		     "Pseudorapidity of particle one/F");
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
-	//tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
-	//tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
-	//tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
-	TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
-				       -1400, 1700, 400, -70, 300);
-	TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
-				       -1400, 1700, 400, -70, 300);
+	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
+	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
+	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
+	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
+	// 			       -1400, 1700, 400, -70, 300);
+	// TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
+	// 			       -1400, 1700, 400, -70, 300);
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -385,47 +373,6 @@ int main(int nargs, char* argv[]) {
 	dirc_model->set_focus_mirror_angle(main_mirror_angle, 0);
 	dirc_model->set_upper_wedge_angle_diff(0., 0.);
  	dirc_model->set_bar_box_angle(0.);
-
-	// compute and intialize the pdfs
-	for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-	    std::vector<dirc_point> hit_points;
-	    std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
-		std::back_inserter(hit_points);
-
-	    const float energy = spread_ang->Gaus(energy_mean, energy_spread);
-	    const float particle_eta = eta_mean;
-	    //const float particle_eta = spread_ang->Uniform(eta_min, eta_max);
-	    // degrees
-	    const float particle_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_eta));
-	    const float beta = dirc_model->get_beta(energy, masses[particle]);
-	    // ns
-	    const float time = particle_flight_distance/(beta*.3);
-
-	    dirc_model->fill_reg_phi(fill_hit_points,
-				     n_phi_phots,
-				     n_z_phots,
-				     PARTICLE_ANGLE,
-				     1,
-				     particle_x,
-				     particle_y,
-				     time,
-				     particle_theta,
-				     particle_phi,
-				     0,
-				     ckov_unc/pdf_unc_red_fac,
-				     beta);
-
-	    std::cout << "Photons for KDE generated" << std::endl;
-	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
-	        sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
-	    for (auto& hit: hit_points) {
-		if (particle == ParticleTypes::Kaon) {
-		    hit_map_kaons->Fill(hit.x, hit.y);
-		} else if (particle == ParticleTypes::Pion) {
-		    hit_map_pions->Fill(hit.x, hit.y);
-		}
-	    }
-	}
 	
 	printf("Beginning Run\n");
 	for (unsigned int i = 0; i < num_runs; ++i) {
@@ -435,77 +382,112 @@ int main(int nargs, char* argv[]) {
 	    const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 	    // We want more or less the same number of
 	    // signal particles of each type
-	    particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
-	    particle_one_eta = eta_mean;
-	    // particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
+	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
 	    // degrees
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
-	    const float particle_one_beta = dirc_model->get_beta(
-	         particle_one_energy, masses[particle_one_type]);
-	    // ns
-	    const float particle_one_time = particle_flight_distance/(particle_one_beta*.3);
 	    // assume its a middle bar
 	    // The first particle is always (0, 0) - we have tracking!
 	    std::vector<dirc_point> sim_points;
 	    std::back_insert_iterator<std::vector<dirc_point>> fill_sim_points = \
 		std::back_inserter(sim_points);
 	    
-	    dirc_model->fill_rand_phi(fill_sim_points,
-				      particle_one_n_sim_phots,
-				      PARTICLE_ANGLE,
-				      1,
-				      particle_x,
-				      particle_y,
-				      particle_one_time,
-				      particle_one_theta + const_track_off,
-				      particle_phi,
-				      tracking_unc,
-				      ckov_unc,
-				      particle_one_beta);
-	    // const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
-	    const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
-	    const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
-	    // TODO(kazeevn) square?
-	    tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
-	    // const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
-	    // For the noise particle, we want an LHCb-like distribution
-	    // Since TRandom3 doesn't provide weights, we use the
-	    // standard library
-	    particle_two_type = particle_type_generator(random_generator);
-	    // const float particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
-	    // const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
-	    // const float particle_two_beta = dirc_model->get_beta(
-	    //     particle_two_energy, masses[particle_two_type]);
-	    // // ns
-	    // const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
-	    // dirc_model->fill_rand_phi(fill_sim_points,
-	    // 			      particle_two_n_sim_phots,
-	    // 			      PARTICLE_ANGLE,
-	    // 			      1,
-	    // 			      particle_two_x,
-	    // 			      particle_two_y,
-	    // 			      particle_two_time,
-	    // 			      particle_two_theta + const_track_off,
-	    // 			      particle_phi,
-	    // 			      tracking_unc,
-	    // 			      ckov_unc,
-	    // 			      particle_two_beta);
-	    digitizer.digitize_points(sim_points);
-	    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-		if (particle == ParticleTypes::Pion) {
-		    continue;
-		}
-		dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		std::vector<dirc_point> hit_points;
+		std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
+		    std::back_inserter(hit_points);
+
+		const float beta = dirc_model->get_beta(energy, masses[particle]);
+		// ns
+		const float time = particle_flight_distance/(beta*.3);
+
+		dirc_model->fill_reg_phi(fill_hit_points,
+					 n_phi_phots,
+					 n_z_phots,
+					 PARTICLE_ANGLE,
+					 1,
+					 particle_x,
+					 particle_y,
+					 time,
+					 particle_one_theta,
+					 particle_phi,
+					 0,
+					 ckov_unc/pdf_unc_red_fac,
+					 beta);
+
+		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
+		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
+	    // for (auto& hit: hit_points) {
+	    // 	if (particle == ParticleTypes::Kaon) {
+	    // 	    hit_map_kaons->Fill(hit.x, hit.y);
+	    // 	} else if (particle == ParticleTypes::Pion) {
+	    // 	    hit_map_pions->Fill(hit.x, hit.y);
+	    // 	}
+	    // }
 	    }
-	    tree->Fill();
+	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
+		particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
+		const float particle_one_beta = dirc_model->get_beta(
+		    particle_one_energy, masses[particle_one_type]);
+		// ns
+		const float particle_one_time = particle_flight_distance/(particle_one_beta*.3);
+		dirc_model->fill_rand_phi(fill_sim_points,
+					  particle_one_n_sim_phots,
+					  PARTICLE_ANGLE,
+					  1,
+					  particle_x,
+					  particle_y,
+					  particle_one_time,
+					  particle_one_theta + const_track_off,
+					  particle_phi,
+					  tracking_unc,
+					  ckov_unc,
+					  particle_one_beta);
+		// const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
+		const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
+		const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
+		// TODO(kazeevn) square?
+		tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
+		// const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
+		// For the noise particle, we want an LHCb-like distribution
+		// Since TRandom3 doesn't provide weights, we use the
+		// standard library
+		particle_two_type = particle_type_generator(random_generator);
+		// const float particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
+		// const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
+		// const float particle_two_beta = dirc_model->get_beta(
+		//     particle_two_energy, masses[particle_two_type]);
+		// // ns
+		// const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
+		// dirc_model->fill_rand_phi(fill_sim_points,
+		// 			      particle_two_n_sim_phots,
+		// 			      PARTICLE_ANGLE,
+		// 			      1,
+		// 			      particle_two_x,
+		// 			      particle_two_y,
+		// 			      particle_two_time,
+		// 			      particle_two_theta + const_track_off,
+		// 			      particle_phi,
+		// 			      tracking_unc,
+		// 			      ckov_unc,
+		// 			      particle_two_beta);
+		digitizer.digitize_points(sim_points);
+		const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+		for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+		    if (particle == ParticleTypes::Pion) {
+			continue;
+		    }
+		    dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		}
+		tree->Fill();
+	    }
 	}
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	hit_map_kaons->Write();
-	hit_map_pions->Write();
+	//hit_map_kaons->Write();
+	//hit_map_pions->Write();
 	tfile->Close();
 	return 0;
 }
