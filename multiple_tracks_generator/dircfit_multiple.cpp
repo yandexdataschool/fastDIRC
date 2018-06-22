@@ -303,7 +303,7 @@ int main(int nargs, char* argv[]) {
 		}
 	}
 	float main_mirror_angle = 74.11 + mirror_angle_change;
-	const float pdf_unc_red_fac = 10;
+	const float pdf_unc_red_fac = 1.;
 	std::unique_ptr<TRandom3> spread_ang = std::make_unique<TRandom3>(rseed + 3);
 	random_generator.seed(rseed + 13442);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(
@@ -389,18 +389,33 @@ int main(int nargs, char* argv[]) {
 	    const float time = particle_flight_distance/(beta*.3);
 
 	    dirc_model->fill_reg_phi(fill_hit_points,
-				     n_phi_phots,
-				     n_z_phots,
-				     -1,
-				     1,
-				     particle_x,
-				     particle_y,
-				     time,
-				     particle_theta,
-				     particle_phi,
-				     0,
-				     ckov_unc/pdf_unc_red_fac,
-				     beta);
+	    			     n_phi_phots * 
+	    			     n_z_phots,
+	    			     PARTICLE_ANGLE,
+	    			     1,
+	    			     particle_x,
+	    			     particle_y,
+	    			     time,
+	    			     particle_theta,
+	    			     particle_phi,
+	    			     0,
+	    			     ckov_unc/pdf_unc_red_fac,
+	    			     beta);
+
+
+	    // dirc_model->fill_reg_phi(fill_hit_points,
+	    // 			     n_phi_phots,
+	    // 			     n_z_phots,
+	    // 			     PARTICLE_ANGLE,
+	    // 			     1,
+	    // 			     particle_x,
+	    // 			     particle_y,
+	    // 			     time,
+	    // 			     particle_theta,
+	    // 			     particle_phi,
+	    // 			     0,
+	    // 			     ckov_unc/pdf_unc_red_fac,
+	    // 			     beta);
 
 	    std::cout << "Photons for KDE generated" << std::endl;
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
