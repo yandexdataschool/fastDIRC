@@ -93,8 +93,12 @@ int main(int nargs, char* argv[]) {
 
 	int rseed = 1337;
 
-	float tracking_unc = .0000*57.3; //mrad
-	float ckov_unc = .003*57.3; //transport = 3mrad
+	// float tracking_unc = .0000*57.3; //mrad
+	// float ckov_unc = .003*57.3; //transport = 3mrad
+
+	// NOTE(kazeevn) the model is still of bad quality
+	float tracking_unc = 0;
+	float ckov_unc = 0;
 
 	float resx = 6;
 	float resy = 6;
@@ -475,14 +479,31 @@ int main(int nargs, char* argv[]) {
 		// 			      ckov_unc,
 		// 			      particle_two_beta);
 		digitizer.digitize_points(sim_points);
-		const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
-		for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-		    if (particle == ParticleTypes::Pion) {
-			continue;
+		// TODO(kazeevn) a better model
+		// TODO(kazeevn) blend the models
+		if (sim_points.size() == 0) {
+		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+			const float p = (float)pdfs[particle]->get_support_size() / \
+			    (float)(n_phi_phots * n_z_phots);
+			dlls[particle] = particle_one_n_sim_phots * log(1 - p);
 		    }
-		    dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+			if (particle == ParticleTypes::Pion) {
+			    continue;
+			}
+			dlls[particle] -= dlls[ParticleTypes::Pion];
+		    }
+		    dirc_bt = log(1.) - dlls[ParticleTypes::Pion];
+		} else {
+		    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+			if (particle == ParticleTypes::Pion) {
+			    continue;
+			}
+			dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		    }
+		    dirc_bt = pdf_bt.get_log_likelihood(sim_points) - ll_pion;
 		}
-		dirc_bt = pdf_bt.get_log_likelihood(sim_points) - ll_pion;
 		tree->Fill();
 	    }
 	}

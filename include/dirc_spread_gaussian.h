@@ -47,12 +47,11 @@ private:
 	float spread_func_norm, spread_func_norm_inv;
 	float lin_slope, r_trans, sigma2, sigma2inv,max_val;
 	float get_weight(dirc_point inpoint);
-	const float min_probability = 1e-5;
+	const float min_probability = 1e-10;
 	const unsigned int kd_max_leaf = 1000;
 	float support_cutoff_radius2;
 	PointCloud support_points;
 	std::unique_ptr<kd_tree> support_index;
-	float const_ll_component;
 public:
 	DircSpreadGaussian(
 		float isigma,
@@ -66,5 +65,6 @@ public:
 	    return exp(-r2*sigma2inv);
 	};
 	const float get_log_likelihood(const std::vector<dirc_point>& inpoints) const;
+	const unsigned int get_support_size() const {return support_points.pts.size();}
 };
 #endif

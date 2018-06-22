@@ -113,7 +113,7 @@ const float DircThreeSegBoxSim::get_cerenkov_angle_rand(
         }
 	// BRING THIS BACK TODO
 	// out_ang += .23;
-       out_ang += rand_gen->Gaus(0,additional_spread);
+       out_ang += rand_gen->Gaus(0, additional_spread);
        return out_ang;
 }
 

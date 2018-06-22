@@ -1,5 +1,5 @@
 #include "../include/dirc_spread_gaussian.h"
-
+#include <iostream>
 DircSpreadGaussian::DircSpreadGaussian(
 	float isigma,
 	const std::vector<dirc_point>& isupport,
@@ -33,11 +33,16 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	return log(1.);
     }
 
-    // We expected hits, but got none
-    // The honest value = -inf
-    if (inpoints.size() == 0) {
-	return log(min_probability);
+    // We expected no hits, but got some
+    // Again, the honest value = -inf
+    // We compute the LL as if each photon completely missed the support
+    if ((inpoints.size() != 0) && (support_index->m_size == 0)) {
+	return inpoints.size() * log(min_probability) - log(inpoints.size());
     }
+
+    // inpoints.size() == 0 && support_index->m_size != 0
+    // returns nan, as expected. This probabilistic model
+    // can't handle this case, so it's the caller responsibility
 
     for (auto& point: inpoints) {
 	float tprob = 0;
@@ -50,7 +55,6 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	support_index->radiusSearch(
 				    scaled_coords.data(), support_cutoff_radius2, 
 				    ret_matches, nanoflann::SearchParams());
-		 
 	for (auto& support_point: ret_matches) {
 	    tprob += radius_spread_function(std::get<1>(support_point));
 	}
