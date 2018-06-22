@@ -348,7 +348,7 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	Float_t dirc_bt;
-	tree->Branch("bt", &dirc_bt, "Below threshold/F");
+	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
 	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
 	// 			       -1400, 1700, 400, -70, 300);
 	// TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
