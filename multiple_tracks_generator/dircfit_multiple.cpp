@@ -316,7 +316,7 @@ int main(int nargs, char* argv[]) {
 			-1200 + mirror_r_difference,
 			foc_mirror_size,
 			main_mirror_angle,
-			600,
+			30, //600,
 			47.87 + box_rot + mirror_angle_change);
 	dirc_model->set_store_traveled(false); // uses LOTS of memory if set to true.
 	dirc_model->set_liquid_index(liquid_index);
@@ -414,7 +414,7 @@ int main(int nargs, char* argv[]) {
 					 particle_one_theta,
 					 particle_phi,
 					 0,
-					 ckov_unc/pdf_unc_red_fac,
+					 0, //ckov_unc/pdf_unc_red_fac,
 					 beta);
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
@@ -447,8 +447,8 @@ int main(int nargs, char* argv[]) {
 					  particle_one_time,
 					  particle_one_theta + const_track_off,
 					  particle_phi,
-					  tracking_unc,
-					  ckov_unc,
+					  0, //tracking_unc,
+					  0, //ckov_unc,
 					  particle_one_beta);
 		// const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
