@@ -130,7 +130,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_x = 6;
 	const float s_func_y = s_func_x;
 	const float s_func_t = 1.0;
-	const float sfunc_sig = 10;
+	const float sfunc_sig = 0.5;
 
 	int n_phi_phots = 300000;
 	int n_z_phots = 4;
