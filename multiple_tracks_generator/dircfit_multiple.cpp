@@ -388,7 +388,7 @@ int main(int nargs, char* argv[]) {
 	    // ns
 	    const float time = particle_flight_distance/(beta*.3);
 
-	    dirc_model->fill_reg_phi(fill_hit_points,
+	    dirc_model->fill_rand_phi(fill_hit_points,
 	    			     n_phi_phots * 
 	    			     n_z_phots,
 	    			     PARTICLE_ANGLE,
