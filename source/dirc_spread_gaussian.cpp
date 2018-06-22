@@ -63,4 +63,3 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
     }
     return rval;
 }
-
