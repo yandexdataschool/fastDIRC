@@ -64,7 +64,7 @@ int main(int nargs, char* argv[]) {
 	float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
-	const unsigned int num_runs_with_params = 0;
+	const unsigned int num_runs_with_params = 100;
 	float mean_n_phot = 40;
 	float spread_n_phot = 0;
 
