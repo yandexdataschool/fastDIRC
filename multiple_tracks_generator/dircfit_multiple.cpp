@@ -92,12 +92,8 @@ int main(int nargs, char* argv[]) {
 
 	int rseed = 1337;
 
-	// float tracking_unc = .0000*57.3; //mrad
-	// float ckov_unc = .003*57.3; //transport = 3mrad
-
-	// NOTE(kazeevn) the model is still of bad quality
-	float tracking_unc = 0;
-	float ckov_unc = 0;
+	float tracking_unc = .0000*57.3; //mrad
+	float ckov_unc = .003*57.3; //transport = 3mrad
 
 	float resx = 6;
 	float resy = 6;
@@ -123,8 +119,8 @@ int main(int nargs, char* argv[]) {
 	const float s_func_t = 1.0;
 	const float sfunc_sig = 1;
 
-	int n_phi_phots = 500000;
-	int n_z_phots = 5;
+	int n_phi_phots = 300000;
+	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
 	bool three_seg_mirror = true;
@@ -348,7 +344,7 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
-	std::array<TH2F*, PARTICLES_NUMBER> hit_maps;
+	std::array<TH2F*, PARTICLE_NUMBER> hit_maps;
 	hit_maps[ParticleTypes::Kaon] = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
 						 -1400, 1700, 400, -70, 300);
 	hit_maps[ParticleTypes::Pion] = new TH2F("hit_map_pions", "Hit map pions", 400, 
@@ -418,7 +414,7 @@ int main(int nargs, char* argv[]) {
 					 particle_one_theta,
 					 particle_phi,
 					 0,
-					 0, //ckov_unc/pdf_unc_red_fac,
+					 ckov_unc/pdf_unc_red_fac,
 					 beta);
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
@@ -447,8 +443,8 @@ int main(int nargs, char* argv[]) {
 					  particle_one_time,
 					  particle_one_theta + const_track_off,
 					  particle_phi,
-					  0, //tracking_unc,
-					  0, //ckov_unc,
+					  tracking_unc,
+					  ckov_unc,
 					  particle_one_beta);
 		// const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
