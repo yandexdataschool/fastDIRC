@@ -509,8 +509,8 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	//hit_map_kaons->Write();
-	//hit_map_pions->Write();
+	hit_map_kaons->Write();
+	hit_map_pions->Write();
 	tfile->Close();
 	return 0;
 }
