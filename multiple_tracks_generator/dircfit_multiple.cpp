@@ -40,32 +40,30 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
 
 
 int main(int nargs, char* argv[]) {  
-	float energy_mean = 5.0;
-	float energy_spread = 0;
-	const float eta_min = -0.070001;
-	const float eta_max =  0.070000;
+    // mm, BaBar
+    const float interaction_point_height = 810;
+	float energy_mean = 6.0;
+	float energy_spread = 1.5;
+	// For BaBar max_theta = 71 deg.
+	// thus maximum eta is 1.8
+	// and we'll be a bit conservative
+	const float eta_min = -1.5;
+	const float eta_max = 1.5;
 	std::array<std::unique_ptr<DircSpreadGaussian>, PARTICLE_NUMBER> pdfs;
 	std::mt19937 random_generator;
 	std::discrete_distribution<> particle_type_generator(
             particle_frequencies.begin(), particle_frequencies.end());
 	
-	// We have tracking!
-	const float particle_x = 0;
-	const float particle_y = 0;
-	const float particle_x_mean = particle_x;
-	const float particle_y_mean = particle_y;
-	// Only for particle two
-	float particle_x_spread = 2000.;
-	float particle_y_spread = 700.;
-	float particle_phi = 40;
-	float const_track_off = 0;
+	// We have BaBar!
+	const float particle_x_min = 0;
+	const float particle_x_max = 35;
 	
 	// meters
-	float particle_flight_distance = 0;
+	// float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
-	const unsigned int num_runs_with_params = 100;
-	float mean_n_phot = 40;
+	const unsigned int num_runs_with_params = 50;
+	float mean_n_phot = 400000;
 	float spread_n_phot = 0;
 
 	float mirror_angle_change = 0;
@@ -119,7 +117,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_t = 1.0;
 	const float sfunc_sig = 1;
 
-	int n_phi_phots = 300000;
+	int n_phi_phots = 150000;
 	int n_z_phots = 4;
 
 	bool use_quartz_for_liquid = false;
@@ -143,26 +141,10 @@ int main(int nargs, char* argv[]) {
 		{
 			three_seg_mirror = false;	
 		}
-		else if (strcmp(argv[i], "-particle_phi") == 0)
-		{
-			i++;
-			particle_phi = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-particle_flight_distance") == 0)
-		{
-			//meters
-			i++;
-			particle_flight_distance = atof(argv[i]);
-		}
 		else if (strcmp(argv[i], "-tracking_unc") == 0)
 		{
 			i++;
 			tracking_unc = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-const_track_off") == 0)
-		{
-			i++;
-			const_track_off = atof(argv[i]);
 		}
 		else if (strcmp(argv[i], "-ckov_unc") == 0)
 		{
@@ -229,16 +211,6 @@ int main(int nargs, char* argv[]) {
 		{
 			i++;
 			spread_n_phot = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-particle_x_spread") == 0)
-		{
-			i++;
-			particle_x_spread = atof(argv[i]);
-		}
-		else if (strcmp(argv[i], "-particle_y_spread") == 0)
-		{
-			i++;
-			particle_y_spread = atof(argv[i]);
 		}
 		else if (strcmp(argv[i], "-energy_spread") == 0)
 		{
@@ -312,7 +284,11 @@ int main(int nargs, char* argv[]) {
 			foc_mirror_size,
 			main_mirror_angle,
 			600,
-			47.87 + box_rot + mirror_angle_change);
+			47.87 + box_rot + mirror_angle_change,
+			4900,
+			35,
+                        17,
+                        178.6);
 	dirc_model->set_store_traveled(false); // uses LOTS of memory if set to true.
 	dirc_model->set_liquid_index(liquid_index);
 	dirc_model->set_wedge_mirror_rand(0.);
@@ -330,14 +306,19 @@ int main(int nargs, char* argv[]) {
 		     "Type of the signal particle which is being measured/b");
 	tree->Branch("particle_two_type", &particle_two_type, 
 		     "Type of the noise particle/b");
-	Float_t tracks_distance;
-	tree->Branch("tracks_distance", &tracks_distance,
-		     "Distance between the signal and noise tracks/F");
-	Float_t particle_one_energy, particle_one_eta;
+	Float_t particle_one_energy, particle_one_eta, particle_two_eta;
 	tree->Branch("particle_one_energy", &particle_one_energy,
 		     "Energy of the signal particle, GeV/F");
 	tree->Branch("particle_one_eta", &particle_one_eta,
 		     "Pseudorapidity of particle one/F");
+	tree->Branch("particle_two_eta", &particle_two_eta,
+		     "Pseudorapidity of particle two/F");
+	Float_t particle_one_phi;
+	tree->Branch("particle_one_phi", &particle_one_phi,
+		     "Particle one phi, degrees/F");
+	Float_t particle_two_phi;
+	tree->Branch("particle_two_phi", &particle_two_phi,
+		     "Particle two phi, degrees/F");
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
@@ -391,9 +372,19 @@ int main(int nargs, char* argv[]) {
 	    // signal particles of each type
 	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
 	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
-	    // degrees
-	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
-	    
+	    const float exp_eta = exp(-particle_one_eta);
+	    const float exp_eta2 = exp_eta * exp_eta;
+	    // degrees!
+	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta);
+	    const float particle_one_x = spread_ang->Uniform(particle_x_min, particle_x_max);
+	    const float cos_particle_one_phi = particle_one_x/interaction_point_height*2* \
+		exp_eta / (1 - exp_eta2);
+	    // degrees!
+	    particle_one_phi = TMath::RadToDeg() * acos(cos_particle_one_phi);
+	    const float particle_one_y = particle_one_x * sqrt(
+		 1/cos_particle_one_phi/cos_particle_one_phi - 1);
+
+	    const float particle_one_flight_distance = 2*exp_eta/(1+exp_eta2);
 	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
 		std::vector<dirc_point> hit_points;
@@ -402,26 +393,23 @@ int main(int nargs, char* argv[]) {
 
 		const float beta = dirc_model->get_beta(particle_one_energy, masses[particle]);
 		// ns
-		const float time = particle_flight_distance/(beta*.3);
+		const float time = particle_one_flight_distance/(beta*.3);
 		dirc_model->fill_reg_phi(fill_hit_points,
 					 n_phi_phots,
 					 n_z_phots,
 					 PARTICLE_ANGLE,
 					 1,
-					 particle_x,
-					 particle_y,
+					 particle_one_x,
+					 particle_one_y,
 					 time,
 					 particle_one_theta,
-					 particle_phi,
+					 particle_one_phi,
 					 0,
 					 ckov_unc/pdf_unc_red_fac,
 					 beta);
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
-		for (auto& hit: hit_points) {
-	    	    hit_maps[particle]->Fill(hit.x, hit.y);
-		}
 	    }
 	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
 		std::vector<dirc_point> sim_points;
@@ -432,74 +420,81 @@ int main(int nargs, char* argv[]) {
 		const float particle_one_beta = dirc_model->get_beta(
 		    particle_one_energy, masses[particle_one_type]);
 		// ns
-		const float particle_one_time = particle_flight_distance/(particle_one_beta*.3);
+		const float particle_one_time = particle_one_flight_distance/(particle_one_beta*.3);
 		const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		dirc_model->fill_rand_phi(fill_sim_points,
 					  particle_one_n_sim_phots,
 					  PARTICLE_ANGLE,
 					  1,
-					  particle_x,
-					  particle_y,
+					  particle_one_x,
+					  particle_one_y,
 					  particle_one_time,
-					  particle_one_theta + const_track_off,
-					  particle_phi,
+					  particle_one_theta,
+					  particle_one_phi,
 					  tracking_unc,
 					  ckov_unc,
 					  particle_one_beta);
+		// for (auto& hit: sim_points) {
+	    	//     hit_maps[ParticleTypes::Muon]->Fill(hit.x, hit.y);
+		// }
 		// const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
-		const float particle_two_x = spread_ang->Gaus(particle_x_mean, particle_x_spread);
-		const float particle_two_y = spread_ang->Gaus(particle_y_mean, particle_y_spread);
-		// TODO(kazeevn) square?
-		tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
-		// const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
-		// For the noise particle, we want an LHCb-like distribution
-		// Since TRandom3 doesn't provide weights, we use the
-		// standard library
-		particle_two_type = particle_type_generator(random_generator);
-		// const float particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
+		// particle_two_x = 0;//spread_ang->Gaus(particle_x_mean, particle_x_spread);
+		// particle_two_y = 0;//spread_ang->Gaus(particle_y_mean, particle_y_spread);
+		// // TODO(kazeevn) square?
+		// tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
+		// const float particle_two_energy = particle_one_energy;//spread_ang->Gaus(energy_mean, energy_spread);
+		// // For the noise particle, we want an LHCb-like distribution
+		// // Since TRandom3 doesn't provide weights, we use the
+		// // standard library
+		// particle_two_type = 1;//particle_type_generator(random_generator);
+		// particle_two_eta = particle_one_eta;//spread_ang->Uniform(eta_min, eta_max);
 		// const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
 		// const float particle_two_beta = dirc_model->get_beta(
 		//     particle_two_energy, masses[particle_two_type]);
 		// // ns
 		// const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
+		// particle_two_phi = spread_and->Uniform(0, 360);
 		// dirc_model->fill_rand_phi(fill_sim_points,
-		// 			      particle_two_n_sim_phots,
-		// 			      PARTICLE_ANGLE,
-		// 			      1,
-		// 			      particle_two_x,
-		// 			      particle_two_y,
-		// 			      particle_two_time,
-		// 			      particle_two_theta + const_track_off,
-		// 			      particle_phi,
-		// 			      tracking_unc,
-		// 			      ckov_unc,
-		// 			      particle_two_beta);
+		// 			  particle_two_n_sim_phots,
+		// 			  PARTICLE_ANGLE,
+		// 			  1,
+		// 			  particle_two_x,
+		// 			  particle_two_y,
+		// 			  particle_two_time,
+		// 			  particle_two_theta,
+		// 			  particle_phi + 90,
+		// 			  tracking_unc,
+		// 			  ckov_unc,
+		// 			  particle_two_beta);
+		// for (auto& hit: sim_points) {
+	    	//     hit_maps[ParticleTypes::Pion]->Fill(hit.x, hit.y);
+		// }
 		digitizer.digitize_points(sim_points);
 		// TODO(kazeevn) a better model
 		// TODO(kazeevn) blend the models
-		if (sim_points.size() == 0) {
-		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-			const float p = (float)pdfs[particle]->get_support_size() / \
-			    (float)(n_phi_phots * n_z_phots);
-			dlls[particle] = particle_one_n_sim_phots * log(1 - p);
-		    }
-		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-			if (particle == ParticleTypes::Pion) {
-			    continue;
-			}
-			dlls[particle] -= dlls[ParticleTypes::Pion];
-		    }
-		    dirc_bt = log(1.) - dlls[ParticleTypes::Pion];
-		} else {
-		    const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
-		    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
-			if (particle == ParticleTypes::Pion) {
-			    continue;
-			}
-			dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
-		    }
-		    dirc_bt = pdf_bt.get_log_likelihood(sim_points) - ll_pion;
-		}
+		// if (sim_points.size() == 0) {
+		//     for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+		// 	const float p = (float)pdfs[particle]->get_support_size() / \
+		// 	    (float)(n_phi_phots * n_z_phots);
+		// 	dlls[particle] = particle_one_n_sim_phots * log(1 - p);
+		//     }
+		//     for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+		// 	if (particle == ParticleTypes::Pion) {
+		// 	    continue;
+		// 	}
+		// 	dlls[particle] -= dlls[ParticleTypes::Pion];
+		//     }
+		//     dirc_bt = log(1.) - dlls[ParticleTypes::Pion];
+		// } else {
+		//     const float ll_pion = pdfs[ParticleTypes::Pion]->get_log_likelihood(sim_points);
+		//     for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
+		// 	if (particle == ParticleTypes::Pion) {
+		// 	    continue;
+		// 	}
+		// 	dlls[particle] = pdfs[particle]->get_log_likelihood(sim_points) - ll_pion;
+		//     }
+		//     dirc_bt = pdf_bt.get_log_likelihood(sim_points) - ll_pion;
+		// }
 		tree->Fill();
 	    }
 	}

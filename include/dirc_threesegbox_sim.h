@@ -200,9 +200,10 @@ public:
 		float ifoc_rot,
 		float isens_size,
 		float isens_rot,
-                float ibar_length=4900,
-		float ibar_width=35,
-                float ibar_depth=17.25,
-                float iupper_wedge_top = 178.6);
+		// mm
+		float ibar_length,
+		float ibar_width,
+                float ibar_depth,
+                float iupper_wedge_top);
 };
 #endif

@@ -250,14 +250,13 @@ public:
 	
 	void set_use_quartz_n_for_liquid(bool iu);
 
-	// Random seed chosen arbitrarily
 	// default parameters correspond to babar dirc bars
 	// default upper wedge top is for gluex implementation. Set to 0 to remove upper wedge
-	DircBaseSim(\
-		int rand_seed = 4357,\
-		float ibarLength = 4900,\
-		float ibarWidth = 35,\
-		float ibarDepth = 17,\
+	DircBaseSim(
+		int rand_seed,
+		float ibarLength = 4900,
+		float ibarWidth = 35,
+		float ibarDepth = 17,
 		float iupperWedgeTop = 178.6);
 	std::vector<std::pair<float,float> > get_refraction_rand_phi(\
 		std::vector<float> &before_interface,\

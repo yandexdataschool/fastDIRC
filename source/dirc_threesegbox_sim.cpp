@@ -16,7 +16,7 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 		float ifoc_rot/*=-74.11*/,
 		float isens_size/*=600*/,
 		float isens_rot/*=90*/,
-		float ibar_length/*=4900*/,
+                float ibar_length,
 		float ibar_width/*=35*/,
 		float ibar_depth/*=17.25*/,
 		float iupper_wedge_top/*=178.6*/) : 
@@ -24,18 +24,13 @@ DircThreeSegBoxSim::DircThreeSegBoxSim(
 				rand_seed,
 				ibar_length,
 				ibar_width,
-				ibar_depth) {
-
+				ibar_depth), 
+			foc_r(ifoc_r), foc_mirror_size(ifoc_mirror_size),
+			foc_rot(ifoc_rot), sens_size(isens_size),
+			sens_rot(isens_rot) {
 	printf("BarLWD: %12.04f %12.04f %12.04f\n",barLength,barWidth,barDepth);
-
-	foc_r = ifoc_r;
-	foc_mirror_size = ifoc_mirror_size;
-	foc_rot = ifoc_rot;
 	foc_yrot = 0;
 	foc_zrot = 0;
-	sens_size = isens_size;
-	sens_rot = isens_rot;
-
 	storeOpticalAngles = false;
 
 	// only used for checking collision

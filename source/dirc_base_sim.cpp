@@ -477,7 +477,6 @@ void DircBaseSim::fill_rand_phi(
 	std::vector<dirc_base_sim_tracking_step> track_steps;
 	float dist_traveled = -1;
 	//hardcode step length to 1mm for now
-	float step_length = 1;
 	//note: These are general tracking vectors - you can implement your own MC with them.  Each refers to position and direction at the start of the step
 
 	dirc_base_sim_tracking_step step1;
@@ -492,7 +491,7 @@ void DircBaseSim::fill_rand_phi(
 
 	dist_traveled = barDepth/cos_ptheta;
 	//take_1_step
-	step_length = barDepth/cos_ptheta;
+	const float step_length = barDepth/cos_ptheta;
 
 	dirc_base_sim_tracking_step step2;
 	step2.x = particle_x + step_length*sin_ptheta*cos_pphi;	
@@ -561,28 +560,27 @@ void DircBaseSim::fill_rand_phi(
 			tmp_updown = -1;
 		}
 
-		mm_index += warp_ray(\
-				x,\
-				y,\
-				z,\
-				dx,\
-				dy,\
-				dz,\
+		mm_index += warp_ray(
+				x,
+				y,
+				z,
+				dx,
+				dy,
+				dz,
 				sqrt(1-1/(1.47*1.47)));
 
 		if (z > 0)
 		{
 			continue;
 		}
-
 		spread_wedge_mirror();
 
-		mm_index += warp_wedge(\
-				x,\
-				y,\
-				z,\
-				dx,\
-				dy,\
+		mm_index += warp_wedge(
+				x,
+				y,
+				z,
+				dx,
+				dy,
 				dz);
 		//account (quickly) for the bar box having a different angle than the readout
 		//rotate_2d(dy,dz,box_angle_off_cval,box_angle_off_sval);
@@ -592,7 +590,6 @@ void DircBaseSim::fill_rand_phi(
 			continue;
 		}
 		dirc_point out_val;
-
 
 		warp_readout_box(out_val,particle_bar,mm_index,x,y,z,dx,dy,dz);
 
