@@ -22,21 +22,22 @@
 // being from 0 to PARTICLE_NUMBER -1
 const unsigned int PARTICLE_NUMBER = 4;
 enum ParticleTypes {
-    Muon = 0,
-    Pion = 1,
-    Kaon = 2,
-    Proton = 3,
+    Electron = 0,
+    Muon = 1,
+    Pion = 2,
+    Kaon = 3,
+    Proton = 4,
 };
 
 const int PARTICLE_ANGLE = -1;
 
 // GeV/c^2
 const std::array<float, PARTICLE_NUMBER> masses {
-    .1057, .1396, .4937, .9382720813};
+    0.5109989461e-3, .1057, .1396, .4937, .9382720813};
 
 // LHCb-esque
 const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
-     5, 75, 15, 5};
+    2, 5, 75, 15, 5};
 
 
 int main(int nargs, char* argv[]) {  
@@ -320,6 +321,7 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("particle_two_phi", &particle_two_phi,
 		     "Particle two phi, degrees/F");
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
+	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
