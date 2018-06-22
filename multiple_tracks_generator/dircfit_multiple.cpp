@@ -20,13 +20,20 @@
 // TODO(kazeevn) make this block a proper class
 // the code in main relies on the particle types
 // being from 0 to PARTICLE_NUMBER -1
-const unsigned int PARTICLE_NUMBER = 5;
-enum ParticleTypes {
-    Muon = 0,
-    Pion = 1,
-    Kaon = 2,
-    Proton = 3,
-    Electron = 4
+// const unsigned int PARTICLE_NUMBER = 5;
+// enum ParticleTypes {
+//     Muon = 0,
+//     Pion = 1,
+//     Kaon = 2,
+//     Proton = 3,
+//     Electron = 4
+// };
+
+
+ const unsigned int PARTICLE_NUMBER = 2;
+ enum ParticleTypes {
+     Pion = 0,
+     Kaon = 1
 };
 
 const int PARTICLE_ANGLE = -1;
@@ -36,8 +43,10 @@ const std::array<float, PARTICLE_NUMBER> masses {
     .1057, .1396, .4937, .9382720813, 0.5109989461e-3};
 
 // LHCb-esque
-const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
-     5, 75, 15, 5, 2};
+//const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
+//     5, 75, 15, 5, 2};
+
+const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {50,50};
 
 int main(int nargs, char* argv[]) {  
 	float energy_mean = 5.0;
@@ -388,34 +397,19 @@ int main(int nargs, char* argv[]) {
 	    // ns
 	    const float time = particle_flight_distance/(beta*.3);
 
-	    dirc_model->fill_rand_phi(fill_hit_points,
-	    			     n_phi_phots * 
-	    			     n_z_phots,
-	    			     PARTICLE_ANGLE,
-	    			     1,
-	    			     particle_x,
-	    			     particle_y,
-	    			     time,
-	    			     particle_theta,
-	    			     particle_phi,
-	    			     0,
-	    			     ckov_unc/pdf_unc_red_fac,
-	    			     beta);
-
-
-	    // dirc_model->fill_reg_phi(fill_hit_points,
-	    // 			     n_phi_phots,
-	    // 			     n_z_phots,
-	    // 			     PARTICLE_ANGLE,
-	    // 			     1,
-	    // 			     particle_x,
-	    // 			     particle_y,
-	    // 			     time,
-	    // 			     particle_theta,
-	    // 			     particle_phi,
-	    // 			     0,
-	    // 			     ckov_unc/pdf_unc_red_fac,
-	    // 			     beta);
+	    dirc_model->fill_reg_phi(fill_hit_points,
+				     n_phi_phots,
+				     n_z_phots,
+				     PARTICLE_ANGLE,
+				     1,
+				     particle_x,
+				     particle_y,
+				     time,
+				     particle_theta,
+				     particle_phi,
+				     0,
+				     ckov_unc/pdf_unc_red_fac,
+				     beta);
 
 	    std::cout << "Photons for KDE generated" << std::endl;
 	    pdfs[particle] = std::make_unique<DircSpreadGaussian>(
