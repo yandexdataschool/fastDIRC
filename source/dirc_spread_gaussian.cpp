@@ -61,5 +61,6 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	// TODO deal with normalization....
 	rval += log(tprob * spread_func_norm_inv / support_index->m_size + min_probability);
     }
+    rval -= log(inpoints.size());
     return rval;
 }
