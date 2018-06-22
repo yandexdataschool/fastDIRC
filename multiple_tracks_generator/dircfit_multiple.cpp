@@ -477,7 +477,7 @@ int main(int nargs, char* argv[]) {
 		// 			      tracking_unc,
 		// 			      ckov_unc,
 		// 			      particle_two_beta);
-		// digitizer.digitize_points(sim_points);
+		digitizer.digitize_points(sim_points);
 		// TODO(kazeevn) a better model
 		// TODO(kazeevn) blend the models
 		if (sim_points.size() == 0) {
