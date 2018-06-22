@@ -64,7 +64,7 @@ int main(int nargs, char* argv[]) {
 	float particle_flight_distance = 0;
 
 	unsigned int num_runs = 1000;
-	const unsigned int num_runs_with_params = 50;
+	const unsigned int num_runs_with_params = 0;
 	float mean_n_phot = 40;
 	float spread_n_phot = 0;
 
@@ -348,10 +348,15 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
-	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
-	// 			       -1400, 1700, 400, -70, 300);
-	// TH2F* hit_map_pions = new TH2F("hit_map_pions", "Hit map pions", 400, 
-	// 			       -1400, 1700, 400, -70, 300);
+	std::array<TH2F*, PARTICLES_NUMBER> hit_maps;
+	hit_maps[ParticleTypes::Kaon] = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
+						 -1400, 1700, 400, -70, 300);
+	hit_maps[ParticleTypes::Pion] = new TH2F("hit_map_pions", "Hit map pions", 400, 
+						 -1400, 1700, 400, -70, 300);
+	hit_maps[ParticleTypes::Muon] = new TH2F("hit_map_muons", "Hit map muons", 400, 
+						 -1400, 1700, 400, -70, 300);
+	hit_maps[ParticleTypes::Proton] = new TH2F("hit_map_protons", "Hit map protons", 400, 
+						   -1400, 1700, 400, -70, 300);
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -418,13 +423,9 @@ int main(int nargs, char* argv[]) {
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
-	    // for (auto& hit: hit_points) {
-	    // 	if (particle == ParticleTypes::Kaon) {
-	    // 	    hit_map_kaons->Fill(hit.x, hit.y);
-	    // 	} else if (particle == ParticleTypes::Pion) {
-	    // 	    hit_map_pions->Fill(hit.x, hit.y);
-	    // 	}
-	    // }
+		for (auto& hit: hit_points) {
+	    	    hit_maps[particle]->Fill(hit.x, hit.y);
+		}
 	    }
 	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
 		std::vector<dirc_point> sim_points;
@@ -509,8 +510,9 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	// hit_map_kaons->Write();
-	// hit_map_pions->Write();
+	for (auto map: hit_maps) {
+	    map->Write();
+	}
 	tfile->Close();
 	return 0;
 }

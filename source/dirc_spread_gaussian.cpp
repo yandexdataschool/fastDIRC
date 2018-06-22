@@ -37,7 +37,7 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
     // Again, the honest value = -inf
     // We compute the LL as if each photon completely missed the support
     if ((inpoints.size() != 0) && (support_index->m_size == 0)) {
-	return inpoints.size() * log(min_probability);
+	return inpoints.size() * log(min_probability) - log(inpoints.size());
     }
 
     // inpoints.size() == 0 && support_index->m_size != 0
@@ -61,6 +61,7 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 	// TODO deal with normalization....
 	rval += log(tprob * spread_func_norm_inv / support_index->m_size + min_probability);
     }
+    // TODO(kazeevn) the math is inherited and is fishy
     rval -= log(inpoints.size());
     return rval;
 }
