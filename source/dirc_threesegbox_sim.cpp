@@ -90,26 +90,26 @@ const float DircThreeSegBoxSim::get_cerenkov_angle_rand(
         float n_lam;
 
         while (true) {
-                tmp_lam = rand_gen->Uniform(min_QE, max_QE);
-                wavelength = tmp_lam;
-                // Ignoring that the QE points are right on multiples
-                // of 10. Assuming they are for speed. This may not be
-                // neccessary, but I doubt it matters.
-                ind_QE = (tmp_lam - min_QE)/sep_QE;
-                above_ind = tmp_lam - (min_QE + sep_QE*ind_QE);
-                //Simple linear interp between values.  5th order
-                //poly fit looked like it worked too
-                tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE +\
-                             vals_QE[ind_QE+1]*above_ind/sep_QE;
-                // Max QE val is ~.23, this saves lot of loops
-                if (rand_gen->Uniform(0, .25) > tmp_QE_val) continue;
-                // Test emission distribution, second b/c it's a less stringent cut
-                if (rand_gen->Uniform(0,1/(min_QE*min_QE)) > 1/(tmp_lam*tmp_lam)) continue;
-		// OH NO	
-		// tmp_lam = 410.53;
-                n_lam = get_quartz_n(tmp_lam);
-                out_ang = 57.3*acos(1/(beta*n_lam));
-                break;
+	    tmp_lam = rand_gen->Uniform(min_QE, max_QE);
+	    wavelength = tmp_lam;
+	    // Ignoring that the QE points are right on multiples
+	    // of 10. Assuming they are for speed. This may not be
+	    // neccessary, but I doubt it matters.
+	    ind_QE = (tmp_lam - min_QE)/sep_QE;
+	    above_ind = tmp_lam - (min_QE + sep_QE*ind_QE);
+	    //Simple linear interp between values.  5th order
+	    //poly fit looked like it worked too
+	    tmp_QE_val = vals_QE[ind_QE]*(sep_QE-above_ind)/sep_QE +\
+		vals_QE[ind_QE+1]*above_ind/sep_QE;
+	    // Max QE val is ~.23, this saves lot of loops
+	    if (rand_gen->Uniform(0, .25) > tmp_QE_val) continue;
+	    // Test emission distribution, second b/c it's a less stringent cut
+	    if (rand_gen->Uniform(0,1/(min_QE*min_QE)) > 1/(tmp_lam*tmp_lam)) continue;
+	    // OH NO	
+	    // tmp_lam = 410.53;
+	    n_lam = get_quartz_n(tmp_lam);
+	    out_ang = 57.3*acos(1/(beta*n_lam));
+	    break;
         }
 	// BRING THIS BACK TODO
 	// out_ang += .23;
