@@ -303,7 +303,7 @@ int main(int nargs, char* argv[]) {
 		}
 	}
 	float main_mirror_angle = 74.11 + mirror_angle_change;
-	float pdf_unc_red_fac = 1;
+	const float pdf_unc_red_fac = 10;
 	std::unique_ptr<TRandom3> spread_ang = std::make_unique<TRandom3>(rseed + 3);
 	random_generator.seed(rseed + 13442);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(

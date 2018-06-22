@@ -27,29 +27,32 @@ DircSpreadGaussian::DircSpreadGaussian(
 }
 
 const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>& inpoints) {
-	float rval = 0;
-	const float log_mult = 1.;
-	const float weight = 1.;
-	for (auto& point: inpoints) {
-	        float tprob = 0;
-		const std::array<float, 3> scaled_coords({
-			point.x / x_unc,
-			point.y / y_unc,
-			point.t / t_unc
-			    });
-		std::vector<std::pair<size_t, float> > ret_matches;
-		 support_index->radiusSearch(
-		   scaled_coords.data(), support_cutoff_radius2, 
-		   ret_matches, nanoflann::SearchParams());
-		for (auto& support_point: ret_matches) {
-		    tprob += radius_spread_function(std::get<1>(support_point));
-		}
-		tprob /= support_index->m_size;
-		tprob *= spread_func_norm_inv;
-		
-		// TODO deal with normalization....
-		rval += weight*log_mult*log(tprob+min_probability);
+    float rval = 0;
+    const float log_mult = 1.;
+    const float weight = 1.;
+    for (auto& point: inpoints) {
+	float tprob = 0;
+	const std::array<float, 3> scaled_coords({
+		point.x / x_unc,
+		    point.y / y_unc,
+		    point.t / t_unc
+		    });
+	std::vector<std::pair<size_t, float> > ret_matches;
+	support_index->radiusSearch(
+				    scaled_coords.data(), support_cutoff_radius2, 
+				    ret_matches, nanoflann::SearchParams());
+		 
+	for (auto& support_point: ret_matches) {
+	    tprob += radius_spread_function(std::get<1>(support_point));
 	}
-	rval -= log(inpoints.size());
-	return rval;
+	tprob /= support_index->m_size;
+	tprob *= spread_func_norm_inv;
+		
+	// TODO deal with normalization....
+	rval += weight*log_mult*log(tprob+min_probability);
+    }
+    rval -= log(inpoints.size());
+
+    return rval;
 }
+
