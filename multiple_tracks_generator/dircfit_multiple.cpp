@@ -121,7 +121,7 @@ int main(int nargs, char* argv[]) {
 	const float s_func_x = 6;
 	const float s_func_y = s_func_x;
 	const float s_func_t = 1.0;
-	const float sfunc_sig = 1;
+	const float sfunc_sig = 3;
 
 	int n_phi_phots = 300000;
 	int n_z_phots = 4;
@@ -315,7 +315,7 @@ int main(int nargs, char* argv[]) {
 			-1200 + mirror_r_difference,
 			foc_mirror_size,
 			main_mirror_angle,
-			30, //600,
+			10, //600,
 			47.87 + box_rot + mirror_angle_change);
 	dirc_model->set_store_traveled(false); // uses LOTS of memory if set to true.
 	dirc_model->set_liquid_index(liquid_index);
