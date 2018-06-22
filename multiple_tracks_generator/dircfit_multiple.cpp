@@ -342,7 +342,6 @@ int main(int nargs, char* argv[]) {
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
-	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	// TH2F* hit_map_kaons = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
 	// 			       -1400, 1700, 400, -70, 300);
@@ -388,9 +387,6 @@ int main(int nargs, char* argv[]) {
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_one_eta));
 	    // assume its a middle bar
 	    // The first particle is always (0, 0) - we have tracking!
-	    std::vector<dirc_point> sim_points;
-	    std::back_insert_iterator<std::vector<dirc_point>> fill_sim_points = \
-		std::back_inserter(sim_points);
 	    
 	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
@@ -398,7 +394,7 @@ int main(int nargs, char* argv[]) {
 		std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		    std::back_inserter(hit_points);
 
-		const float beta = dirc_model->get_beta(energy, masses[particle]);
+		const float beta = dirc_model->get_beta(particle_one_energy, masses[particle]);
 		// ns
 		const float time = particle_flight_distance/(beta*.3);
 
@@ -427,6 +423,10 @@ int main(int nargs, char* argv[]) {
 	    // }
 	    }
 	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
+		std::vector<dirc_point> sim_points;
+		std::back_insert_iterator<std::vector<dirc_point>> fill_sim_points = \
+		    std::back_inserter(sim_points);
+
 		particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 		const float particle_one_beta = dirc_model->get_beta(
 		    particle_one_energy, masses[particle_one_type]);
