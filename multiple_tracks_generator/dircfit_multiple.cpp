@@ -59,9 +59,6 @@ int main(int nargs, char* argv[]) {
 	const float particle_x_min = 0;
 	const float particle_x_max = 35;
 	
-	// meters
-	// float particle_flight_distance = 0;
-
 	unsigned int num_runs = 1000;
 	const unsigned int num_runs_with_params = 50;
 	float mean_n_phot = 400000;
@@ -314,12 +311,11 @@ int main(int nargs, char* argv[]) {
 		     "Pseudorapidity of particle one/F");
 	tree->Branch("particle_two_eta", &particle_two_eta,
 		     "Pseudorapidity of particle two/F");
-	Float_t particle_one_phi;
-	tree->Branch("particle_one_phi", &particle_one_phi,
-		     "Particle one phi, degrees/F");
-	Float_t particle_two_phi;
-	tree->Branch("particle_two_phi", &particle_two_phi,
-		     "Particle two phi, degrees/F");
+	Float_t particle_one_x, particle_two_x;
+	tree->Branch("particle_one_x", &particle_one_x,
+		     "Particle one x, degrees/F");
+	tree->Branch("particle_two_x", &particle_two_x,
+		     "Particle two x, degrees/F");
 	std::array<Float_t, PARTICLE_NUMBER> dlls;
 	tree->Branch("dll_electron", &(dlls[ParticleTypes::Electron]), "LL(electron) - LL(pion)/F");
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
@@ -327,15 +323,6 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
-	std::array<TH2F*, PARTICLE_NUMBER> hit_maps;
-	hit_maps[ParticleTypes::Kaon] = new TH2F("hit_map_kaons", "Hit map kaons", 400, 
-						 -1400, 1700, 400, -70, 300);
-	hit_maps[ParticleTypes::Pion] = new TH2F("hit_map_pions", "Hit map pions", 400, 
-						 -1400, 1700, 400, -70, 300);
-	hit_maps[ParticleTypes::Muon] = new TH2F("hit_map_muons", "Hit map muons", 400, 
-						 -1400, 1700, 400, -70, 300);
-	hit_maps[ParticleTypes::Proton] = new TH2F("hit_map_protons", "Hit map protons", 400, 
-						   -1400, 1700, 400, -70, 300);
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -378,15 +365,16 @@ int main(int nargs, char* argv[]) {
 	    const float exp_eta2 = exp_eta * exp_eta;
 	    // degrees!
 	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta);
-	    const float particle_one_x = spread_ang->Uniform(particle_x_min, particle_x_max);
+	    particle_one_x = spread_ang->Uniform(particle_x_min, particle_x_max);
 	    const float cos_particle_one_phi = particle_one_x/interaction_point_height*2* \
 		exp_eta / (1 - exp_eta2);
 	    // degrees!
-	    particle_one_phi = TMath::RadToDeg() * acos(cos_particle_one_phi);
+	    const float particle_one_phi = TMath::RadToDeg() * acos(cos_particle_one_phi);
 	    const float particle_one_y = particle_one_x * sqrt(
 		 1/cos_particle_one_phi/cos_particle_one_phi - 1);
 
-	    const float particle_one_flight_distance = 2*exp_eta/(1+exp_eta2);
+	    // flight distance is in meters, point height is in mm
+	    const float particle_one_flight_distance = 1e-3*interaction_point_height*2*exp_eta/(1+exp_eta2);
 	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
 		std::vector<dirc_point> hit_points;
@@ -421,8 +409,8 @@ int main(int nargs, char* argv[]) {
 		particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 		const float particle_one_beta = dirc_model->get_beta(
 		    particle_one_energy, masses[particle_one_type]);
-		// ns
-		const float particle_one_time = particle_one_flight_distance/(particle_one_beta*.3);
+		// flight distance in meters, point height is in mm
+		const float particle_one_time = 1e-3*particle_one_flight_distance/(particle_one_beta*.3);
 		const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		dirc_model->fill_rand_phi(fill_sim_points,
 					  particle_one_n_sim_phots,
@@ -436,41 +424,43 @@ int main(int nargs, char* argv[]) {
 					  tracking_unc,
 					  ckov_unc,
 					  particle_one_beta);
-		// for (auto& hit: sim_points) {
-	    	//     hit_maps[ParticleTypes::Muon]->Fill(hit.x, hit.y);
-		// }
-		// const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
-		// particle_two_x = 0;//spread_ang->Gaus(particle_x_mean, particle_x_spread);
-		// particle_two_y = 0;//spread_ang->Gaus(particle_y_mean, particle_y_spread);
-		// // TODO(kazeevn) square?
-		// tracks_distance = sqrt(particle_two_x*particle_two_x + particle_two_y*particle_two_y);
-		// const float particle_two_energy = particle_one_energy;//spread_ang->Gaus(energy_mean, energy_spread);
-		// // For the noise particle, we want an LHCb-like distribution
-		// // Since TRandom3 doesn't provide weights, we use the
-		// // standard library
-		// particle_two_type = 1;//particle_type_generator(random_generator);
-		// particle_two_eta = particle_one_eta;//spread_ang->Uniform(eta_min, eta_max);
-		// const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp(-particle_two_eta));
-		// const float particle_two_beta = dirc_model->get_beta(
-		//     particle_two_energy, masses[particle_two_type]);
-		// // ns
-		// const float particle_two_time = particle_flight_distance/(particle_two_beta*.3);
-		// particle_two_phi = spread_and->Uniform(0, 360);
-		// dirc_model->fill_rand_phi(fill_sim_points,
-		// 			  particle_two_n_sim_phots,
-		// 			  PARTICLE_ANGLE,
-		// 			  1,
-		// 			  particle_two_x,
-		// 			  particle_two_y,
-		// 			  particle_two_time,
-		// 			  particle_two_theta,
-		// 			  particle_phi + 90,
-		// 			  tracking_unc,
-		// 			  ckov_unc,
-		// 			  particle_two_beta);
-		// for (auto& hit: sim_points) {
-	    	//     hit_maps[ParticleTypes::Pion]->Fill(hit.x, hit.y);
-		// }
+
+		// TODO(kazeevn) avoid the copy-paste
+		const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
+		const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
+		// For the noise particle, we want an LHCb-like distribution
+		// Since TRandom3 doesn't provide weights, we use the
+		// standard library
+		particle_two_type = particle_type_generator(random_generator);
+		particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
+		const float exp_eta_p2 = exp(-particle_two_eta);
+		const float exp_eta_p2_2 = exp_eta_p2 * exp_eta_p2;
+		const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta_p2);
+		const float particle_two_flight_distance = 1e-3*interaction_point_height*2*exp_eta/(1+exp_eta_p2_2);
+		const float particle_two_beta = dirc_model->get_beta(
+		    particle_two_energy, masses[particle_two_type]);
+		// flight distance in meters, point height is in mm
+		const float particle_two_time = 1e-3*particle_two_flight_distance/(particle_two_beta*.3);
+
+		particle_two_x = spread_ang->Uniform(particle_x_min, particle_x_max);
+		const float cos_particle_two_phi = particle_two_x/interaction_point_height*2* \
+		    exp_eta_p2 / (1 - exp_eta_p2_2);
+		// degrees!
+		const float particle_two_phi = TMath::RadToDeg() * acos(cos_particle_two_phi);
+		const float particle_two_y = particle_two_x * sqrt(
+								   1/cos_particle_two_phi/cos_particle_two_phi - 1);
+		dirc_model->fill_rand_phi(fill_sim_points,
+					  particle_two_n_sim_phots,
+					  PARTICLE_ANGLE,
+					  1,
+					  particle_two_x,
+					  particle_two_y,
+					  particle_two_time,
+					  particle_two_theta,
+					  particle_two_phi,
+					  tracking_unc,
+					  ckov_unc,
+					  particle_two_beta);
 		digitizer.digitize_points(sim_points);
 		// TODO(kazeevn) a better model
 		// TODO(kazeevn) blend the models
@@ -503,9 +493,6 @@ int main(int nargs, char* argv[]) {
 	printf("\nRun Completed\n");
 	tfile->cd();
 	tree->Write();
-	//	for (auto map: hit_maps) {
-	//map->Write();
-	//}
 	tfile->Close();
 	return 0;
 }
