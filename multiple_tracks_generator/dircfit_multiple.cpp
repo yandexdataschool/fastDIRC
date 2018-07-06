@@ -304,9 +304,11 @@ int main(int nargs, char* argv[]) {
 		     "Type of the signal particle which is being measured/b");
 	tree->Branch("particle_two_type", &particle_two_type, 
 		     "Type of the noise particle/b");
-	Float_t particle_one_energy, particle_one_eta, particle_two_eta;
+	Float_t particle_one_energy, particle_two_energy, particle_one_eta, particle_two_eta;
 	tree->Branch("particle_one_energy", &particle_one_energy,
 		     "Energy of the signal particle, GeV/F");
+	tree->Branch("particle_two_energy", &particle_two_energy,
+		     "Energy of the noise particle, GeV/F");
 	tree->Branch("particle_one_eta", &particle_one_eta,
 		     "Pseudorapidity of particle one/F");
 	tree->Branch("particle_two_eta", &particle_two_eta,
@@ -372,9 +374,8 @@ int main(int nargs, char* argv[]) {
 	    const float particle_one_phi = TMath::RadToDeg() * acos(cos_particle_one_phi);
 	    const float particle_one_y = particle_one_x * sqrt(
 		 1/cos_particle_one_phi/cos_particle_one_phi - 1);
-
-	    // flight distance is in meters, point height is in mm
-	    const float particle_one_flight_distance = 1e-3*interaction_point_height*2*exp_eta/(1+exp_eta2);
+	    // mm
+	    const float particle_one_flight_distance = interaction_point_height*2*exp_eta/(1+exp_eta2);
 	    // compute and intialize the pdfs
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
 		std::vector<dirc_point> hit_points;
@@ -382,8 +383,8 @@ int main(int nargs, char* argv[]) {
 		    std::back_inserter(hit_points);
 
 		const float beta = dirc_model->get_beta(particle_one_energy, masses[particle]);
-		// ns
-		const float time = particle_one_flight_distance/(beta*.3);
+		// ns, flight distance in mm unlike the original fastDIRC
+		const float time = 1e-3 * particle_one_flight_distance/(beta*.3);
 		dirc_model->fill_reg_phi(fill_hit_points,
 					 n_phi_phots,
 					 n_z_phots,
@@ -409,7 +410,7 @@ int main(int nargs, char* argv[]) {
 		particle_one_type = spread_ang->Integer(PARTICLE_NUMBER);
 		const float particle_one_beta = dirc_model->get_beta(
 		    particle_one_energy, masses[particle_one_type]);
-		// flight distance in meters, point height is in mm
+		// ns, flight distance in mm unlike the original fastDIRC
 		const float particle_one_time = 1e-3*particle_one_flight_distance/(particle_one_beta*.3);
 		const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		dirc_model->fill_rand_phi(fill_sim_points,
@@ -427,7 +428,7 @@ int main(int nargs, char* argv[]) {
 
 		// TODO(kazeevn) avoid the copy-paste
 		const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
-		const float particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
+		particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
 		// For the noise particle, we want an LHCb-like distribution
 		// Since TRandom3 doesn't provide weights, we use the
 		// standard library
@@ -436,12 +437,13 @@ int main(int nargs, char* argv[]) {
 		const float exp_eta_p2 = exp(-particle_two_eta);
 		const float exp_eta_p2_2 = exp_eta_p2 * exp_eta_p2;
 		const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta_p2);
-		const float particle_two_flight_distance = 1e-3*interaction_point_height*2*exp_eta/(1+exp_eta_p2_2);
+		const float particle_two_flight_distance = interaction_point_height*2* \
+		    exp_eta/(1+exp_eta_p2_2); // mm
 		const float particle_two_beta = dirc_model->get_beta(
 		    particle_two_energy, masses[particle_two_type]);
-		// flight distance in meters, point height is in mm
-		const float particle_two_time = 1e-3*particle_two_flight_distance/(particle_two_beta*.3);
-
+		// flight distance in mm unlike the original fastDIRC
+		const float particle_two_time = 1e-3*particle_two_flight_distance \
+		    / (particle_two_beta*.3);
 		particle_two_x = spread_ang->Uniform(particle_x_min, particle_x_max);
 		const float cos_particle_two_phi = particle_two_x/interaction_point_height*2* \
 		    exp_eta_p2 / (1 - exp_eta_p2_2);
