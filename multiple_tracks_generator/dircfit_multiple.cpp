@@ -40,9 +40,38 @@ const std::array<unsigned int, PARTICLE_NUMBER> particle_frequencies {
     2, 5, 75, 15, 5};
 
 
+// mm, BaBar
+const float interaction_point_height = 810;
+const float interaction_point_x = 0.5*35.;
+const float interaction_point_y = 0.5*4900;
+
+const inline float sq(const float x) {
+    return x*x;
+}
+
+
+void compute_geometry(const float eta, const float x,
+		      float* theta_degrees,
+		      float* phi_degrees,
+		      float* flight_distance, // mm
+		      float* y // mm
+		      ) {
+    const float exp_eta = exp(-eta);
+    const float exp_eta_2 = exp_eta * exp_eta;
+    // std::cerr << "90 - Beam theta " << 90 - TMath::RadToDeg()*2*atan(exp_eta) << std::endl;
+    const float cot_beam_theta = 0.5/(exp_eta_2 + 1) * (1/exp_eta - exp_eta*exp_eta_2);
+    const float dX = interaction_point_x  - x;
+    const float L = cot_beam_theta * sqrt(sq(interaction_point_height) + sq(dX));
+    const float a_2 = sq(dX) + sq(L);
+    // always positive, as designed
+    *flight_distance = sqrt(a_2 + sq(interaction_point_height));
+    const float a = copysign(sqrt(a_2), L);
+    *theta_degrees = TMath::RadToDeg()*atan(a/interaction_point_height);
+    *phi_degrees = 90 + asin(dX/a);
+    *y = interaction_point_y + L;
+}
+
 int main(int nargs, char* argv[]) {  
-    // mm, BaBar
-    const float interaction_point_height = 810;
 	float energy_mean = 6.0;
 	float energy_spread = 1.5;
 	// For BaBar max_theta = 71 deg.
@@ -363,25 +392,21 @@ int main(int nargs, char* argv[]) {
 	    // signal particles of each type
 	    particle_one_energy = spread_ang->Gaus(energy_mean, energy_spread);
 	    particle_one_eta = spread_ang->Uniform(eta_min, eta_max);
-	    const float exp_eta = exp(-particle_one_eta);
-	    const float exp_eta2 = exp_eta * exp_eta;
-	    // degrees!
-	    const float particle_one_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta);
 	    particle_one_x = spread_ang->Uniform(particle_x_min, particle_x_max);
-	    const float cos_particle_one_phi = particle_one_x/interaction_point_height*2* \
-		exp_eta / (1 - exp_eta2);
-	    // degrees!
-	    const float particle_one_phi = TMath::RadToDeg() * acos(cos_particle_one_phi);
-	    const float particle_one_y = particle_one_x * sqrt(
-		 1/cos_particle_one_phi/cos_particle_one_phi - 1);
-	    // mm
-	    const float particle_one_flight_distance = interaction_point_height*2*exp_eta/(1+exp_eta2);
-	    // compute and intialize the pdfs
+	    float particle_one_theta, particle_one_phi;
+	    float particle_one_flight_distance, particle_one_y;
+	    compute_geometry(particle_one_eta, particle_one_x,
+			     &particle_one_theta,
+			     &particle_one_phi,
+			     &particle_one_flight_distance,
+			     &particle_one_y);
+	    // std::cerr << particle_one_eta << " " << particle_one_x << " " <<  \
+	    // 	particle_one_theta << " " << particle_one_phi << " " <<	\
+	    // 	particle_one_flight_distance << " " << particle_one_y << std::endl;
 	    for (size_t particle = 0; particle < PARTICLE_NUMBER; ++particle) {
 		std::vector<dirc_point> hit_points;
 		std::back_insert_iterator<std::vector<dirc_point>> fill_hit_points = \
 		    std::back_inserter(hit_points);
-
 		const float beta = dirc_model->get_beta(particle_one_energy, masses[particle]);
 		// ns, flight distance in mm unlike the original fastDIRC
 		const float time = 1e-3 * particle_one_flight_distance/(beta*.3);
@@ -411,7 +436,8 @@ int main(int nargs, char* argv[]) {
 		const float particle_one_beta = dirc_model->get_beta(
 		    particle_one_energy, masses[particle_one_type]);
 		// ns, flight distance in mm unlike the original fastDIRC
-		const float particle_one_time = 1e-3*particle_one_flight_distance/(particle_one_beta*.3);
+		const float particle_one_time = 1e-3*particle_one_flight_distance / \
+		    (particle_one_beta*.3);
 		const int particle_one_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		dirc_model->fill_rand_phi(fill_sim_points,
 					  particle_one_n_sim_phots,
@@ -434,23 +460,18 @@ int main(int nargs, char* argv[]) {
 		// standard library
 		particle_two_type = particle_type_generator(random_generator);
 		particle_two_eta = spread_ang->Uniform(eta_min, eta_max);
-		const float exp_eta_p2 = exp(-particle_two_eta);
-		const float exp_eta_p2_2 = exp_eta_p2 * exp_eta_p2;
-		const float particle_two_theta = 90 - TMath::RadToDeg()*2*atan(exp_eta_p2);
-		const float particle_two_flight_distance = interaction_point_height*2* \
-		    exp_eta/(1+exp_eta_p2_2); // mm
+		particle_two_x = spread_ang->Uniform(particle_x_min, particle_x_max);
+		float particle_two_theta, particle_two_phi;
+		float particle_two_flight_distance, particle_two_y;
+		compute_geometry(particle_two_eta, particle_two_x,
+				 &particle_two_theta,
+				 &particle_two_phi,
+				 &particle_two_flight_distance,
+				 &particle_two_y);
 		const float particle_two_beta = dirc_model->get_beta(
 		    particle_two_energy, masses[particle_two_type]);
-		// flight distance in mm unlike the original fastDIRC
-		const float particle_two_time = 1e-3*particle_two_flight_distance \
-		    / (particle_two_beta*.3);
-		particle_two_x = spread_ang->Uniform(particle_x_min, particle_x_max);
-		const float cos_particle_two_phi = particle_two_x/interaction_point_height*2* \
-		    exp_eta_p2 / (1 - exp_eta_p2_2);
-		// degrees!
-		const float particle_two_phi = TMath::RadToDeg() * acos(cos_particle_two_phi);
-		const float particle_two_y = particle_two_x * sqrt(
-								   1/cos_particle_two_phi/cos_particle_two_phi - 1);
+		const float particle_two_time = 1e-3*particle_two_flight_distance / \
+		    (particle_two_beta*.3);
 		dirc_model->fill_rand_phi(fill_sim_points,
 					  particle_two_n_sim_phots,
 					  PARTICLE_ANGLE,
