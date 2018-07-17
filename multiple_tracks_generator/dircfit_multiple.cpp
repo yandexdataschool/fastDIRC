@@ -67,7 +67,7 @@ void compute_geometry(const float eta, const float x,
     *flight_distance = sqrt(a_2 + sq(interaction_point_height));
     const float a = copysign(sqrt(a_2), L);
     *theta_degrees = TMath::RadToDeg()*atan(a/interaction_point_height);
-    *phi_degrees = 90 + asin(dX/a);
+    *phi_degrees = 90 + TMath::RadToDeg()*asin(dX/a);
     *y = interaction_point_y + L;
 }
 
