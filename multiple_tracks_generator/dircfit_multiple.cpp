@@ -363,22 +363,22 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
 	std::array<UInt_t, PARTICLE_NUMBER> kde_support_n_photons;
 	tree->Branch("support_electron", &(kde_support_n_photons[ParticleTypes::Electron]),
-		     "Number of photons in electron KDE support");
+		     "Number of photons in electron KDE support/i");
 	tree->Branch("support_kaon", &(kde_support_n_photons[ParticleTypes::Kaon]),
-		     "Number of photons in kaon KDE support");
+		     "Number of photons in kaon KDE support/i");
 	tree->Branch("support_muon", &(kde_support_n_photons[ParticleTypes::Muon]),
-		     "Number of photons in muon KDE support");
+		     "Number of photons in muon KDE support/i");
 	tree->Branch("support_proton", &(kde_support_n_photons[ParticleTypes::Proton]),
-		     "Number of photons in proton KDE support");
+		     "Number of photons in proton KDE support/i");
 	tree->Branch("support_pion", &(kde_support_n_photons[ParticleTypes::Pion]),
-		     "Number of photons in pion KDE support");
+		     "Number of photons in pion KDE support/i");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
 	UInt_t particle_one_n_photons, total_n_photons;
 	tree->Branch("particle_one_n_photons", &particle_one_n_photons,
-		     "Number of photons reaching detector for the signal particle, before digitization");
+		     "Number of photons reaching detector for the signal particle, before digitization/i");
 	tree->Branch("total_n_photons", &total_n_photons,
-		     "Number of photons reaching detector in total, after digitization");
+		     "Number of photons reaching detector in total, after digitization/i");
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
