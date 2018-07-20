@@ -52,8 +52,7 @@ const float DircSpreadGaussian::get_log_likelihood(const std::vector<dirc_point>
 		    point.t / t_unc
 		    });
 	std::vector<std::pair<size_t, float> > ret_matches;
-	support_index->radiusSearch(
-				    scaled_coords.data(), support_cutoff_radius2, 
+	support_index->radiusSearch(scaled_coords.data(), support_cutoff_radius2, 
 				    ret_matches, nanoflann::SearchParams());
 	for (auto& support_point: ret_matches) {
 	    tprob += radius_spread_function(std::get<1>(support_point));

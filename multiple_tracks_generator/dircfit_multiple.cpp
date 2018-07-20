@@ -222,7 +222,7 @@ int main(int nargs, char* argv[]) {
 		else if (strcmp(argv[i], "-t_bin_size") == 0)
 		{
 			i++;
-			t_bin_size = atof(argv[i]);
+		t_bin_size = atof(argv[i]);
 		}
 		else if (strcmp(argv[i], "-n_phi_phots") == 0)
 		{
@@ -352,8 +352,24 @@ int main(int nargs, char* argv[]) {
 	tree->Branch("dll_kaon", &(dlls[ParticleTypes::Kaon]), "LL(kaon) - LL(pion)/F");
 	tree->Branch("dll_muon", &(dlls[ParticleTypes::Muon]), "LL(muon) - LL(pion)/F");
 	tree->Branch("dll_proton", &(dlls[ParticleTypes::Proton]), "LL(proton) - LL(pion)/F");
+	std::array<UInt_t, PARTICLE_NUMBER> kde_support_n_photons;
+	tree->Branch("support_electron", &(kde_support_n_photons[ParticleTypes::Electron]),
+		     "Number of photons in electron KDE support");
+	tree->Branch("support_kaon", &(kde_support_n_photons[ParticleTypes::Kaon]),
+		     "Number of photons in kaon KDE support");
+	tree->Branch("support_muon", &(kde_support_n_photons[ParticleTypes::Muon]),
+		     "Number of photons in muon KDE support");
+	tree->Branch("support_proton", &(kde_support_n_photons[ParticleTypes::Proton]),
+		     "Number of photons in proton KDE support");
+	tree->Branch("support_pion", &(kde_support_n_photons[ParticleTypes::Pion]),
+		     "Number of photons in pion KDE support");
 	Float_t dirc_bt;
 	tree->Branch("dll_bt", &dirc_bt, "LL(Below threshold) - LL(pion)/F");
+	UInt_t particle_one_n_photons, total_n_photons;
+	tree->Branch("particle_one_n_photons", &particle_one_n_photons,
+		     "Number of photons reaching detector for the signal particle, before digitization");
+	tree->Branch("total_n_photons", &total_n_photons,
+		     "Number of photons reaching detector in total, after digitization");
 	maxy *= 5;
 	DircRectDigitizer digitizer(
 			minx,
@@ -426,6 +442,7 @@ int main(int nargs, char* argv[]) {
 
 		pdfs[particle] = std::make_unique<DircSpreadGaussian>(
 		    sfunc_sig, hit_points, s_func_x, s_func_y, s_func_t);
+		kde_support_n_photons[particle] = hit_points.size();
 	    }
 	    for (unsigned int j = 0; j < num_runs_with_params; ++j) {
 		std::vector<dirc_point> sim_points;
@@ -451,8 +468,7 @@ int main(int nargs, char* argv[]) {
 					  tracking_unc,
 					  ckov_unc,
 					  particle_one_beta);
-
-		// TODO(kazeevn) avoid the copy-paste
+		particle_one_n_photons = sim_points.size();
 		const float particle_two_n_sim_phots = spread_ang->Gaus(mean_n_phot, spread_n_phot);
 		particle_two_energy = spread_ang->Gaus(energy_mean, energy_spread);
 		// For the noise particle, we want an LHCb-like distribution
@@ -485,6 +501,7 @@ int main(int nargs, char* argv[]) {
 					  ckov_unc,
 					  particle_two_beta);
 		digitizer.digitize_points(sim_points);
+		total_n_photons = sim_points.size();
 		// TODO(kazeevn) a better model
 		// TODO(kazeevn) blend the models
 		if (sim_points.size() == 0) {
