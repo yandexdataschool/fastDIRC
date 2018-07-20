@@ -307,8 +307,10 @@ int main(int nargs, char* argv[]) {
 	float main_mirror_angle = 74.11 + mirror_angle_change;
 	const float pdf_unc_red_fac = 1.;
 	if (! rseed_specified) {
-	    srand(time(NULL));
-	    rseed = rand();
+	    std::mt19937 system_random((std::random_device())());
+	    std::uniform_int_distribution<> seed_dist(0, RAND_MAX);
+	    rseed = seed_dist(system_random);
+	    std::cout << "Using seed " << rseed << std::endl;
 	}
 	std::unique_ptr<TRandom3> spread_ang = std::make_unique<TRandom3>(rseed + 3);
 	random_generator.seed(rseed + 13442);
