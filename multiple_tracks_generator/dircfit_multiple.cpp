@@ -6,6 +6,7 @@
 #include <utility>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include <TFile.h>
 #include <TH2F.h>
@@ -115,7 +116,8 @@ int main(int nargs, char* argv[]) {
 	large_mirror_min_z = -559;
 	large_mirror_max_z = -130;
 
-	int rseed = 1337;
+	int rseed;
+	bool rseed_specified = false;
 
 	float tracking_unc = .0000*57.3; //mrad
 	float ckov_unc = .003*57.3; //transport = 3mrad
@@ -294,6 +296,7 @@ int main(int nargs, char* argv[]) {
 		{
 			i++;
 			rseed = atof(argv[i]);
+			rseed_specified = true;
 		}
 		else
 		{
@@ -303,6 +306,10 @@ int main(int nargs, char* argv[]) {
 	}
 	float main_mirror_angle = 74.11 + mirror_angle_change;
 	const float pdf_unc_red_fac = 1.;
+	if (! rseed_specified) {
+	    srand(time(NULL));
+	    rseed = rand();
+	}
 	std::unique_ptr<TRandom3> spread_ang = std::make_unique<TRandom3>(rseed + 3);
 	random_generator.seed(rseed + 13442);
 	auto dirc_model = std::make_unique<DircThreeSegBoxSim>(
