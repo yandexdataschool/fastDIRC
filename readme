@@ -1,5 +1,11 @@
-This repository is now being maintained at github.mit.com/jmhardin/FastDIRC
+# Cherenkov detectors fast simulation using neural networks
+The code used to generate the data for
+```
+Derkach, D., Kazeev, N., Ratnikov, F., Ustyuzhanin, A., & Volokhova, A. (2020). Cherenkov detectors fast simulation using neural networks. Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and Associated Equipment, 952, 161804.
+```
 
+Forked from https://github.com/jmhardin/FastDIRC
+# Building
 Type
 
       make
